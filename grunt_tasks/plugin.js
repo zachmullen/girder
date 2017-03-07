@@ -193,6 +193,16 @@ module.exports = function (grunt) {
                             path: path.join(paths.web_built, 'plugins', plugin),
                             filename: `${output}.min.js`
                         },
+                        resolve: {
+                            modules: [
+                                path.resolve(dir, 'node_modules'),
+                            ]
+                        },
+                        resolveLoader: {
+                            modules: [
+                                path.resolve(dir, 'node_modules'),
+                            ]
+                        },
                         plugins: [
                             new customWebpackPlugins.DllReferenceByPathPlugin({
                                 context: '.',
