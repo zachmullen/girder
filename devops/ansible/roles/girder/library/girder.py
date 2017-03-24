@@ -442,6 +442,21 @@ options:
                 required: true if state = present, else false
                 description:
                     - The value to set
+
+     metadata:
+        required: false
+        description:
+            - Get/set item metadata
+        options:
+            itemId:
+                required: true
+                description:
+                    - The Girder id of the item whose metadata to modify
+            metadata:
+                required: true
+                description:
+                    - An object containing key/value pairs representing metadata
+                      entries to modify
 '''
 
 EXAMPLES = '''
@@ -1820,6 +1835,26 @@ class GirderClientModule(GirderClient):
                     self.fail(json.loads(e.responseText)['message'])
 
         return ret
+
+    def metadata(self, itemId, metadata):
+        ret = {}
+
+        # Get the existing metadata to determine self.changed.
+        existing = self.get('item/%s' % itemId)
+        self.changed = False
+
+        for k, v in metadata.items():
+            if k in existing and existing[k] == metadata[k]:
+                self.changed = True
+                break
+
+        if self.changed:
+            ret['previous_value'] = existing
+            ret['current_value'] = existing.update(metadata)
+
+            self.put('item/{}/metadata'.format(itemId), parameters={'allowNull':'true'}, json=metadata)
+        else:
+            ret['previous_value'] = ret['current_value'] = existing
 
 
 def main():
