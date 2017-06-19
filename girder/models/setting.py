@@ -23,7 +23,9 @@ import pymongo
 import six
 
 from ..constants import GIRDER_ROUTE_ID, GIRDER_STATIC_ROUTE_ID, SettingDefault, SettingKey
+from girder.utility.cache import cacheRegion
 from .model_base import Model, ValidationException
+from dogpile.cache.util import kwarg_function_key_generator
 from girder import logprint
 from girder.utility import config, plugin_utilities, setting_utilities
 from girder.utility.model_importer import ModelImporter
@@ -97,6 +99,7 @@ class Setting(Model):
 
         return doc
 
+    @cacheRegion.cache_on_arguments(function_key_generator=kwarg_function_key_generator)
     def get(self, key, default='__default__'):
         """
         Retrieve a setting by its key.
@@ -133,7 +136,12 @@ class Setting(Model):
         else:
             setting['value'] = value
 
-        return self.save(setting)
+        setting = self.save(setting)
+
+        # clear cache for setting
+        self.get.invalidate(self, key)
+
+        return setting
 
     def unset(self, key):
         """
