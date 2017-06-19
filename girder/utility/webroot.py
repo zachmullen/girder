@@ -23,6 +23,7 @@ import os
 
 from girder import constants
 from girder.utility import config
+#from girder.utility.server import getApiRoot, getPlugins, getStaticRoot
 
 
 class WebrootBase(object):
@@ -56,10 +57,7 @@ class WebrootBase(object):
         return mako.template.Template(self.template).render(**self.vars)
 
     def GET(self, **params):
-        if self.indexHtml is None or self.config['server']['mode'] == 'development':
-            self.indexHtml = self._renderHTML()
-
-        return self.indexHtml
+        return self._renderHTML()
 
     def DELETE(self, **params):
         raise cherrypy.HTTPError(405)
@@ -85,21 +83,22 @@ class Webroot(WebrootBase):
         super(Webroot, self).__init__(templatePath)
 
         self.vars = {
-            'plugins': [],
-            'apiRoot': '',
-            'staticRoot': '',
             'title': 'Girder'
         }
 
     def _renderHTML(self):
+        from girder.utility import server
         self.vars['pluginCss'] = []
         self.vars['pluginJs'] = []
         builtDir = os.path.join(constants.STATIC_ROOT_DIR, 'clients', 'web',
                                 'static', 'built', 'plugins')
-        for plugin in self.vars['plugins']:
+        for plugin in server.getPlugins():
             if os.path.exists(os.path.join(builtDir, plugin, 'plugin.min.css')):
                 self.vars['pluginCss'].append(plugin)
             if os.path.exists(os.path.join(builtDir, plugin, 'plugin.min.js')):
                 self.vars['pluginJs'].append(plugin)
+
+        self.vars['apiRoot'] = server.getApiRoot()
+        self.vars['staticRoot'] = server.getStaticRoot()
 
         return super(Webroot, self)._renderHTML()
