@@ -155,24 +155,6 @@ def _cacheAuthUser(fun):
     return inner
 
 
-def _cacheAuthToken(fun):
-    """
-    This decorator for getCurrentToken ensures that the token lookup
-    is only performed once per request, and is cached on the request for
-    subsequent calls to getCurrentToken().
-    """
-    def inner(*args, **kwargs):
-        if hasattr(cherrypy.request, 'girderToken'):
-            return cherrypy.request.girderToken
-
-        token = fun(*args, **kwargs)
-        setattr(cherrypy.request, 'girderToken', token)
-
-        return token
-    return inner
-
-
-@_cacheAuthToken
 def getCurrentToken(allowCookie=False):
     """
     Returns the current valid token object that was passed via the token header
@@ -198,8 +180,12 @@ def getCurrentToken(allowCookie=False):
     if not tokenStr:
         return None
 
-    return ModelImporter.model('token').load(tokenStr, force=True,
-                                             objectId=False)
+    token = ModelImporter.model('token').load(tokenStr, force=True,
+                                              objectId=False)
+
+    setattr(cherrypy.request, 'girderToken', token)
+
+    return token
 
 
 @_cacheAuthUser
