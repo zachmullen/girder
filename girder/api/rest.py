@@ -135,26 +135,6 @@ def iterBody(length=READ_BUFFER_LEN, strictLength=False):
             yield buf
 
 
-def _cacheAuthUser(fun):
-    """
-    This decorator for getCurrentUser ensures that the authentication procedure
-    is only performed once per request, and is cached on the request for
-    subsequent calls to getCurrentUser().
-    """
-    def inner(returnToken=False, *args, **kwargs):
-        if not returnToken and hasattr(cherrypy.request, 'girderUser'):
-            return cherrypy.request.girderUser
-
-        user = fun(returnToken, *args, **kwargs)
-        if isinstance(user, tuple):
-            setCurrentUser(user[0])
-        else:
-            setCurrentUser(user)
-
-        return user
-    return inner
-
-
 def getCurrentToken(allowCookie=False):
     """
     Returns the current valid token object that was passed via the token header
@@ -188,7 +168,6 @@ def getCurrentToken(allowCookie=False):
     return token
 
 
-@_cacheAuthUser
 def getCurrentUser(returnToken=False):
     """
     Returns the currently authenticated user based on the token header or
@@ -208,6 +187,8 @@ def getCurrentUser(returnToken=False):
     token = getCurrentToken()
 
     def retVal(user, token):
+        setCurrentUser(user)
+
         if returnToken:
             return user, token
         else:
