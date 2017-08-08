@@ -26,13 +26,8 @@ _SLICER_TO_GIRDER_WORKER_INPUT_TYPE_MAP = {
 _SLICER_TO_GIRDER_WORKER_OUTPUT_TYPE_MAP = {
     'file': 'new-file',
     'image': 'new-file',
-    'pointfile': 'new-file'
-}
-
-_SLICER_TYPE_TO_GIRDER_MODEL_MAP = {
-    'image': 'file',
-    'file': 'file',
-    'directory': 'folder'
+    'pointfile': 'new-file',
+    'directory': 'new-folder'
 }
 
 
