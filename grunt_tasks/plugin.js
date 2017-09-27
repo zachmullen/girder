@@ -89,7 +89,7 @@ module.exports = function (grunt) {
         if (prefix) {
             args = ['--prefix', prefix];
         }
-        args = args.concat(['--color=always', 'install', '--no-save']);
+        args = args.concat(['--color=always', 'install', '--no-save', '--no-optional']);
 
         if (deps) {
             args = args.concat(
