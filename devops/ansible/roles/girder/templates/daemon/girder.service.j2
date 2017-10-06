@@ -5,7 +5,6 @@ After=network.target
 [Service]
 User={{ girder_user | default(ansible_user_id) }}
 Group={{ girder_user | default(ansible_user_id) }}
-WorkingDirectory={{ girder_path }}
 Restart=always
 {% if girder_virtualenv is defined %}
 ExecStart={{ girder_virtualenv }}/bin/python -m girder
