@@ -22,7 +22,7 @@
     owner: "{{ girder_user|default(ansible_user_id) }}"
     mode: 0755
   become: yes
-  become_user: root
+  become_user: "{{ ansible_user_id }}"
 
 - include: npm-RedHat.yml
   when:
@@ -48,7 +48,7 @@
 - include: pip.yml
   when: girder_virtualenv is not defined
   become: yes
-  become_user: root
+  become_user: "{{ ansible_user_id }}"
 
 - include: pip.yml
   when: girder_virtualenv is defined
