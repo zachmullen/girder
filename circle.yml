@@ -25,7 +25,7 @@ dependencies:
     - "~/cache"
     - "~/.npm"
   override:
-    - sudo apt-get -q update; sudo apt-get install -q -y libgif-dev libsasl2-dev
+    - sudo apt-get -q update; sudo apt-get install -q -y libgif-dev libsasl2-dev ctags
     - ./scripts/install_cmake.sh
     # The real npm cache is in ~/.npm, but CircleCI tries to cache node_modules, breaking upgrades
     - rm -rf ./node_modules

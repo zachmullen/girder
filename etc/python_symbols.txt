@@ -1,0 +1,804 @@
+AbstractAssetstoreAdapter	girder/utility/abstract_assetstore_adapter.py	/^class AbstractAssetstoreAdapter(ModelImporter):$/;"	c
+ACCESS_CONTROL_CLEANUP	girder/constants.py	/^    ACCESS_CONTROL_CLEANUP = 'core.cleanupDeletedEntity'$/;"	v	class:CoreEventHandler
+AccessControlledModel	girder/models/model_base.py	/^class AccessControlledModel(Model):$/;"	c
+AccessControlMixin	girder/utility/acl_mixin.py	/^class AccessControlMixin(object):$/;"	c
+AccessException	girder/models/model_base.py	/^class AccessException(Exception):$/;"	c
+ACCESS_FLAGS	girder/constants.py	/^ACCESS_FLAGS = {}$/;"	v
+AccessType	girder/constants.py	/^class AccessType:$/;"	c
+ACTIVE	girder/models/notification.py	/^    ACTIVE = 'active'$/;"	v	class:ProgressState
+addApiToNode	girder/api/api_main.py	/^def addApiToNode(node):$/;"	f
+addChildNode	girder/utility/plugin_utilities.py	/^def addChildNode(node, name, obj=None):$/;"	f
+addComputedInfo	girder/models/assetstore.py	/^    def addComputedInfo(self, assetstore):$/;"	m	class:Assetstore
+addFile	girder/utility/ziputil.py	/^    def addFile(self, generator, path):$/;"	m	class:ZipGenerator
+addLoggingFilter	girder/api/filter_logging.py	/^def addLoggingFilter(regex, frequency=None, duration=None):$/;"	f
+addModel	girder/api/docs.py	/^def addModel(name, model, resources=None, silent=False):$/;"	f
+addResponse	girder/events.py	/^    def addResponse(self, response):$/;"	m	class:Event
+addRouteDocs	girder/api/docs.py	/^def addRouteDocs(resource, route, method, info, handler):$/;"	f
+addScope	girder/models/token.py	/^    def addScope(self, token, scope):$/;"	m	class:Token
+addTemplateDirectory	girder/utility/mail_utils.py	/^def addTemplateDirectory(dir, prepend=False):$/;"	f
+ADD_TO_GROUP_POLICY	girder/constants.py	/^    ADD_TO_GROUP_POLICY = 'core.add_to_group_policy'$/;"	v	class:SettingKey
+addUser	girder/models/group.py	/^    def addUser(self, group, user, level=AccessType.READ):$/;"	m	class:Group
+adminApprovalRequired	girder/models/user.py	/^    def adminApprovalRequired(self, user):$/;"	m	class:User
+admin	girder/api/access.py	/^def admin(fun, scope=None):$/;"	f
+ADMIN	girder/constants.py	/^    ADMIN = 2$/;"	v	class:AccessType
+allowedDeleteTypes	girder/api/v1/resource.py	/^allowedDeleteTypes = {'collection', 'file', 'folder', 'group', 'item', 'user'}$/;"	v
+allowedSearchTypes	girder/api/v1/resource.py	/^allowedSearchTypes = {'collection', 'folder', 'group', 'item', 'user'}$/;"	v
+allow_reuse_address	girder/api/sftp.py	/^    allow_reuse_address = True$/;"	v	class:SftpServer
+ANONYMOUS_SESSION	girder/constants.py	/^    ANONYMOUS_SESSION = 'core.anonymous_session'$/;"	v	class:TokenScope
+ApiDocs	girder/api/api_main.py	/^class ApiDocs(object):$/;"	c
+ApiDocs	girder/api/describe.py	/^class ApiDocs(WebrootBase):$/;"	c
+ApiKey	girder/api/v1/api_key.py	/^class ApiKey(Resource):$/;"	c
+ApiKey	girder/models/api_key.py	/^class ApiKey(AccessControlledModel):$/;"	c
+API_VERSION	girder/api/describe.py	/^API_VERSION = constants.VERSION['apiVersion']$/;"	v
+application	girder/wsgi.py	/^application = server.setup()$/;"	v
+ASCENDING	girder/constants.py	/^    ASCENDING = 1$/;"	v	class:SortDir
+asDict	girder/api/describe.py	/^    def asDict(self):$/;"	m	class:Description
+Assetstore	girder/api/v1/assetstore.py	/^class Assetstore(Resource):$/;"	c
+Assetstore	girder/models/assetstore.py	/^class Assetstore(Model):$/;"	c
+ASSETSTORES_READ	girder/constants.py	/^    ASSETSTORES_READ = 'core.assetstore.read'$/;"	v	class:TokenScope
+AssetstoreType	girder/constants.py	/^class AssetstoreType:$/;"	c
+AsyncEventsThread	girder/events.py	/^class AsyncEventsThread(threading.Thread):$/;"	c
+authenticate	girder/models/password.py	/^    def authenticate(self, user, password):$/;"	m	class:Password
+authenticate	girder/models/user.py	/^    def authenticate(self, login, password):$/;"	m	class:User
+autoDescribeRoute	girder/api/describe.py	/^class autoDescribeRoute(describeRoute):  # noqa: class name$/;"	c
+BANNER_COLOR	girder/constants.py	/^    BANNER_COLOR = 'core.banner_color'$/;"	v	class:SettingKey
+bind	girder/events.py	/^def bind(eventName, handlerName, handler):$/;"	f
+boolParam	girder/api/rest.py	/^    def boolParam(self, key, params, default=None):$/;"	m	class:Resource
+bound	girder/events.py	/^def bound(eventName, handlerName, handler):$/;"	f
+boundHandler	girder/api/rest.py	/^def boundHandler(fun, ctx=None):$/;"	f
+BRAND_NAME	girder/constants.py	/^    BRAND_NAME = 'core.brand_name'$/;"	v	class:SettingKey
+BUF_LEN	girder/utility/s3_assetstore_adapter.py	/^BUF_LEN = 65536  # Buffer size for download stream$/;"	v
+BUF_SIZE	girder/utility/filesystem_assetstore_adapter.py	/^BUF_SIZE = 65536$/;"	v
+buildWebCode	girder/api/v1/system.py	/^    def buildWebCode(self, progress, dev):$/;"	m	class:System
+callable	girder/utility/system.py	/^    def callable(self):$/;"	m	class:StatusMonitor
+camelcase	girder/utility/__init__.py	/^def camelcase(value):$/;"	f
+cancelUpload	girder/api/v1/file.py	/^    def cancelUpload(self, upload):$/;"	m	class:File
+cancelUpload	girder/models/upload.py	/^    def cancelUpload(self, upload):$/;"	m	class:Upload
+cancelUpload	girder/utility/abstract_assetstore_adapter.py	/^    def cancelUpload(self, upload):$/;"	m	class:AbstractAssetstoreAdapter
+cancelUpload	girder/utility/filesystem_assetstore_adapter.py	/^    def cancelUpload(self, upload):$/;"	m	class:FilesystemAssetstoreAdapter
+cancelUpload	girder/utility/gridfs_assetstore_adapter.py	/^    def cancelUpload(self, upload):$/;"	m	class:GridFsAssetstoreAdapter
+cancelUpload	girder/utility/s3_assetstore_adapter.py	/^    def cancelUpload(self, upload):$/;"	m	class:S3AssetstoreAdapter
+canLogin	girder/models/user.py	/^    def canLogin(self, user):$/;"	m	class:User
+capacityInfo	girder/utility/abstract_assetstore_adapter.py	/^    def capacityInfo(self):$/;"	m	class:AbstractAssetstoreAdapter
+capacityInfo	girder/utility/filesystem_assetstore_adapter.py	/^    def capacityInfo(self):$/;"	m	class:FilesystemAssetstoreAdapter
+changePassword	girder/api/v1/user.py	/^    def changePassword(self, old, new):$/;"	m	class:User
+changeUserPassword	girder/api/v1/user.py	/^    def changeUserPassword(self, user, password):$/;"	m	class:User
+checkTemporaryPassword	girder/api/v1/user.py	/^    def checkTemporaryPassword(self, user, token):$/;"	m	class:User
+checkUploadSize	girder/utility/abstract_assetstore_adapter.py	/^    def checkUploadSize(self, upload, chunkSize):$/;"	m	class:AbstractAssetstoreAdapter
+childFiles	girder/models/item.py	/^    def childFiles(self, item, limit=0, offset=0, sort=None, **kwargs):$/;"	m	class:Item
+childFolders	girder/models/folder.py	/^    def childFolders(self, parent, parentType, user=None, limit=0, offset=0,$/;"	m	class:Folder
+childItems	girder/models/folder.py	/^    def childItems(self, folder, limit=0, offset=0, sort=None, filters=None,$/;"	m	class:Folder
+CHUNK_LEN	girder/utility/s3_assetstore_adapter.py	/^    CHUNK_LEN = 1024 * 1024 * 32  # Chunk size for uploading$/;"	v	class:S3AssetstoreAdapter
+CHUNK_SIZE	girder/utility/gridfs_assetstore_adapter.py	/^CHUNK_SIZE = 2097152$/;"	v
+clean	girder/models/folder.py	/^    def clean(self, folder, progress=None, **kwargs):$/;"	m	class:Folder
+clearForApiKey	girder/models/token.py	/^    def clearForApiKey(self, apiKey):$/;"	m	class:Token
+close	girder/utility/abstract_assetstore_adapter.py	/^    def close(self):$/;"	m	class:FileHandle
+close	girder/utility/__init__.py	/^    def close(self, *args, **kwargs):$/;"	m	class:RequestBodyStream
+COLLECTION_CREATE_POLICY	girder/constants.py	/^    COLLECTION_CREATE_POLICY = 'core.collection_create_policy'$/;"	v	class:SettingKey
+Collection	girder/api/v1/collection.py	/^class Collection(Resource):$/;"	c
+Collection	girder/models/collection.py	/^class Collection(AccessControlledModel):$/;"	c
+config	girder/utility/plugin_utilities.py	/^class config(object):  # noqa: class name$/;"	c
+configureServer	girder/utility/server.py	/^def configureServer(test=False, plugins=None, curConfig=None):$/;"	f
+consumes	girder/api/describe.py	/^    def consumes(self, value):$/;"	m	class:Description
+CONTACT_EMAIL_ADDRESS	girder/constants.py	/^    CONTACT_EMAIL_ADDRESS = 'core.contact_email_address'$/;"	v	class:SettingKey
+cookie	girder/api/access.py	/^def cookie(fun, force=False):$/;"	f
+COOKIE_LIFETIME	girder/constants.py	/^    COOKIE_LIFETIME = 'core.cookie_lifetime'$/;"	v	class:SettingKey
+copyAccessPolicies	girder/models/model_base.py	/^    def copyAccessPolicies(self, src, dest, save=False):$/;"	m	class:AccessControlledModel
+copyFile	girder/models/file.py	/^    def copyFile(self, srcFile, creator, item=None):$/;"	m	class:File
+copyFile	girder/utility/abstract_assetstore_adapter.py	/^    def copyFile(self, srcFile, destFile):$/;"	m	class:AbstractAssetstoreAdapter
+copyFolderComponents	girder/models/folder.py	/^    def copyFolderComponents(self, srcFolder, newFolder, creator, progress,$/;"	m	class:Folder
+copyFolder	girder/api/v1/folder.py	/^    def copyFolder(self, folder, parentType, parentId, name, description, public, progress):$/;"	m	class:Folder
+copyFolder	girder/models/folder.py	/^    def copyFolder(self, srcFolder, parent=None, name=None, description=None,$/;"	m	class:Folder
+copy	girder/api/v1/file.py	/^    def copy(self, file, item):$/;"	m	class:File
+copyItem	girder/api/v1/item.py	/^    def copyItem(self, item, folder, name, description):$/;"	m	class:Item
+copyItem	girder/models/item.py	/^    def copyItem(self, srcItem, creator, name=None, folder=None, description=None):$/;"	m	class:Item
+copyResources	girder/api/v1/resource.py	/^    def copyResources(self, resources, parentType, parentId, progress):$/;"	m	class:Resource
+CoreEventHandler	girder/constants.py	/^class CoreEventHandler(object):$/;"	c
+CORS_ALLOW_HEADERS	girder/constants.py	/^    CORS_ALLOW_HEADERS = 'core.cors.allow_headers'$/;"	v	class:SettingKey
+CORS_ALLOW_METHODS	girder/constants.py	/^    CORS_ALLOW_METHODS = 'core.cors.allow_methods'$/;"	v	class:SettingKey
+CORS_ALLOW_ORIGIN	girder/constants.py	/^    CORS_ALLOW_ORIGIN = 'core.cors.allow_origin'$/;"	v	class:SettingKey
+countFolders	girder/models/collection.py	/^    def countFolders(self, collection, user=None, level=None):$/;"	m	class:Collection
+countFolders	girder/models/folder.py	/^    def countFolders(self, folder, user=None, level=None):$/;"	m	class:Folder
+countFolders	girder/models/user.py	/^    def countFolders(self, user, filterUser=None, level=None):$/;"	m	class:User
+countItems	girder/models/folder.py	/^    def countItems(self, folder):$/;"	m	class:Folder
+createApiKey	girder/models/api_key.py	/^    def createApiKey(self, user, name, scope=None, days=None, active=True):$/;"	m	class:ApiKey
+createAssetstore	girder/api/v1/assetstore.py	/^    def createAssetstore(self, name, type, root, perms, db, mongohost, replicaset, shard, bucket,$/;"	m	class:Assetstore
+createCollection	girder/api/v1/collection.py	/^    def createCollection(self, name, description, public):$/;"	m	class:Collection
+createCollection	girder/models/collection.py	/^    def createCollection(self, name, creator=None, description='', public=True,$/;"	m	class:Collection
+createFile	girder/models/file.py	/^    def createFile(self, creator, item, name, size, assetstore, mimeType=None,$/;"	m	class:File
+createFilesystemAssetstore	girder/models/assetstore.py	/^    def createFilesystemAssetstore(self, name, root, perms=None):$/;"	m	class:Assetstore
+createFolder	girder/api/v1/folder.py	/^    def createFolder(self, public, parentType, parentId, name, description,$/;"	m	class:Folder
+createFolder	girder/models/folder.py	/^    def createFolder(self, parent, name, description='', parentType='folder',$/;"	m	class:Folder
+createGridFsAssetstore	girder/models/assetstore.py	/^    def createGridFsAssetstore(self, name, db, mongohost=None,$/;"	m	class:Assetstore
+createGroup	girder/api/v1/group.py	/^    def createGroup(self, name, description, public):$/;"	m	class:Group
+createGroup	girder/models/group.py	/^    def createGroup(self, name, creator, description='', public=True):$/;"	m	class:Group
+createItem	girder/api/v1/item.py	/^    def createItem(self, folder, name, description, reuseExisting, metadata):$/;"	m	class:Item
+createItem	girder/models/item.py	/^    def createItem(self, name, creator, folder, description='',$/;"	m	class:Item
+createKey	girder/api/v1/api_key.py	/^    def createKey(self, name, scope, tokenDuration, active):$/;"	m	class:ApiKey
+createLinkFile	girder/models/file.py	/^    def createLinkFile(self, name, parent, parentType, url, creator, size=None,$/;"	m	class:File
+createNotification	girder/models/notification.py	/^    def createNotification(self, type, data, user, expires=None, token=None):$/;"	m	class:Notification
+createS3Assetstore	girder/models/assetstore.py	/^    def createS3Assetstore(self, name, bucket, accessKeyId, secret, prefix='',$/;"	m	class:Assetstore
+createToken	girder/api/v1/api_key.py	/^    def createToken(self, key, duration):$/;"	m	class:ApiKey
+createToken	girder/models/api_key.py	/^    def createToken(self, key, days=None):$/;"	m	class:ApiKey
+createToken	girder/models/token.py	/^    def createToken(self, user=None, days=None, scope=None, apiKey=None):$/;"	m	class:Token
+createUpload	girder/models/upload.py	/^    def createUpload(self, user, name, parentType, parent, size, mimeType=None,$/;"	m	class:Upload
+createUploadToFile	girder/models/upload.py	/^    def createUploadToFile(self, file, user, size, reference=None,$/;"	m	class:Upload
+createUser	girder/api/v1/user.py	/^    def createUser(self, login, email, firstName, lastName, password, admin):$/;"	m	class:User
+createUser	girder/models/user.py	/^    def createUser(self, login, password, firstName, lastName, email,$/;"	m	class:User
+currentSession	girder/api/v1/token.py	/^    def currentSession(self):$/;"	m	class:Token
+daemon	girder/events.py	/^    daemon = AsyncEventsThread()$/;"	v
+daemon	girder/events.py	/^    daemon = ForegroundEventsDaemon()$/;"	v
+dataDescriptor	girder/utility/ziputil.py	/^    def dataDescriptor(self):$/;"	m	class:ZipInfo
+DATA_OWN	girder/constants.py	/^    DATA_OWN = 'core.data.own'$/;"	v	class:TokenScope
+DATA_READ	girder/constants.py	/^    DATA_READ = 'core.data.read'$/;"	v	class:TokenScope
+DATA_WRITE	girder/constants.py	/^    DATA_WRITE = 'core.data.write'$/;"	v	class:TokenScope
+decode	girder/utility/path.py	/^def decode(token):$/;"	f
+defaultCoreEmailHost	girder/models/setting.py	/^    def defaultCoreEmailHost():$/;"	m	class:Setting
+defaultCoreRouteTable	girder/models/setting.py	/^    def defaultCoreRouteTable():$/;"	m	class:Setting
+default	girder/utility/__init__.py	/^    def default(self, obj):$/;"	m	class:JsonEncoder
+default	girder/utility/setting_utilities.py	/^class default(object):  # noqa: class name$/;"	c
+DEFAULT_PERMS	girder/utility/filesystem_assetstore_adapter.py	/^DEFAULT_PERMS = stat.S_IRUSR | stat.S_IWUSR$/;"	v
+DEFAULT_PORT	girder/api/sftp.py	/^DEFAULT_PORT = 8022$/;"	v
+DEFAULT_REGION	girder/utility/s3_assetstore_adapter.py	/^DEFAULT_REGION = 'us-east-1'$/;"	v
+defaultSecureCookie	girder/models/setting.py	/^    def defaultSecureCookie():$/;"	m	class:Setting
+defaults	girder/constants.py	/^    defaults = {$/;"	v	class:SettingDefault
+DEFAULT_STREAM_TIMEOUT	girder/api/v1/notification.py	/^DEFAULT_STREAM_TIMEOUT = 300$/;"	v
+DEFLATE	girder/utility/ziputil.py	/^DEFLATE = 8$/;"	v
+deleteAssetstore	girder/api/v1/assetstore.py	/^    def deleteAssetstore(self, assetstore):$/;"	m	class:Assetstore
+deleteAuthTokenCookie	girder/api/rest.py	/^    def deleteAuthTokenCookie(self):$/;"	m	class:Resource
+deleteCollection	girder/api/v1/collection.py	/^    def deleteCollection(self, collection):$/;"	m	class:Collection
+deleteContents	girder/api/v1/folder.py	/^    def deleteContents(self, folder, progress):$/;"	m	class:Folder
+deleteFile	girder/api/v1/file.py	/^    def deleteFile(self, file):$/;"	m	class:File
+deleteFile	girder/utility/abstract_assetstore_adapter.py	/^    def deleteFile(self, file):$/;"	m	class:AbstractAssetstoreAdapter
+deleteFile	girder/utility/filesystem_assetstore_adapter.py	/^    def deleteFile(self, file):$/;"	m	class:FilesystemAssetstoreAdapter
+deleteFile	girder/utility/gridfs_assetstore_adapter.py	/^    def deleteFile(self, file):$/;"	m	class:GridFsAssetstoreAdapter
+deleteFile	girder/utility/s3_assetstore_adapter.py	/^    def deleteFile(self, file):$/;"	m	class:S3AssetstoreAdapter
+deleteFolder	girder/api/v1/folder.py	/^    def deleteFolder(self, folder, progress):$/;"	m	class:Folder
+DELETE	girder/api/rest.py	/^    def DELETE(self, path, params):$/;"	m	class:Resource
+delete	girder/api/v1/resource.py	/^    def delete(self, resources, progress):$/;"	m	class:Resource
+DELETE	girder/utility/webroot.py	/^    def DELETE(self, **params):$/;"	m	class:WebrootBase
+deleteGroup	girder/api/v1/group.py	/^    def deleteGroup(self, group):$/;"	m	class:Group
+deleteItem	girder/api/v1/item.py	/^    def deleteItem(self, item):$/;"	m	class:Item
+deleteKey	girder/api/v1/api_key.py	/^    def deleteKey(self, apiKey):$/;"	m	class:ApiKey
+deleteMetadata	girder/api/v1/folder.py	/^    def deleteMetadata(self, folder, fields):$/;"	m	class:Folder
+deleteMetadata	girder/api/v1/item.py	/^    def deleteMetadata(self, item, fields):$/;"	m	class:Item
+deleteMetadata	girder/models/folder.py	/^    def deleteMetadata(self, folder, fields):$/;"	m	class:Folder
+deleteMetadata	girder/models/item.py	/^    def deleteMetadata(self, item, fields):$/;"	m	class:Item
+deleteSession	girder/api/v1/token.py	/^    def deleteSession(self):$/;"	m	class:Token
+deleteUser	girder/api/v1/user.py	/^    def deleteUser(self, user):$/;"	m	class:User
+demote	girder/api/v1/group.py	/^    def demote(self, group, user):$/;"	m	class:Group
+deprecated	girder/api/describe.py	/^    def deprecated(self):$/;"	m	class:Description
+DESCENDING	girder/constants.py	/^    DESCENDING = -1$/;"	v	class:SortDir
+Describe	girder/api/describe.py	/^class Describe(Resource):$/;"	c
+describeRoute	girder/api/describe.py	/^class describeRoute(object):  # noqa: class name$/;"	c
+describeScope	girder/constants.py	/^    def describeScope(cls, scopeId, name, description, admin=False):$/;"	m	class:TokenScope
+Description	girder/api/describe.py	/^class Description(object):$/;"	c
+discardPartialUploads	girder/api/v1/system.py	/^    def discardPartialUploads(self, uploadId, userId, parentId, assetstoreId,$/;"	m	class:System
+downloadCollection	girder/api/v1/collection.py	/^    def downloadCollection(self, collection, mimeFilter):$/;"	m	class:Collection
+downloadFile	girder/utility/abstract_assetstore_adapter.py	/^    def downloadFile(self, file, offset=0, headers=True, endByte=None,$/;"	m	class:AbstractAssetstoreAdapter
+downloadFile	girder/utility/filesystem_assetstore_adapter.py	/^    def downloadFile(self, file, offset=0, headers=True, endByte=None,$/;"	m	class:FilesystemAssetstoreAdapter
+downloadFile	girder/utility/gridfs_assetstore_adapter.py	/^    def downloadFile(self, file, offset=0, headers=True, endByte=None,$/;"	m	class:GridFsAssetstoreAdapter
+downloadFile	girder/utility/s3_assetstore_adapter.py	/^    def downloadFile(self, file, offset=0, headers=True, endByte=None,$/;"	m	class:S3AssetstoreAdapter
+downloadFolder	girder/api/v1/folder.py	/^    def downloadFolder(self, folder, mimeFilter):$/;"	m	class:Folder
+download	girder/api/v1/file.py	/^    def download(self, file, offset, endByte, contentDisposition, extraParameters):$/;"	m	class:File
+download	girder/api/v1/item.py	/^    def download(self, item, offset, format, contentDisposition, extraParameters):$/;"	m	class:Item
+download	girder/api/v1/resource.py	/^    def download(self, resources, includeMetadata):$/;"	m	class:Resource
+download	girder/models/file.py	/^    def download(self, file, offset=0, headers=True, endByte=None,$/;"	m	class:File
+downloadWithName	girder/api/v1/file.py	/^    def downloadWithName(self, id, name, params):$/;"	m	class:File
+EMAIL_FROM_ADDRESS	girder/constants.py	/^    EMAIL_FROM_ADDRESS = 'core.email_from_address'$/;"	v	class:SettingKey
+EMAIL_HOST	girder/constants.py	/^    EMAIL_HOST = 'core.email_host'$/;"	v	class:SettingKey
+EMAIL_VERIFICATION	girder/constants.py	/^    EMAIL_VERIFICATION = 'core.email_verification'$/;"	v	class:SettingKey
+EMAIL_VERIFICATION	girder/constants.py	/^    EMAIL_VERIFICATION = 'core.email_verification'$/;"	v	class:TokenScope
+emailVerificationRequired	girder/models/user.py	/^    def emailVerificationRequired(self, user):$/;"	m	class:User
+enablePlugins	girder/api/v1/system.py	/^    def enablePlugins(self, plugins):$/;"	m	class:System
+encode	girder/utility/path.py	/^def encode(token):$/;"	f
+encryptAndStore	girder/models/password.py	/^    def encryptAndStore(self, password):$/;"	m	class:Password
+ENDC	girder/constants.py	/^    ENDC = '\\033[0m'$/;"	v	class:TerminalColor
+endpoint	girder/api/rest.py	/^def endpoint(fun):$/;"	f
+ensureIndex	girder/models/model_base.py	/^    def ensureIndex(self, index):$/;"	m	class:Model
+ensureIndices	girder/models/model_base.py	/^    def ensureIndices(self, indices):$/;"	m	class:Model
+ensureTextIndex	girder/models/model_base.py	/^    def ensureTextIndex(self, index, language='english'):$/;"	m	class:Model
+ensureTokenScopes	girder/api/rest.py	/^    def ensureTokenScopes(self, scope):$/;"	m	class:Resource
+ensureTokenScopes	girder/api/rest.py	/^def ensureTokenScopes(token, scope):$/;"	f
+error	girder/constants.py	/^    def error(text):$/;"	m	class:TerminalColor
+ERROR	girder/constants.py	/^    ERROR = '\\033[1;91m'$/;"	v	class:TerminalColor
+ERROR	girder/models/notification.py	/^    ERROR = 'error'$/;"	v	class:ProgressState
+errorResponse	girder/api/describe.py	/^    def errorResponse(self, reason='A parameter was invalid.', code=400):$/;"	m	class:Description
+Event	girder/events.py	/^class Event(object):$/;"	c
+Executable	girder/external/mongodb_proxy.py	/^class Executable(object):$/;"	c
+EXECUTABLE_MONGO_METHODS	girder/external/mongodb_proxy.py	/^EXECUTABLE_MONGO_METHODS = get_methods(pymongo.collection.Collection,$/;"	v
+exposed	girder/api/api_main.py	/^    exposed = True$/;"	v	class:ApiDocs
+exposed	girder/api/rest.py	/^    exposed = True$/;"	v	class:Prefix
+exposed	girder/api/rest.py	/^    exposed = True$/;"	v	class:Resource
+exposed	girder/utility/webroot.py	/^    exposed = True$/;"	v	class:WebrootBase
+exposeFields	girder/models/model_base.py	/^    def exposeFields(self, level, fields):$/;"	m	class:Model
+File	girder/api/v1/file.py	/^class File(Resource):$/;"	c
+File	girder/models/file.py	/^class File(acl_mixin.AccessControlMixin, Model):$/;"	c
+FileHandle	girder/utility/abstract_assetstore_adapter.py	/^class FileHandle(object):$/;"	c
+fileHeader	girder/utility/ziputil.py	/^    def fileHeader(self):$/;"	m	class:ZipInfo
+fileIndexFields	girder/utility/abstract_assetstore_adapter.py	/^    def fileIndexFields():$/;"	m	class:AbstractAssetstoreAdapter
+fileIndexFields	girder/utility/assetstore_utilities.py	/^def fileIndexFields():$/;"	f
+fileIndexFields	girder/utility/filesystem_assetstore_adapter.py	/^    def fileIndexFields():$/;"	m	class:FilesystemAssetstoreAdapter
+fileIndexFields	girder/utility/gridfs_assetstore_adapter.py	/^    def fileIndexFields():$/;"	m	class:GridFsAssetstoreAdapter
+fileList	girder/models/collection.py	/^    def fileList(self, doc, user=None, path='', includeMetadata=False,$/;"	m	class:Collection
+fileList	girder/models/folder.py	/^    def fileList(self, doc, user=None, path='', includeMetadata=False,$/;"	m	class:Folder
+fileList	girder/models/item.py	/^    def fileList(self, doc, user=None, path='', includeMetadata=False,$/;"	m	class:Item
+fileList	girder/models/user.py	/^    def fileList(self, doc, user=None, path='', includeMetadata=False, subpath=True, data=True):$/;"	m	class:User
+FILE_PROPAGATE_SIZE	girder/constants.py	/^    FILE_PROPAGATE_SIZE = 'core.propagateSizeToItem'$/;"	v	class:CoreEventHandler
+FilesystemAssetstoreAdapter	girder/utility/filesystem_assetstore_adapter.py	/^class FilesystemAssetstoreAdapter(AbstractAssetstoreAdapter):$/;"	c
+FILESYSTEM	girder/constants.py	/^    FILESYSTEM = 0$/;"	v	class:AssetstoreType
+fileUpdated	girder/utility/abstract_assetstore_adapter.py	/^    def fileUpdated(self, file):$/;"	m	class:AbstractAssetstoreAdapter
+fileUpdated	girder/utility/s3_assetstore_adapter.py	/^    def fileUpdated(self, file):$/;"	m	class:S3AssetstoreAdapter
+filterDocument	girder/models/model_base.py	/^    def filterDocument(self, doc, allow=None):$/;"	m	class:Model
+filter	girder/api/filter_logging.py	/^    def filter(self, record):$/;"	m	class:RegexLoggingFilter
+filter	girder/__init__.py	/^    def filter(self, logRecord):$/;"	m	class:LogLevelFilter
+filter	girder/models/model_base.py	/^    def filter(self, doc, user, additionalKeys=None):$/;"	m	class:AccessControlledModel
+filter	girder/models/model_base.py	/^    def filter(self, doc, user=None, additionalKeys=None):$/;"	m	class:Model
+filtermodel	girder/api/rest.py	/^class filtermodel(object):  # noqa: class name$/;"	c
+filterResultsByPermission	girder/models/model_base.py	/^    def filterResultsByPermission(self, cursor, user, level, limit=0, offset=0,$/;"	m	class:AccessControlledModel
+filterResultsByPermission	girder/utility/acl_mixin.py	/^    def filterResultsByPermission(self, cursor, user, level, limit=0, offset=0,$/;"	m	class:AccessControlMixin
+finalizeUpload	girder/api/v1/file.py	/^    def finalizeUpload(self, upload):$/;"	m	class:File
+finalizeUpload	girder/models/upload.py	/^    def finalizeUpload(self, upload, assetstore=None):$/;"	m	class:Upload
+finalizeUpload	girder/utility/abstract_assetstore_adapter.py	/^    def finalizeUpload(self, upload, file):$/;"	m	class:AbstractAssetstoreAdapter
+finalizeUpload	girder/utility/filesystem_assetstore_adapter.py	/^    def finalizeUpload(self, upload, file):$/;"	m	class:FilesystemAssetstoreAdapter
+finalizeUpload	girder/utility/gridfs_assetstore_adapter.py	/^    def finalizeUpload(self, upload, file):$/;"	m	class:GridFsAssetstoreAdapter
+finalizeUpload	girder/utility/s3_assetstore_adapter.py	/^    def finalizeUpload(self, upload, file):$/;"	m	class:S3AssetstoreAdapter
+findAllPlugins	girder/utility/plugin_utilities.py	/^def findAllPlugins():$/;"	f
+findEntryPointPlugins	girder/utility/plugin_utilities.py	/^def findEntryPointPlugins(allPlugins):$/;"	f
+find	girder/api/v1/assetstore.py	/^    def find(self, limit, offset, sort):$/;"	m	class:Assetstore
+find	girder/api/v1/collection.py	/^    def find(self, text, limit, offset, sort):$/;"	m	class:Collection
+find	girder/api/v1/folder.py	/^    def find(self, parentType, parentId, text, name, limit, offset, sort):$/;"	m	class:Folder
+find	girder/api/v1/group.py	/^    def find(self, text, exact, limit, offset, sort):$/;"	m	class:Group
+find	girder/api/v1/item.py	/^    def find(self, folderId, text, name, limit, offset, sort):$/;"	m	class:Item
+find	girder/api/v1/user.py	/^    def find(self, text, limit, offset, sort):$/;"	m	class:User
+find	girder/models/model_base.py	/^    def find(self, query=None, offset=0, limit=0, timeout=None,$/;"	m	class:Model
+findInvalidFiles	girder/utility/abstract_assetstore_adapter.py	/^    def findInvalidFiles(self, progress=progress.noProgress, filters=None,$/;"	m	class:AbstractAssetstoreAdapter
+findInvalidFiles	girder/utility/filesystem_assetstore_adapter.py	/^    def findInvalidFiles(self, progress=progress.noProgress, filters=None,$/;"	m	class:FilesystemAssetstoreAdapter
+findOne	girder/models/model_base.py	/^    def findOne(self, query=None, fields=None, **kwargs):$/;"	m	class:Model
+fix_path	girder/utility/install.py	/^def fix_path(path):$/;"	f
+Folder	girder/api/v1/folder.py	/^class Folder(Resource):$/;"	c
+Folder	girder/models/folder.py	/^class Folder(AccessControlledModel):$/;"	c
+footer	girder/utility/ziputil.py	/^    def footer(self):$/;"	m	class:ZipGenerator
+ForegroundEventsDaemon	girder/events.py	/^class ForegroundEventsDaemon(object):$/;"	c
+formatException	girder/__init__.py	/^    def formatException(self, exc):$/;"	m	class:LogFormatter
+format	girder/__init__.py	/^    def format(self, record, *args, **kwargs):$/;"	m	class:LogFormatter
+formatSize	girder/utility/system.py	/^def formatSize(sizeBytes):$/;"	f
+fullPath	girder/utility/filesystem_assetstore_adapter.py	/^    def fullPath(self, file):$/;"	m	class:FilesystemAssetstoreAdapter
+generateTemporaryPassword	girder/api/v1/user.py	/^    def generateTemporaryPassword(self, email):$/;"	m	class:User
+genToken	girder/utility/__init__.py	/^def genToken(length=64):$/;"	f
+getAccessFlags	girder/api/v1/system.py	/^    def getAccessFlags(self):$/;"	m	class:System
+getAccessLevel	girder/models/group.py	/^    def getAccessLevel(self, doc, user):$/;"	m	class:Group
+getAccessLevel	girder/models/model_base.py	/^    def getAccessLevel(self, doc, user):$/;"	m	class:AccessControlledModel
+getAdmins	girder/models/user.py	/^    def getAdmins(self):$/;"	m	class:User
+getAllowedScopes	girder/models/token.py	/^    def getAllowedScopes(self, token):$/;"	m	class:Token
+getApiUrl	girder/api/rest.py	/^def getApiUrl(url=None, preferReferer=False):$/;"	f
+getAssetstoreAdapter	girder/models/file.py	/^    def getAssetstoreAdapter(self, file):$/;"	m	class:File
+getAssetstoreAdapter	girder/utility/assetstore_utilities.py	/^def getAssetstoreAdapter(assetstore, instance=True):$/;"	f
+getAssetstoreFiles	girder/api/v1/assetstore.py	/^    def getAssetstoreFiles(self, assetstore, limit, offset, sort):$/;"	m	class:Assetstore
+getAssetstore	girder/api/v1/assetstore.py	/^    def getAssetstore(self, assetstore):$/;"	m	class:Assetstore
+getBodyJson	girder/api/rest.py	/^def getBodyJson(allowConstants=False):$/;"	f
+getBodyJson	girder/api/rest.py	/^    def getBodyJson(self):$/;"	m	class:Resource
+getChunkSize	girder/utility/abstract_assetstore_adapter.py	/^    def getChunkSize(self, chunk):$/;"	m	class:AbstractAssetstoreAdapter
+getCollectionAccess	girder/api/v1/collection.py	/^    def getCollectionAccess(self, collection):$/;"	m	class:Collection
+getCollectionCreationPolicyAccess	girder/api/v1/system.py	/^    def getCollectionCreationPolicyAccess(self):$/;"	m	class:System
+getCollectionDetails	girder/api/v1/collection.py	/^    def getCollectionDetails(self, collection):$/;"	m	class:Collection
+getCollection	girder/api/v1/collection.py	/^    def getCollection(self, collection):$/;"	m	class:Collection
+getConfig	girder/utility/config.py	/^def getConfig():$/;"	f
+getConfigurationOption	girder/api/v1/system.py	/^    def getConfigurationOption(self, section, key, params):$/;"	m	class:System
+getCurrent	girder/models/assetstore.py	/^    def getCurrent(self):$/;"	m	class:Assetstore
+getCurrentToken	girder/api/rest.py	/^def getCurrentToken(allowCookie=False):$/;"	f
+getCurrentToken	girder/api/rest.py	/^    def getCurrentToken(self):$/;"	m	class:Resource
+getCurrentUser	girder/api/rest.py	/^def getCurrentUser(returnToken=False):$/;"	f
+getCurrentUser	girder/api/rest.py	/^    def getCurrentUser(self, returnToken=False):$/;"	m	class:Resource
+getDbConfig	girder/models/__init__.py	/^def getDbConfig():$/;"	f
+getDbConnection	girder/models/__init__.py	/^def getDbConnection(uri=None, replicaSet=None, autoRetry=True, quiet=False, **kwargs):$/;"	f
+getDefaultFunction	girder/utility/setting_utilities.py	/^def getDefaultFunction(key):$/;"	f
+getDefault	girder/models/setting.py	/^    def getDefault(self, key):$/;"	m	class:Setting
+getEmailUrlPrefix	girder/utility/mail_utils.py	/^def getEmailUrlPrefix():$/;"	f
+getFile	girder/api/v1/file.py	/^    def getFile(self, file):$/;"	m	class:File
+getFiles	girder/api/v1/item.py	/^    def getFiles(self, item, limit, offset, sort):$/;"	m	class:Item
+getFolderAccess	girder/api/v1/folder.py	/^    def getFolderAccess(self, folder):$/;"	m	class:Folder
+getFolderDetails	girder/api/v1/folder.py	/^    def getFolderDetails(self, folder):$/;"	m	class:Folder
+getFolder	girder/api/v1/folder.py	/^    def getFolder(self, folder):$/;"	m	class:Folder
+getFullAccessList	girder/models/model_base.py	/^    def getFullAccessList(self, doc):$/;"	m	class:AccessControlledModel
+getFullRequestList	girder/models/group.py	/^    def getFullRequestList(self, group):$/;"	m	class:Group
+GET	girder/api/api_main.py	/^    def GET(self):$/;"	m	class:ApiDocs
+GET	girder/api/rest.py	/^    def GET(self, path, params):$/;"	m	class:Resource
+get	girder/models/notification.py	/^    def get(self, user, since=None, token=None):$/;"	m	class:Notification
+get	girder/models/setting.py	/^    def get(self, key, default='__default__'):$/;"	m	class:Setting
+GET	girder/utility/webroot.py	/^    def GET(self, **params):$/;"	m	class:WebrootBase
+getGroupAccess	girder/api/v1/group.py	/^    def getGroupAccess(self, group):$/;"	m	class:Group
+getGroup	girder/api/v1/group.py	/^    def getGroup(self, group):$/;"	m	class:Group
+getGroupInvitations	girder/api/v1/group.py	/^    def getGroupInvitations(self, group, limit, offset, sort):$/;"	m	class:Group
+getInvites	girder/models/group.py	/^    def getInvites(self, group, limit=0, offset=0, sort=None):$/;"	m	class:Group
+getItem	girder/api/v1/item.py	/^    def getItem(self, item):$/;"	m	class:Item
+getLog	girder/api/v1/system.py	/^    def getLog(self, bytes, log):$/;"	m	class:System
+getLogLevel	girder/api/v1/system.py	/^    def getLogLevel(self):$/;"	m	class:System
+getLogPaths	girder/__init__.py	/^def getLogPaths():$/;"	f
+getMe	girder/api/v1/user.py	/^    def getMe(self):$/;"	m	class:User
+getMembers	girder/models/group.py	/^    def getMembers(self, group, offset=0, limit=0, sort=None):$/;"	m	class:Group
+get_methods	girder/external/mongodb_proxy.py	/^def get_methods(*objs):$/;"	f
+getPagingParameters	girder/api/rest.py	/^    def getPagingParameters(self, params, defaultSortField=None, defaultSortDir=SortDir.ASCENDING):$/;"	m	class:Resource
+getParamJson	girder/api/rest.py	/^def getParamJson(name, params, default=None):$/;"	f
+getParamJson	girder/api/rest.py	/^    def getParamJson(self, name, params, default=None):$/;"	m	class:Resource
+getPartialUploads	girder/api/v1/system.py	/^    def getPartialUploads(self, uploadId, userId, parentId, assetstoreId, minimumAge,$/;"	m	class:System
+getPluginDir	girder/utility/plugin_utilities.py	/^def getPluginDir():$/;"	f
+getPluginFailureInfo	girder/utility/plugin_utilities.py	/^def getPluginFailureInfo():$/;"	f
+getPlugins	girder/api/v1/system.py	/^    def getPlugins(self):$/;"	m	class:System
+getPluginWebroots	girder/utility/plugin_utilities.py	/^def getPluginWebroots():$/;"	f
+getResource	girder/api/v1/resource.py	/^    def getResource(self, id, type):$/;"	m	class:Resource
+getResourceName	girder/utility/path.py	/^def getResourceName(type, doc):$/;"	f
+getResourcePath	girder/utility/path.py	/^def getResourcePath(type, doc, user=None, force=False):$/;"	f
+getRouteHandler	girder/api/rest.py	/^    def getRouteHandler(self, method, route):$/;"	m	class:Resource
+getSession	girder/api/v1/token.py	/^    def getSession(self):$/;"	m	class:Token
+getSetting	girder/api/v1/system.py	/^    def getSetting(self, key, list, default):$/;"	m	class:System
+getSize	girder/utility/__init__.py	/^    def getSize(self):$/;"	m	class:RequestBodyStream
+getSizeRecursive	girder/models/folder.py	/^    def getSizeRecursive(self, folder):$/;"	m	class:Folder
+getStatus	girder/utility/system.py	/^def getStatus(mode='basic', user=None):$/;"	f
+getTargetAssetstore	girder/models/upload.py	/^    def getTargetAssetstore(self, modelType, resource, assetstore=None):$/;"	m	class:Upload
+getToposortedPlugins	girder/utility/plugin_utilities.py	/^def getToposortedPlugins(plugins=None, ignoreMissing=False, keys=('dependencies',)):$/;"	f
+getUrlParts	girder/api/rest.py	/^def getUrlParts(url=None):$/;"	f
+getUserDetails	girder/api/v1/user.py	/^    def getUserDetails(self, user):$/;"	m	class:User
+getUser	girder/api/v1/user.py	/^    def getUser(self, user):$/;"	m	class:User
+getUsersDetails	girder/api/v1/user.py	/^    def getUsersDetails(self):$/;"	m	class:User
+getValidator	girder/utility/setting_utilities.py	/^def getValidator(key):$/;"	f
+getVersion	girder/api/v1/system.py	/^    def getVersion(self):$/;"	m	class:System
+GirderException	girder/models/model_base.py	/^class GirderException(Exception):$/;"	c
+GIRDER_ROUTE_ID	girder/constants.py	/^GIRDER_ROUTE_ID = 'core_girder'$/;"	v
+GIRDER_STATIC_ROUTE_ID	girder/constants.py	/^GIRDER_STATIC_ROUTE_ID = 'core_static_root'$/;"	v
+GridFsAssetstoreAdapter	girder/utility/gridfs_assetstore_adapter.py	/^class GridFsAssetstoreAdapter(AbstractAssetstoreAdapter):$/;"	c
+GRIDFS	girder/constants.py	/^    GRIDFS = 1$/;"	v	class:AssetstoreType
+GROUP_CREATOR_ACCESS	girder/constants.py	/^    GROUP_CREATOR_ACCESS = 'core.grantCreatorAccess'$/;"	v	class:CoreEventHandler
+Group	girder/api/v1/group.py	/^class Group(Resource):$/;"	c
+Group	girder/models/group.py	/^class Group(AccessControlledModel):$/;"	c
+handleChunk	girder/models/upload.py	/^    def handleChunk(self, upload, chunk, filter=False, user=None):$/;"	m	class:Upload
+handleRoute	girder/api/rest.py	/^    def handleRoute(self, method, path, params):$/;"	m	class:Resource
+hasAccessFlags	girder/models/model_base.py	/^    def hasAccessFlags(self, doc, user=None, flags=None):$/;"	m	class:AccessControlledModel
+hasAccessFlags	girder/utility/acl_mixin.py	/^    def hasAccessFlags(self, doc, user=None, flags=None):$/;"	m	class:AccessControlMixin
+hasAccess	girder/models/group.py	/^    def hasAccess(self, doc, user=None, level=AccessType.READ):$/;"	m	class:Group
+hasAccess	girder/models/model_base.py	/^    def hasAccess(self, doc, user=None, level=AccessType.READ):$/;"	m	class:AccessControlledModel
+hasAccess	girder/utility/acl_mixin.py	/^    def hasAccess(self, resource, user=None, level=AccessType.READ):$/;"	m	class:AccessControlMixin
+hasCreatePrivilege	girder/models/collection.py	/^    def hasCreatePrivilege(self, user):$/;"	m	class:Collection
+hasPassword	girder/models/password.py	/^    def hasPassword(self, user):$/;"	m	class:Password
+hasScope	girder/models/token.py	/^    def hasScope(self, token, scope):$/;"	m	class:Token
+hideFields	girder/models/model_base.py	/^    def hideFields(self, level, fields):$/;"	m	class:Model
+HMAC_TTL	girder/utility/s3_assetstore_adapter.py	/^    HMAC_TTL = 120  # Number of seconds each signed message is valid$/;"	v	class:S3AssetstoreAdapter
+importData	girder/api/v1/assetstore.py	/^    def importData(self, assetstore, importPath, destinationId, destinationType, progress,$/;"	m	class:Assetstore
+importData	girder/models/assetstore.py	/^    def importData(self, assetstore, parent, parentType, params, progress,$/;"	m	class:Assetstore
+importData	girder/utility/abstract_assetstore_adapter.py	/^    def importData(self, parent, parentType, params, progress, user, **kwargs):$/;"	m	class:AbstractAssetstoreAdapter
+importData	girder/utility/filesystem_assetstore_adapter.py	/^    def importData(self, parent, parentType, params, progress, user, leafFoldersAsItems):$/;"	m	class:FilesystemAssetstoreAdapter
+importData	girder/utility/s3_assetstore_adapter.py	/^    def importData(self, parent, parentType, params, progress, user, **kwargs):$/;"	m	class:S3AssetstoreAdapter
+importFile	girder/utility/filesystem_assetstore_adapter.py	/^    def importFile(self, item, path, user, name=None, mimeType=None, **kwargs):$/;"	m	class:FilesystemAssetstoreAdapter
+increment	girder/models/model_base.py	/^    def increment(self, query, field, amount, **kwargs):$/;"	m	class:Model
+info	girder/constants.py	/^    def info(text):$/;"	m	class:TerminalColor
+INFO	girder/constants.py	/^    INFO = '\\033[35m'$/;"	v	class:TerminalColor
+initialize	girder/models/api_key.py	/^    def initialize(self):$/;"	m	class:ApiKey
+initialize	girder/models/assetstore.py	/^    def initialize(self):$/;"	m	class:Assetstore
+initialize	girder/models/collection.py	/^    def initialize(self):$/;"	m	class:Collection
+initialize	girder/models/file.py	/^    def initialize(self):$/;"	m	class:File
+initialize	girder/models/folder.py	/^    def initialize(self):$/;"	m	class:Folder
+initialize	girder/models/group.py	/^    def initialize(self):$/;"	m	class:Group
+initialize	girder/models/item.py	/^    def initialize(self):$/;"	m	class:Item
+initialize	girder/models/model_base.py	/^    def initialize(self):$/;"	m	class:Model
+initialize	girder/models/notification.py	/^    def initialize(self):$/;"	m	class:Notification
+initialize	girder/models/password.py	/^    def initialize(self):$/;"	m	class:Password
+initialize	girder/models/setting.py	/^    def initialize(self):$/;"	m	class:Setting
+initialize	girder/models/token.py	/^    def initialize(self):$/;"	m	class:Token
+initialize	girder/models/upload.py	/^    def initialize(self):$/;"	m	class:Upload
+initialize	girder/models/user.py	/^    def initialize(self):$/;"	m	class:User
+initProgress	girder/models/notification.py	/^    def initProgress(self, user, title, total=0, state=ProgressState.ACTIVE,$/;"	m	class:Notification
+initUpload	girder/api/v1/file.py	/^    def initUpload(self, parentType, parentId, name, size, mimeType, linkUrl, reference,$/;"	m	class:File
+initUpload	girder/utility/abstract_assetstore_adapter.py	/^    def initUpload(self, upload):$/;"	m	class:AbstractAssetstoreAdapter
+initUpload	girder/utility/filesystem_assetstore_adapter.py	/^    def initUpload(self, upload):$/;"	m	class:FilesystemAssetstoreAdapter
+initUpload	girder/utility/gridfs_assetstore_adapter.py	/^    def initUpload(self, upload):$/;"	m	class:GridFsAssetstoreAdapter
+initUpload	girder/utility/s3_assetstore_adapter.py	/^    def initUpload(self, upload):$/;"	m	class:S3AssetstoreAdapter
+initVectorFirstWord	girder/utility/hash_state.py	/^    initVectorFirstWord=b'\\x01\\x23\\x45\\x67\\x89\\xab\\xcd\\xef'$/;"	v
+initVectorFirstWord	girder/utility/hash_state.py	/^    initVectorFirstWord=b'\\x08\\xc9\\xbc\\xf3\\x67\\xe6\\x09\\x6a'$/;"	v
+initVectorFirstWord	girder/utility/hash_state.py	/^    initVectorFirstWord=b'\\x67\\xe6\\x09\\x6a\\x85\\xae\\x67\\xbb'$/;"	v
+initVectorFirstWord	girder/utility/hash_state.py	/^    initVectorFirstWord=b'\\xd8\\x9e\\x05\\xc1\\x07\\xd5\\x7c\\x36'$/;"	v
+initVectorFirstWord	girder/utility/hash_state.py	/^    initVectorFirstWord=b'\\xd8\\x9e\\x05\\xc1\\x5d\\x9d\\xbb\\xcb'$/;"	v
+install_plugin	girder/utility/install.py	/^def install_plugin(opts):$/;"	f
+install_web	girder/utility/install.py	/^def install_web(opts=None):$/;"	f
+inviteToGroup	girder/api/v1/group.py	/^    def inviteToGroup(self, group, userToInvite, level, quiet, force):$/;"	m	class:Group
+inviteUser	girder/models/group.py	/^    def inviteUser(self, group, user, level=AccessType.READ):$/;"	m	class:Group
+isComplete	girder/models/notification.py	/^    def isComplete(cls, state):$/;"	m	class:ProgressState
+isOrphan	girder/models/file.py	/^    def isOrphan(self, file):$/;"	m	class:File
+isOrphan	girder/models/folder.py	/^    def isOrphan(self, folder):$/;"	m	class:Folder
+isOrphan	girder/models/item.py	/^    def isOrphan(self, item):$/;"	m	class:Item
+Item	girder/api/v1/item.py	/^class Item(Resource):$/;"	c
+Item	girder/models/item.py	/^class Item(acl_mixin.AccessControlMixin, Model):$/;"	c
+iterBody	girder/api/rest.py	/^def iterBody(length=READ_BUFFER_LEN, strictLength=False):$/;"	f
+join	girder/utility/path.py	/^def join(tokens):$/;"	f
+joinGroup	girder/api/v1/group.py	/^    def joinGroup(self, group):$/;"	m	class:Group
+joinGroup	girder/models/group.py	/^    def joinGroup(self, group, user):$/;"	m	class:Group
+JsonEncoder	girder/utility/__init__.py	/^class JsonEncoder(json.JSONEncoder):$/;"	c
+jsonParam	girder/api/describe.py	/^    def jsonParam(self, name, description, paramType='query', dataType='string', required=True,$/;"	m	class:Description
+list	girder/models/api_key.py	/^    def list(self, user, limit=0, offset=0, sort=None):$/;"	m	class:ApiKey
+list	girder/models/assetstore.py	/^    def list(self, limit=0, offset=0, sort=None):$/;"	m	class:Assetstore
+list	girder/models/model_base.py	/^    def list(self, user=None, limit=0, offset=0, sort=None):$/;"	m	class:AccessControlledModel
+list	girder/models/upload.py	/^    def list(self, limit=0, offset=0, sort=None, filters=None):$/;"	m	class:Upload
+listKeys	girder/api/v1/api_key.py	/^    def listKeys(self, userId, limit, offset, sort):$/;"	m	class:ApiKey
+listMembers	girder/api/v1/group.py	/^    def listMembers(self, group, limit, offset, sort):$/;"	m	class:Group
+listMembers	girder/models/group.py	/^    def listMembers(self, group, offset=0, limit=0, sort=None):$/;"	m	class:Group
+listResources	girder/api/describe.py	/^    def listResources(self, params):$/;"	m	class:Describe
+listScopes	girder/api/v1/token.py	/^    def listScopes(self):$/;"	m	class:Token
+listScopes	girder/constants.py	/^    def listScopes(cls):$/;"	m	class:TokenScope
+loadConfig	girder/utility/config.py	/^def loadConfig():$/;"	f
+load	girder/models/folder.py	/^    def load(self, id, level=AccessType.ADMIN, user=None, objectId=True,$/;"	m	class:Folder
+load	girder/models/item.py	/^    def load(self, id, level=AccessType.ADMIN, user=None, objectId=True,$/;"	m	class:Item
+load	girder/models/model_base.py	/^    def load(self, id, level=AccessType.ADMIN, user=None, objectId=True,$/;"	m	class:AccessControlledModel
+load	girder/models/model_base.py	/^    def load(self, id, objectId=True, fields=None, exc=False):$/;"	m	class:Model
+load	girder/utility/acl_mixin.py	/^    def load(self, id, level=AccessType.ADMIN, user=None, objectId=True,$/;"	m	class:AccessControlMixin
+loadmodel	girder/api/rest.py	/^class loadmodel(ModelImporter):  # noqa: class name$/;"	c
+loadPlugin	girder/utility/plugin_utilities.py	/^def loadPlugin(name, root, appconf, apiRoot=None):$/;"	f
+loadPlugins	girder/utility/plugin_utilities.py	/^def loadPlugins(plugins, root, appconf, apiRoot=None, buildDag=True):$/;"	f
+loadRouteTable	girder/utility/server.py	/^def loadRouteTable(reconcileRoutes=False):$/;"	f
+LOG_BACKUP_COUNT	girder/constants.py	/^LOG_BACKUP_COUNT = 5$/;"	v
+LOG_BUF_SIZE	girder/api/v1/system.py	/^LOG_BUF_SIZE = 65536$/;"	v
+LogFormatter	girder/__init__.py	/^class LogFormatter(logging.Formatter):$/;"	c
+logger	girder/__init__.py	/^logger = _setupLogger()$/;"	v
+LoggingFilters	girder/api/filter_logging.py	/^LoggingFilters = []$/;"	v
+login	girder/api/v1/user.py	/^    def login(self):$/;"	m	class:User
+LogLevelFilter	girder/__init__.py	/^class LogLevelFilter(object):$/;"	c
+logout	girder/api/v1/user.py	/^    def logout(self):$/;"	m	class:User
+logprint	girder/__init__.py	/^def logprint(*args, **kwargs):$/;"	f
+LOG_ROOT	girder/constants.py	/^LOG_ROOT = os.path.join(os.path.expanduser('~'), '.girder', 'logs')$/;"	v
+logStdoutStderr	girder/__init__.py	/^def logStdoutStderr():$/;"	f
+lookup	girder/api/v1/resource.py	/^    def lookup(self, path, test):$/;"	m	class:Resource
+lookUpPath	girder/utility/path.py	/^def lookUpPath(path, user=None, test=False, filter=True, force=False):$/;"	f
+lookUpToken	girder/utility/path.py	/^def lookUpToken(token, parentType, parent):$/;"	f
+main	girder/__main__.py	/^def main():$/;"	f
+main	girder/utility/install.py	/^def main():$/;"	f
+main	girder/utility/shell.py	/^def main(plugins):$/;"	f
+makeBotoConnectParams	girder/utility/s3_assetstore_adapter.py	/^def makeBotoConnectParams(accessKeyId, secret, service=None, region=None, inferCredentials=False):$/;"	f
+MAX_BUF_LEN	girder/api/sftp.py	/^MAX_BUF_LEN = 10 * 1024 * 1024$/;"	v
+MAX_LOG_SIZE	girder/constants.py	/^MAX_LOG_SIZE = 1024 * 1024 * 10  # Size in bytes before logs are rotated.$/;"	v
+MAX_POLL_INTERVAL	girder/api/v1/notification.py	/^MAX_POLL_INTERVAL = 2$/;"	v
+MIN_POLL_INTERVAL	girder/api/v1/notification.py	/^MIN_POLL_INTERVAL = 0.5$/;"	v
+mkdir	girder/utility/__init__.py	/^def mkdir(path, mode=0o777, recurse=True, existOk=True):$/;"	f
+Model	girder/models/model_base.py	/^class Model(ModelImporter):$/;"	c
+model	girder/utility/model_importer.py	/^    def model(model, plugin=None):$/;"	m	class:ModelImporter
+ModelImporter	girder/utility/model_importer.py	/^class ModelImporter(object):$/;"	c
+modelParam	girder/api/describe.py	/^    def modelParam(self, name, description=None, model=None, destName=None, paramType='path',$/;"	m	class:Description
+models	girder/api/docs.py	/^models = collections.defaultdict(dict)$/;"	v
+ModuleStartTime	girder/api/v1/system.py	/^ModuleStartTime = datetime.datetime.utcnow()$/;"	v
+MongoProxy	girder/external/mongodb_proxy.py	/^class MongoProxy(object):$/;"	c
+moveFileToAssetstore	girder/api/v1/file.py	/^    def moveFileToAssetstore(self, file, assetstore, progress):$/;"	m	class:File
+moveFileToAssetstore	girder/models/upload.py	/^    def moveFileToAssetstore(self, file, user, assetstore, progress=noProgress):$/;"	m	class:Upload
+move	girder/models/folder.py	/^    def move(self, folder, parent, parentType):$/;"	m	class:Folder
+move	girder/models/item.py	/^    def move(self, item, folder):$/;"	m	class:Item
+moveResources	girder/api/v1/resource.py	/^    def moveResources(self, resources, parentType, parentId, progress):$/;"	m	class:Resource
+next	girder/utility/__init__.py	/^    def next(self):$/;"	m	class:RequestBodyStream
+NONE	girder/constants.py	/^    NONE = -1$/;"	v	class:AccessType
+noProgress	girder/utility/progress.py	/^noProgress = ProgressContext(False)$/;"	v
+notes	girder/api/describe.py	/^    def notes(self, notes):$/;"	m	class:Description
+NotFoundException	girder/utility/path.py	/^class NotFoundException(ValidationException):$/;"	c
+Notification	girder/api/v1/notification.py	/^class Notification(Resource):$/;"	c
+Notification	girder/models/notification.py	/^class Notification(Model):$/;"	c
+open	girder/models/file.py	/^    def open(self, file):$/;"	m	class:File
+open	girder/utility/abstract_assetstore_adapter.py	/^    def open(self, file):$/;"	m	class:AbstractAssetstoreAdapter
+optionalArgumentDecorator	girder/utility/__init__.py	/^def optionalArgumentDecorator(baseDecorator):$/;"	f
+OPTIONS	girder/api/rest.py	/^    def OPTIONS(self, *path, **param):$/;"	m	class:Resource
+PACKAGE_DIR	girder/constants.py	/^PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))$/;"	v
+pagingParams	girder/api/describe.py	/^    def pagingParams(self, defaultSort, defaultSortDir=1, defaultLimit=50):$/;"	m	class:Description
+param	girder/api/describe.py	/^    def param(self, name, description, paramType='query', dataType='string',$/;"	m	class:Description
+params	girder/api/describe.py	/^    def params(self):$/;"	m	class:Description
+parentsToRoot	girder/models/folder.py	/^    def parentsToRoot(self, folder, curPath=None, user=None, force=False, level=AccessType.READ):$/;"	m	class:Folder
+parentsToRoot	girder/models/item.py	/^    def parentsToRoot(self, item, user=None, force=False):$/;"	m	class:Item
+parseTimestamp	girder/utility/__init__.py	/^def parseTimestamp(x, naive=True):$/;"	f
+PARTIAL_UPLOAD_CLEAN	girder/constants.py	/^    PARTIAL_UPLOAD_CLEAN = 'core.partial_upload.clean'$/;"	v	class:TokenScope
+PARTIAL_UPLOAD_READ	girder/constants.py	/^    PARTIAL_UPLOAD_READ = 'core.partial_upload.read'$/;"	v	class:TokenScope
+Password	girder/models/password.py	/^class Password(Model):$/;"	c
+PATCH	girder/api/rest.py	/^    def PATCH(self, path, params):$/;"	m	class:Resource
+PATCH	girder/utility/webroot.py	/^    def PATCH(self, **params):$/;"	m	class:WebrootBase
+path	girder/api/v1/resource.py	/^    def path(self, id, type):$/;"	m	class:Resource
+PLUGINS_ENABLED	girder/constants.py	/^    PLUGINS_ENABLED = 'core.plugins_enabled'$/;"	v	class:SettingKey
+PLUGINS_ENABLED_READ	girder/constants.py	/^    PLUGINS_ENABLED_READ = 'core.plugins.read'$/;"	v	class:TokenScope
+POST	girder/api/rest.py	/^    def POST(self, path, params):$/;"	m	class:Resource
+POST	girder/utility/webroot.py	/^    def POST(self, **params):$/;"	m	class:WebrootBase
+Prefix	girder/api/rest.py	/^class Prefix(object):$/;"	c
+prefixSearch	girder/models/model_base.py	/^    def prefixSearch(self, query, offset=0, limit=0, sort=None, fields=None,$/;"	m	class:Model
+prefixSearch	girder/models/model_base.py	/^    def prefixSearch(self, query, user=None, filters=None, limit=0, offset=0,$/;"	m	class:AccessControlledModel
+prefixSearch	girder/utility/acl_mixin.py	/^    def prefixSearch(self, query, user=None, filters=None, limit=0, offset=0,$/;"	m	class:AccessControlMixin
+preventDefault	girder/events.py	/^    def preventDefault(self):$/;"	m	class:Event
+print_plugin_path	girder/utility/install.py	/^def print_plugin_path(parser):$/;"	f
+print_version	girder/utility/install.py	/^def print_version(parser):$/;"	f
+print_web_root	girder/utility/install.py	/^def print_web_root(parser):$/;"	f
+produces	girder/api/describe.py	/^    def produces(self, value):$/;"	m	class:Description
+ProgressContext	girder/utility/progress.py	/^class ProgressContext(object):$/;"	c
+ProgressState	girder/models/notification.py	/^class ProgressState(object):$/;"	c
+promoteToAdmin	girder/api/v1/group.py	/^    def promoteToAdmin(self, group, user):$/;"	m	class:Group
+promoteToModerator	girder/api/v1/group.py	/^    def promoteToModerator(self, group, user):$/;"	m	class:Group
+propagateSizeChange	girder/models/file.py	/^    def propagateSizeChange(self, item, sizeIncrement, updateItemSize=True):$/;"	m	class:File
+propagateSizeChange	girder/models/item.py	/^    def propagateSizeChange(self, item, inc):$/;"	m	class:Item
+public	girder/api/access.py	/^def public(fun, scope=None):$/;"	f
+PUT	girder/api/rest.py	/^    def PUT(self, path, params):$/;"	m	class:Resource
+PUT	girder/utility/webroot.py	/^    def PUT(self, **params):$/;"	m	class:WebrootBase
+QUEUED	girder/models/notification.py	/^    QUEUED = 'queued'$/;"	v	class:ProgressState
+random	girder/utility/__init__.py	/^    random = SystemRandom()$/;"	v
+rawResponse	girder/api/rest.py	/^def rawResponse(fun):$/;"	f
+READ_BUFFER_LEN	girder/api/rest.py	/^READ_BUFFER_LEN = 65536$/;"	v
+readChunk	girder/api/v1/file.py	/^    def readChunk(self, upload, offset, params):$/;"	m	class:File
+READ	girder/constants.py	/^    READ = 0$/;"	v	class:AccessType
+read	girder/utility/abstract_assetstore_adapter.py	/^    def read(self, size=None):$/;"	m	class:FileHandle
+read	girder/utility/__init__.py	/^    def read(self, *args, **kwargs):$/;"	m	class:RequestBodyStream
+recalculateSize	girder/models/item.py	/^    def recalculateSize(self, item):$/;"	m	class:Item
+RECENT_CONNECTION_CACHE_MAX_SIZE	girder/utility/gridfs_assetstore_adapter.py	/^RECENT_CONNECTION_CACHE_MAX_SIZE = 100$/;"	v
+RECENT_CONNECTION_CACHE_TIME	girder/utility/gridfs_assetstore_adapter.py	/^RECENT_CONNECTION_CACHE_TIME = 600  # seconds$/;"	v
+reconnect	girder/models/model_base.py	/^    def reconnect(self):$/;"	m	class:Model
+reconnect	girder/models/setting.py	/^    def reconnect(self):$/;"	m	class:Setting
+RegexLoggingFilter	girder/api/filter_logging.py	/^class RegexLoggingFilter(logging.Filter):$/;"	c
+registerAccessFlag	girder/constants.py	/^def registerAccessFlag(key, name, description=None, admin=False):$/;"	f
+registerDefaultFunction	girder/utility/setting_utilities.py	/^def registerDefaultFunction(key, fn):$/;"	f
+registerModel	girder/utility/model_importer.py	/^    def registerModel(model, instance, plugin='_core'):$/;"	m	class:ModelImporter
+registerPluginWebroot	girder/utility/plugin_utilities.py	/^def registerPluginWebroot(webroot, name):$/;"	f
+registerValidator	girder/utility/setting_utilities.py	/^def registerValidator(key, fn, replace=False):$/;"	f
+REGISTRATION_POLICY	girder/constants.py	/^    REGISTRATION_POLICY = 'core.registration_policy'$/;"	v	class:SettingKey
+reinitializeAll	girder/utility/model_importer.py	/^def reinitializeAll():$/;"	f
+removeFromGroup	girder/api/v1/group.py	/^    def removeFromGroup(self, group, userToRemove):$/;"	m	class:Group
+remove	girder/models/api_key.py	/^    def remove(self, doc):$/;"	m	class:ApiKey
+remove	girder/models/assetstore.py	/^    def remove(self, assetstore, **kwargs):$/;"	m	class:Assetstore
+remove	girder/models/collection.py	/^    def remove(self, collection, progress=None, **kwargs):$/;"	m	class:Collection
+remove	girder/models/file.py	/^    def remove(self, file, updateItemSize=True, **kwargs):$/;"	m	class:File
+remove	girder/models/folder.py	/^    def remove(self, folder, progress=None, **kwargs):$/;"	m	class:Folder
+remove	girder/models/group.py	/^    def remove(self, group, **kwargs):$/;"	m	class:Group
+remove	girder/models/item.py	/^    def remove(self, item, **kwargs):$/;"	m	class:Item
+remove	girder/models/model_base.py	/^    def remove(self, document, **kwargs):$/;"	m	class:Model
+remove	girder/models/user.py	/^    def remove(self, user, progress=None, **kwargs):$/;"	m	class:User
+removeLoggingFilter	girder/api/filter_logging.py	/^def removeLoggingFilter(regex):$/;"	f
+removeRouteDocs	girder/api/docs.py	/^def removeRouteDocs(resource, route, method, info, handler):$/;"	f
+removeRoute	girder/api/rest.py	/^    def removeRoute(self, method, route, handler=None, resource=None):$/;"	m	class:Resource
+removeUser	girder/models/group.py	/^    def removeUser(self, group, user):$/;"	m	class:Group
+removeWithQuery	girder/models/model_base.py	/^    def removeWithQuery(self, query):$/;"	m	class:Model
+renderTemplate	girder/utility/mail_utils.py	/^def renderTemplate(name, params=None):$/;"	f
+RequestBodyStream	girder/utility/__init__.py	/^class RequestBodyStream(object):$/;"	c
+requestOffset	girder/api/v1/file.py	/^    def requestOffset(self, upload):$/;"	m	class:File
+requestOffset	girder/models/upload.py	/^    def requestOffset(self, upload):$/;"	m	class:Upload
+requestOffset	girder/utility/abstract_assetstore_adapter.py	/^    def requestOffset(self, upload):$/;"	m	class:AbstractAssetstoreAdapter
+requestOffset	girder/utility/filesystem_assetstore_adapter.py	/^    def requestOffset(self, upload):$/;"	m	class:FilesystemAssetstoreAdapter
+requestOffset	girder/utility/gridfs_assetstore_adapter.py	/^    def requestOffset(self, upload):$/;"	m	class:GridFsAssetstoreAdapter
+requestOffset	girder/utility/s3_assetstore_adapter.py	/^    def requestOffset(self, upload):$/;"	m	class:S3AssetstoreAdapter
+requireAccessFlags	girder/models/model_base.py	/^    def requireAccessFlags(self, doc, user=None, flags=None):$/;"	m	class:AccessControlledModel
+requireAccessFlags	girder/utility/acl_mixin.py	/^    def requireAccessFlags(self, doc, user=None, flags=None):$/;"	m	class:AccessControlMixin
+requireAccess	girder/models/model_base.py	/^    def requireAccess(self, doc, user=None, level=AccessType.READ):$/;"	m	class:AccessControlledModel
+requireAccess	girder/utility/acl_mixin.py	/^    def requireAccess(self, doc, user=None, level=AccessType.READ):$/;"	m	class:AccessControlMixin
+requireAdmin	girder/api/rest.py	/^    def requireAdmin(self, user, message=None):$/;"	m	class:Resource
+requireAdmin	girder/api/rest.py	/^def requireAdmin(user, message=None):$/;"	f
+requireParams	girder/api/rest.py	/^    def requireParams(self, required, provided=None):$/;"	m	class:Resource
+requireScope	girder/models/token.py	/^    def requireScope(self, token, scope):$/;"	m	class:Token
+resetPassword	girder/api/v1/user.py	/^    def resetPassword(self, email):$/;"	m	class:User
+resourceColl	girder/utility/acl_mixin.py	/^    resourceColl = None$/;"	v	class:AccessControlMixin
+Resource	girder/api/rest.py	/^class Resource(ModelImporter):$/;"	c
+Resource	girder/api/v1/resource.py	/^class Resource(BaseResource):$/;"	c
+resourceParent	girder/utility/acl_mixin.py	/^    resourceParent = None$/;"	v	class:AccessControlMixin
+responseClass	girder/api/describe.py	/^    def responseClass(self, obj, array=False):$/;"	m	class:Description
+restartServer	girder/api/v1/system.py	/^    def restartServer(self):$/;"	m	class:System
+RestException	girder/api/rest.py	/^class RestException(Exception):$/;"	c
+restore	girder/utility/hash_state.py	/^def restore(oldStateData, hashName):$/;"	f
+restoreHex	girder/utility/hash_state.py	/^def restoreHex(oldHexStateData, hashName):$/;"	f
+ROOT_DIR	girder/constants.py	/^ROOT_DIR = os.path.dirname(PACKAGE_DIR)$/;"	v
+rootpath	girder/api/v1/folder.py	/^    def rootpath(self, folder, params):$/;"	m	class:Folder
+rootpath	girder/api/v1/item.py	/^    def rootpath(self, item):$/;"	m	class:Item
+ROOT_PLUGINS_PACKAGE	girder/constants.py	/^ROOT_PLUGINS_PACKAGE = 'girder.plugins'$/;"	v
+route	girder/api/rest.py	/^    def route(self, method, route, handler, nodoc=False, resource=None):$/;"	m	class:Resource
+routes	girder/api/docs.py	/^routes = collections.defaultdict($/;"	v
+ROUTE_TABLE	girder/constants.py	/^    ROUTE_TABLE = 'core.route_table'$/;"	v	class:SettingKey
+run	girder/api/v1/system.py	/^            def run(self):$/;"	m	class:System.restartServer.Restart
+run	girder/events.py	/^    def run(self):$/;"	m	class:AsyncEventsThread
+runWebBuild	girder/utility/install.py	/^def runWebBuild(wd=None, dev=False, npm='npm', allPlugins=False, plugins=None, progress=None,$/;"	f
+S3AssetstoreAdapter	girder/utility/s3_assetstore_adapter.py	/^class S3AssetstoreAdapter(AbstractAssetstoreAdapter):$/;"	c
+S3	girder/constants.py	/^    S3 = 2$/;"	v	class:AssetstoreType
+save	girder/models/model_base.py	/^    def save(self, document, validate=True, triggerEvents=True):$/;"	m	class:Model
+scopeIds	girder/constants.py	/^    def scopeIds(cls, admin=False):$/;"	m	class:TokenScope
+search	girder/api/v1/resource.py	/^    def search(self, q, mode, types, level, limit, offset):$/;"	m	class:Resource
+search	girder/models/user.py	/^    def search(self, text=None, user=None, limit=0, offset=0, sort=None):$/;"	m	class:User
+SECURE_COOKIE	girder/constants.py	/^    SECURE_COOKIE = 'core.secure_cookie'$/;"	v	class:SettingKey
+seek	girder/utility/abstract_assetstore_adapter.py	/^    def seek(self, offset, whence=os.SEEK_SET):$/;"	m	class:FileHandle
+sendAuthTokenCookie	girder/api/rest.py	/^    def sendAuthTokenCookie(self, user=None, scope=None, token=None, days=None):$/;"	m	class:Resource
+sendEmail	girder/utility/mail_utils.py	/^def sendEmail(to=None, subject=None, text=None, toAdmins=False, bcc=None):$/;"	f
+sendVerificationEmail	girder/api/v1/user.py	/^    def sendVerificationEmail(self, login):$/;"	m	class:User
+serialize	girder/utility/hash_state.py	/^def serialize(hashObject):$/;"	f
+serializeHex	girder/utility/hash_state.py	/^def serializeHex(hashObject):$/;"	f
+SERVER_ROOT	girder/constants.py	/^    SERVER_ROOT = 'core.server_root'$/;"	v	class:SettingKey
+setAccessList	girder/models/collection.py	/^    def setAccessList(self, doc, access, save=False, recurse=False, user=None,$/;"	m	class:Collection
+setAccessList	girder/models/folder.py	/^    def setAccessList(self, doc, access, save=False, recurse=False, user=None,$/;"	m	class:Folder
+setAccessList	girder/models/model_base.py	/^    def setAccessList(self, doc, access, save=False, user=None, force=False):$/;"	m	class:AccessControlledModel
+setAssetstoreAdapter	girder/utility/assetstore_utilities.py	/^def setAssetstoreAdapter(storeType, cls):$/;"	f
+setContentDisposition	girder/api/rest.py	/^def setContentDisposition(filename, disposition='attachment', setHeader=True):$/;"	f
+setContentHeaders	girder/utility/abstract_assetstore_adapter.py	/^    def setContentHeaders(self, file, offset, endByte, contentDisposition=None):$/;"	m	class:AbstractAssetstoreAdapter
+setCurrentUser	girder/api/rest.py	/^def setCurrentUser(user):$/;"	f
+set	girder/models/setting.py	/^    def set(self, key, value):$/;"	m	class:Setting
+setGroupAccess	girder/models/group.py	/^    def setGroupAccess(self, doc, group, level, save=False):$/;"	m	class:Group
+setGroupAccess	girder/models/model_base.py	/^    def setGroupAccess(self, doc, group, level, save=False, flags=None, currentUser=None,$/;"	m	class:AccessControlledModel
+setLogLevel	girder/api/v1/system.py	/^    def setLogLevel(self, level):$/;"	m	class:System
+setMetadata	girder/api/v1/folder.py	/^    def setMetadata(self, folder, metadata, allowNull):$/;"	m	class:Folder
+setMetadata	girder/api/v1/item.py	/^    def setMetadata(self, item, metadata, allowNull):$/;"	m	class:Item
+setMetadata	girder/models/folder.py	/^    def setMetadata(self, folder, metadata, allowNull=False):$/;"	m	class:Folder
+setMetadata	girder/models/item.py	/^    def setMetadata(self, item, metadata, allowNull=False):$/;"	m	class:Item
+setPassword	girder/models/user.py	/^    def setPassword(self, user, password, save=True):$/;"	m	class:User
+setPublicFlags	girder/models/model_base.py	/^    def setPublicFlags(self, doc, flags, user=None, append=False, save=False, force=False):$/;"	m	class:AccessControlledModel
+setPublic	girder/models/model_base.py	/^    def setPublic(self, doc, public, save=False):$/;"	m	class:AccessControlledModel
+setRawResponse	girder/api/rest.py	/^    def setRawResponse(self, *args, **kwargs):$/;"	m	class:Resource
+setRawResponse	girder/api/rest.py	/^def setRawResponse(val=True):$/;"	f
+setResponseHeader	girder/api/rest.py	/^def setResponseHeader(header, value):$/;"	f
+setResponseTimeLimit	girder/utility/progress.py	/^def setResponseTimeLimit(duration=600, onlyExtend=True):$/;"	f
+setSetting	girder/api/v1/system.py	/^    def setSetting(self, key, value, list):$/;"	m	class:System
+setTimestamp	girder/api/v1/resource.py	/^    def setTimestamp(self, id, type, created, updated):$/;"	m	class:Resource
+SettingDefault	girder/constants.py	/^class SettingDefault:$/;"	c
+Setting	girder/models/setting.py	/^class Setting(Model):$/;"	c
+SettingKey	girder/constants.py	/^class SettingKey:$/;"	c
+SETTINGS_READ	girder/constants.py	/^    SETTINGS_READ = 'core.setting.read'$/;"	v	class:TokenScope
+setup	girder/utility/server.py	/^def setup(test=False, plugins=None, curConfig=None):$/;"	f
+setUserAccess	girder/models/group.py	/^    def setUserAccess(self, doc, user, level, save=False):$/;"	m	class:Group
+setUserAccess	girder/models/model_base.py	/^    def setUserAccess(self, doc, user, level, save=False, flags=None, currentUser=None,$/;"	m	class:AccessControlledModel
+SftpServer	girder/api/sftp.py	/^class SftpServer(socketserver.ThreadingTCPServer):$/;"	c
+shouldImportFile	girder/utility/abstract_assetstore_adapter.py	/^    def shouldImportFile(self, path, params):$/;"	m	class:AbstractAssetstoreAdapter
+shutdown_request	girder/api/sftp.py	/^    def shutdown_request(self, request):$/;"	m	class:SftpServer
+SingletonRegexLoggingFilter	girder/api/filter_logging.py	/^SingletonRegexLoggingFilter = None$/;"	v
+SITE_ADMIN	girder/constants.py	/^    SITE_ADMIN = 100$/;"	v	class:AccessType
+SMTP_ENCRYPTION	girder/constants.py	/^    SMTP_ENCRYPTION = 'core.smtp.encryption'$/;"	v	class:SettingKey
+SMTP_HOST	girder/constants.py	/^    SMTP_HOST = 'core.smtp_host'$/;"	v	class:SettingKey
+SMTP_PASSWORD	girder/constants.py	/^    SMTP_PASSWORD = 'core.smtp.password'$/;"	v	class:SettingKey
+SMTP_PORT	girder/constants.py	/^    SMTP_PORT = 'core.smtp.port'$/;"	v	class:SettingKey
+SMTP_USERNAME	girder/constants.py	/^    SMTP_USERNAME = 'core.smtp.username'$/;"	v	class:SettingKey
+SortDir	girder/constants.py	/^class SortDir(object):$/;"	c
+source_root_dir	girder/__main__.py	/^    source_root_dir = os.path.dirname(os.path.dirname(__file__))$/;"	v
+split	girder/utility/path.py	/^def split(path):$/;"	f
+sseMessage	girder/api/v1/notification.py	/^def sseMessage(event):$/;"	f
+start	girder/api/v1/system.py	/^            def start(self):$/;"	m	class:System.restartServer.Restart
+start	girder/events.py	/^    def start(self):$/;"	m	class:ForegroundEventsDaemon
+stateSize	girder/utility/hash_state.py	/^    stateSize=112,$/;"	v
+stateSize	girder/utility/hash_state.py	/^    stateSize=216,$/;"	v
+stateSize	girder/utility/hash_state.py	/^    stateSize=96,$/;"	v
+staticFile	girder/utility/server.py	/^def staticFile(path, contentType=None):$/;"	f
+STATIC_ROOT_DIR	girder/constants.py	/^    STATIC_ROOT_DIR = PACKAGE_DIR$/;"	v
+STATIC_ROOT_DIR	girder/constants.py	/^STATIC_ROOT_DIR = ROOT_DIR$/;"	v
+StatusMonitor	girder/utility/system.py	/^class StatusMonitor(cherrypy.Tool):$/;"	c
+stop	girder/events.py	/^    def stop(self):$/;"	m	class:AsyncEventsThread
+stop	girder/events.py	/^    def stop(self):$/;"	m	class:ForegroundEventsDaemon
+stopPropagation	girder/events.py	/^    def stopPropagation(self):$/;"	m	class:Event
+STORE	girder/utility/ziputil.py	/^STORE = 0$/;"	v
+stream	girder/api/v1/notification.py	/^    def stream(self, timeout, params):$/;"	m	class:Notification
+StreamToLogger	girder/__init__.py	/^class StreamToLogger:$/;"	c
+subtreeCount	girder/models/collection.py	/^    def subtreeCount(self, doc, includeItems=True, user=None, level=None):$/;"	m	class:Collection
+subtreeCount	girder/models/folder.py	/^    def subtreeCount(self, folder, includeItems=True, user=None, level=None):$/;"	m	class:Folder
+subtreeCount	girder/models/model_base.py	/^    def subtreeCount(self, doc):$/;"	m	class:Model
+subtreeCount	girder/models/user.py	/^    def subtreeCount(self, doc, includeItems=True, user=None, level=None):$/;"	m	class:User
+success	girder/constants.py	/^    def success(text):$/;"	m	class:TerminalColor
+SUCCESS	girder/constants.py	/^    SUCCESS = '\\033[32m'$/;"	v	class:TerminalColor
+SUCCESS	girder/models/notification.py	/^    SUCCESS = 'success'$/;"	v	class:ProgressState
+SWAGGER_VERSION	girder/api/describe.py	/^SWAGGER_VERSION = '2.0'$/;"	v
+systemConsistencyCheck	girder/api/v1/system.py	/^    def systemConsistencyCheck(self, progress):$/;"	m	class:System
+System	girder/api/v1/system.py	/^class System(Resource):$/;"	c
+systemStatus	girder/api/v1/system.py	/^    def systemStatus(self, mode):$/;"	m	class:System
+tell	girder/utility/abstract_assetstore_adapter.py	/^    def tell(self):$/;"	m	class:FileHandle
+TEMPORARY_USER_AUTH	girder/constants.py	/^    TEMPORARY_USER_AUTH = 'core.user_auth.temporary'$/;"	v	class:TokenScope
+TerminalColor	girder/constants.py	/^class TerminalColor(object):$/;"	c
+TEXT_SCORE_SORT_MAX	girder/constants.py	/^TEXT_SCORE_SORT_MAX = 200$/;"	v
+textSearch	girder/models/model_base.py	/^    def textSearch(self, query, offset=0, limit=0, sort=None, fields=None,$/;"	m	class:Model
+textSearch	girder/models/model_base.py	/^    def textSearch(self, query, user=None, filters=None, limit=0, offset=0,$/;"	m	class:AccessControlledModel
+textSearch	girder/utility/acl_mixin.py	/^    def textSearch(self, query, user=None, filters=None, limit=0, offset=0,$/;"	m	class:AccessControlMixin
+toBool	girder/utility/__init__.py	/^def toBool(val):$/;"	f
+token	girder/api/access.py	/^def token(fun, scope=None, required=False):$/;"	f
+Token	girder/api/v1/token.py	/^class Token(Resource):$/;"	c
+Token	girder/models/token.py	/^class Token(AccessControlledModel):$/;"	c
+TokenScope	girder/constants.py	/^class TokenScope:$/;"	c
+toposort	girder/utility/plugin_utilities.py	/^def toposort(data):$/;"	f
+trigger	girder/events.py	/^def trigger(eventName, info=None, pre=None, async=False, daemon=False):$/;"	f
+trigger	girder/events.py	/^    def trigger(self, eventName=None, info=None, callback=None):$/;"	m	class:AsyncEventsThread
+trigger	girder/events.py	/^    def trigger(self, eventName=None, info=None, callback=None):$/;"	m	class:ForegroundEventsDaemon
+type	girder/utility/hash_state.py	/^    type=hashlib.sha1,$/;"	v
+type	girder/utility/hash_state.py	/^    type=hashlib.sha224,$/;"	v
+type	girder/utility/hash_state.py	/^    type=hashlib.sha256,$/;"	v
+type	girder/utility/hash_state.py	/^    type=hashlib.sha384,$/;"	v
+type	girder/utility/hash_state.py	/^    type=hashlib.sha512,$/;"	v
+unbindAll	girder/events.py	/^def unbindAll():$/;"	f
+unbind	girder/events.py	/^def unbind(eventName, handlerName):$/;"	f
+unregister	girder/utility/system.py	/^    def unregister(self):$/;"	m	class:StatusMonitor
+unset	girder/models/setting.py	/^    def unset(self, key):$/;"	m	class:Setting
+unsetSetting	girder/api/v1/system.py	/^    def unsetSetting(self, key):$/;"	m	class:System
+untrackedUploads	girder/models/upload.py	/^    def untrackedUploads(self, action='list', assetstoreId=None):$/;"	m	class:Upload
+untrackedUploads	girder/utility/abstract_assetstore_adapter.py	/^    def untrackedUploads(self, knownUploads=(), delete=False):$/;"	m	class:AbstractAssetstoreAdapter
+untrackedUploads	girder/utility/s3_assetstore_adapter.py	/^    def untrackedUploads(self, knownUploads=None, delete=False):$/;"	m	class:S3AssetstoreAdapter
+updateAssetstore	girder/api/v1/assetstore.py	/^    def updateAssetstore(self, assetstore, name, root, perms, db, mongohost, replicaset, shard,$/;"	m	class:Assetstore
+updateCollectionAccess	girder/api/v1/collection.py	/^    def updateCollectionAccess(self, collection, access, public, recurse, progress, publicFlags):$/;"	m	class:Collection
+updateCollection	girder/api/v1/collection.py	/^    def updateCollection(self, collection, name, description):$/;"	m	class:Collection
+updateCollection	girder/models/collection.py	/^    def updateCollection(self, collection):$/;"	m	class:Collection
+updateFileContents	girder/api/v1/file.py	/^    def updateFileContents(self, file, size, reference, assetstoreId):$/;"	m	class:File
+updateFile	girder/api/v1/file.py	/^    def updateFile(self, file, name, mimeType):$/;"	m	class:File
+updateFile	girder/models/file.py	/^    def updateFile(self, file):$/;"	m	class:File
+updateFolderAccess	girder/api/v1/folder.py	/^    def updateFolderAccess(self, folder, access, publicFlags, public, recurse, progress):$/;"	m	class:Folder
+updateFolder	girder/api/v1/folder.py	/^    def updateFolder(self, folder, name, description, parentType, parentId, metadata):$/;"	m	class:Folder
+updateFolder	girder/models/folder.py	/^    def updateFolder(self, folder):$/;"	m	class:Folder
+update	girder/models/model_base.py	/^    def update(self, query, update, multi=True):$/;"	m	class:Model
+update	girder/utility/progress.py	/^    def update(self, force=False, **kwargs):$/;"	m	class:ProgressContext
+updateGroup	girder/api/v1/group.py	/^    def updateGroup(self, group, name, description, public, addAllowed):$/;"	m	class:Group
+updateGroup	girder/models/group.py	/^    def updateGroup(self, group):$/;"	m	class:Group
+updateHtmlVars	girder/utility/webroot.py	/^    def updateHtmlVars(self, vars):$/;"	m	class:WebrootBase
+updateItem	girder/api/v1/item.py	/^    def updateItem(self, item, name, description, folder, metadata):$/;"	m	class:Item
+updateItem	girder/models/item.py	/^    def updateItem(self, item):$/;"	m	class:Item
+updateKey	girder/api/v1/api_key.py	/^    def updateKey(self, apiKey, name, scope, tokenDuration, active):$/;"	m	class:ApiKey
+updateProgress	girder/models/notification.py	/^    def updateProgress(self, record, save=True, **kwargs):$/;"	m	class:Notification
+updateSize	girder/models/collection.py	/^    def updateSize(self, doc):$/;"	m	class:Collection
+updateSize	girder/models/file.py	/^    def updateSize(self, file):$/;"	m	class:File
+updateSize	girder/models/folder.py	/^    def updateSize(self, doc):$/;"	m	class:Folder
+updateSize	girder/models/item.py	/^    def updateSize(self, doc):$/;"	m	class:Item
+updateSize	girder/models/user.py	/^    def updateSize(self, doc):$/;"	m	class:User
+updateUser	girder/api/v1/user.py	/^    def updateUser(self, user, firstName, lastName, email, admin, status):$/;"	m	class:User
+uploadChunk	girder/utility/abstract_assetstore_adapter.py	/^    def uploadChunk(self, upload, chunk):$/;"	m	class:AbstractAssetstoreAdapter
+uploadChunk	girder/utility/filesystem_assetstore_adapter.py	/^    def uploadChunk(self, upload, chunk):$/;"	m	class:FilesystemAssetstoreAdapter
+uploadChunk	girder/utility/gridfs_assetstore_adapter.py	/^    def uploadChunk(self, upload, chunk):$/;"	m	class:GridFsAssetstoreAdapter
+uploadChunk	girder/utility/s3_assetstore_adapter.py	/^    def uploadChunk(self, upload, chunk):$/;"	m	class:S3AssetstoreAdapter
+uploadFromFile	girder/models/upload.py	/^    def uploadFromFile(self, obj, size, name, parentType=None, parent=None,$/;"	m	class:Upload
+Upload	girder/models/upload.py	/^class Upload(Model):$/;"	c
+UPLOAD_MINIMUM_CHUNK_SIZE	girder/constants.py	/^    UPLOAD_MINIMUM_CHUNK_SIZE = 'core.upload_minimum_chunk_size'$/;"	v	class:SettingKey
+USER_AUTH	girder/constants.py	/^    USER_AUTH = 'core.user_auth'$/;"	v	class:TokenScope
+USER_DEFAULT_FOLDERS	girder/constants.py	/^    USER_DEFAULT_FOLDERS = 'core.addDefaultFolders'$/;"	v	class:CoreEventHandler
+USER_DEFAULT_FOLDERS	girder/constants.py	/^    USER_DEFAULT_FOLDERS = 'core.user_default_folders'$/;"	v	class:SettingKey
+user	girder/api/access.py	/^def user(fun, scope=None):$/;"	f
+User	girder/api/v1/user.py	/^class User(Resource):$/;"	c
+User	girder/models/user.py	/^class User(AccessControlledModel):$/;"	c
+USER_INFO_READ	girder/constants.py	/^    USER_INFO_READ = 'core.user_info.read'$/;"	v	class:TokenScope
+USER_SELF_ACCESS	girder/constants.py	/^    USER_SELF_ACCESS = 'core.grantSelfAccess'$/;"	v	class:CoreEventHandler
+validateCoreAddToGroupPolicy	girder/models/setting.py	/^    def validateCoreAddToGroupPolicy(doc):$/;"	m	class:Setting
+validateCoreBannerColor	girder/models/setting.py	/^    def validateCoreBannerColor(doc):$/;"	m	class:Setting
+validateCoreBrandName	girder/models/setting.py	/^    def validateCoreBrandName(doc):$/;"	m	class:Setting
+validateCoreCollectionCreatePolicy	girder/models/setting.py	/^    def validateCoreCollectionCreatePolicy(doc):$/;"	m	class:Setting
+validateCoreContactEmailAddress	girder/models/setting.py	/^    def validateCoreContactEmailAddress(doc):$/;"	m	class:Setting
+validateCoreCookieLifetime	girder/models/setting.py	/^    def validateCoreCookieLifetime(doc):$/;"	m	class:Setting
+validateCoreCorsAllowHeaders	girder/models/setting.py	/^    def validateCoreCorsAllowHeaders(doc):$/;"	m	class:Setting
+validateCoreCorsAllowMethods	girder/models/setting.py	/^    def validateCoreCorsAllowMethods(doc):$/;"	m	class:Setting
+validateCoreCorsAllowOrigin	girder/models/setting.py	/^    def validateCoreCorsAllowOrigin(doc):$/;"	m	class:Setting
+validateCoreEmailFromAddress	girder/models/setting.py	/^    def validateCoreEmailFromAddress(doc):$/;"	m	class:Setting
+validateCoreEmailHost	girder/models/setting.py	/^    def validateCoreEmailHost(doc):$/;"	m	class:Setting
+validateCoreEmailVerification	girder/models/setting.py	/^    def validateCoreEmailVerification(doc):$/;"	m	class:Setting
+validateCorePluginsEnabled	girder/models/setting.py	/^    def validateCorePluginsEnabled(doc):$/;"	m	class:Setting
+validateCoreRegistrationPolicy	girder/models/setting.py	/^    def validateCoreRegistrationPolicy(doc):$/;"	m	class:Setting
+validateCoreRouteTable	girder/models/setting.py	/^    def validateCoreRouteTable(doc):$/;"	m	class:Setting
+validateCoreServerRoot	girder/models/setting.py	/^    def validateCoreServerRoot(doc):$/;"	m	class:Setting
+validateCoreSmtpEncryption	girder/models/setting.py	/^    def validateCoreSmtpEncryption(doc):$/;"	m	class:Setting
+validateCoreSmtpHost	girder/models/setting.py	/^    def validateCoreSmtpHost(doc):$/;"	m	class:Setting
+validateCoreSmtpPassword	girder/models/setting.py	/^    def validateCoreSmtpPassword(doc):$/;"	m	class:Setting
+validateCoreSmtpPort	girder/models/setting.py	/^    def validateCoreSmtpPort(doc):$/;"	m	class:Setting
+validateCoreSmtpUsername	girder/models/setting.py	/^    def validateCoreSmtpUsername(doc):$/;"	m	class:Setting
+validateCoreUploadMinimumChunkSize	girder/models/setting.py	/^    def validateCoreUploadMinimumChunkSize(doc):$/;"	m	class:Setting
+validateCoreUserDefaultFolders	girder/models/setting.py	/^    def validateCoreUserDefaultFolders(doc):$/;"	m	class:Setting
+validate	girder/constants.py	/^    def validate(cls, level):$/;"	m	class:AccessType
+validate	girder/models/api_key.py	/^    def validate(self, doc):$/;"	m	class:ApiKey
+validate	girder/models/assetstore.py	/^    def validate(self, doc):$/;"	m	class:Assetstore
+validate	girder/models/collection.py	/^    def validate(self, doc):$/;"	m	class:Collection
+validate	girder/models/file.py	/^    def validate(self, doc):$/;"	m	class:File
+validate	girder/models/folder.py	/^    def validate(self, doc, allowRename=False):$/;"	m	class:Folder
+validate	girder/models/group.py	/^    def validate(self, doc):$/;"	m	class:Group
+validate	girder/models/item.py	/^    def validate(self, doc):$/;"	m	class:Item
+validate	girder/models/model_base.py	/^    def validate(self, doc):$/;"	m	class:Model
+validate	girder/models/notification.py	/^    def validate(self, doc):$/;"	m	class:Notification
+validate	girder/models/password.py	/^    def validate(self, doc):$/;"	m	class:Password
+validate	girder/models/setting.py	/^    def validate(self, doc):$/;"	m	class:Setting
+validate	girder/models/token.py	/^    def validate(self, doc):$/;"	m	class:Token
+validate	girder/models/upload.py	/^    def validate(self, doc):$/;"	m	class:Upload
+validate	girder/models/user.py	/^    def validate(self, doc):$/;"	m	class:User
+validateInfo	girder/utility/abstract_assetstore_adapter.py	/^    def validateInfo(doc):$/;"	m	class:AbstractAssetstoreAdapter
+validateInfo	girder/utility/filesystem_assetstore_adapter.py	/^    def validateInfo(doc):$/;"	m	class:FilesystemAssetstoreAdapter
+validateInfo	girder/utility/gridfs_assetstore_adapter.py	/^    def validateInfo(doc):$/;"	m	class:GridFsAssetstoreAdapter
+validateInfo	girder/utility/s3_assetstore_adapter.py	/^    def validateInfo(doc):$/;"	m	class:S3AssetstoreAdapter
+validateKeys	girder/models/model_base.py	/^    def validateKeys(self, keys):$/;"	m	class:Model
+validateSecureCookie	girder/models/setting.py	/^    def validateSecureCookie(doc):$/;"	m	class:Setting
+ValidationException	girder/models/model_base.py	/^class ValidationException(Exception):$/;"	c
+validator	girder/utility/setting_utilities.py	/^class validator(object):  # noqa: class name$/;"	c
+verifyEmail	girder/api/v1/user.py	/^    def verifyEmail(self, user, token):$/;"	m	class:User
+VERSION	girder/constants.py	/^VERSION = {  # Set defaults in case girder-version.json doesn't exist$/;"	v
+version	girder/utility/install.py	/^version = constants.VERSION['apiVersion']$/;"	v
+warning	girder/constants.py	/^    def warning(text):$/;"	m	class:TerminalColor
+WARNING	girder/constants.py	/^    WARNING = '\\033[1;33m'$/;"	v	class:TerminalColor
+WebrootBase	girder/utility/webroot.py	/^class WebrootBase(object):$/;"	c
+webRoot	girder/utility/install.py	/^webRoot = os.path.join(constants.STATIC_ROOT_DIR, 'clients', 'web')$/;"	v
+Webroot	girder/utility/webroot.py	/^class Webroot(WebrootBase):$/;"	c
+WEBROOT_SETTING_CHANGE	girder/constants.py	/^    WEBROOT_SETTING_CHANGE = 'core.updateWebrootSettings'$/;"	v	class:CoreEventHandler
+WRITE	girder/constants.py	/^    WRITE = 1$/;"	v	class:AccessType
+write	girder/__init__.py	/^    def write(self, buf):$/;"	m	class:StreamToLogger
+Z64_LIMIT	girder/utility/ziputil.py	/^Z64_LIMIT = (1 << 31) - 1$/;"	v
+Z_FILECOUNT_LIMIT	girder/utility/ziputil.py	/^Z_FILECOUNT_LIMIT = 1 << 16$/;"	v
+ZipGenerator	girder/utility/ziputil.py	/^class ZipGenerator(object):$/;"	c
+ZipInfo	girder/utility/ziputil.py	/^class ZipInfo(object):$/;"	c
+zlib	girder/utility/ziputil.py	/^    zlib = None$/;"	v

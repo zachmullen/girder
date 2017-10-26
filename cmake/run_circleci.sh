@@ -34,3 +34,12 @@ mkdir -p $CIRCLE_ARTIFACTS/coverage/python $CIRCLE_ARTIFACTS/coverage/js
 cp -r ~/build/coverage.xml ~/girder/clients/web/dev/built/py_coverage/* $CIRCLE_ARTIFACTS/coverage/python
 cp -r ~/build/coverage/* $CIRCLE_ARTIFACTS/coverage/js
 bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+
+# Check if any new symbols were added to public namespace
+ctags -f - -R --languages=python --python-kinds=-i $HOME/girder |
+    awk '$1 !~ /^_/ && $NF !~ /^function:/ && $NF !~ /^class:_/' | sort > $CIRCLE_ARTIFACTS/python_symbols.txt
+
+if [ diff -q $CIRCLE_ARTIFACTS/python_symbols.txt $HOME/girder/etc/python_symbols.txt ]; then
+    echo "Public symbols changed."
+    exit 1
+fi
