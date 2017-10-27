@@ -14,6 +14,14 @@
     msg="Setting girder_python requires setting girder_pip."
   when: girder_python is defined and girder_pip is not defined
 
+- name: Update package cache
+  apt:
+    name: apt-transport-https
+    update_cache: yes
+  become: yes
+  become_user: root
+
+
 - name: Ensure girder base directory exists
   file:
     path: "{{ girder_path }}"
