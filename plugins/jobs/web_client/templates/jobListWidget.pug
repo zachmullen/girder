@@ -24,6 +24,10 @@ if showGraphs
       a(data-toggle="tab", name="time")
         i.icon-chart-line
         |  Time series
+    li(class=(currentView==='vis' ? 'active' : ''))
+      a(data-toggle="tab", name="vis")
+        i.icon-chart-line
+        |  Visualization
 
 .g-main-content
 

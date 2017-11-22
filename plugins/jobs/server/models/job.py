@@ -45,8 +45,9 @@ class Job(AccessControlledModel):
 
         self.exposeFields(level=AccessType.READ, fields={
             'title', 'type', 'created', 'interval', 'when', 'status',
-            'progress', 'log', 'meta', '_id', 'public', 'parentId', 'async',
-            'updated', 'timestamps', 'handler', 'jobInfoSpec'})
+            'progress', 'log', 'meta', '_id', 'public', 'parentId', 'rootId',
+            'parentType', 'groupId', 'async', 'updated', 'timestamps', 'handler',
+            'jobInfoSpec'})
 
         self.exposeFields(level=AccessType.SITE_ADMIN, fields={'args', 'kwargs'})
 

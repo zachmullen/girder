@@ -1,6 +1,9 @@
 import $ from 'jquery';
 import _ from 'underscore';
 
+import 'jstree';
+import 'jstree/dist/themes/default/style.css';
+
 import PaginateWidget from 'girder/views/widgets/PaginateWidget';
 import View from 'girder/views/View';
 import router from 'girder/router';
@@ -16,6 +19,8 @@ import JobStatus from '../JobStatus';
 import JobListWidgetTemplate from '../templates/jobListWidget.pug';
 import '../stylesheets/jobListWidget.styl';
 import JobListTemplate from '../templates/jobList.pug';
+import JobVisTemplate from '../templates/jobVis.pug';
+import JobVisHierarchyTemplate from '../templates/jobVisHierarchy.pug';
 
 import CheckBoxMenu from './CheckBoxMenu';
 import JobGraphWidget from './JobGraphWidget';
@@ -255,11 +260,54 @@ var JobListWidget = View.extend({
                 anyJobChecked: _.find(this.jobCheckedStates, (status) => status === true),
                 allJobChecked: this.collection.every((job) => this.jobCheckedStates[job.id])
             }));
+        } else if (this.currentView === 'vis') {
+            this.$('.g-main-content').html(JobVisTemplate());
+            let parsedData = this._parseJobsIntoGroups(this.collection.toArray());
+            console.log(parsedData);
+            this.$('.g-job-vis').jstree({'core': {'data': parsedData}})
+                .bind('select_node.jstree', (e, data) => {
+                    router.navigate(`job/${data.node.id}`, {trigger: true});
+                });
         }
 
         if (this.showPaging) {
             this.paginateWidget.setElement(this.$('.g-job-pagination')).render();
         }
+    },
+
+    _parseJobsIntoGroups: function (jobs) {
+        let jobTreeData = [];
+        let groupData = {};
+        _.forEach(jobs, (j) => {
+            let job = {id: j.id};
+            let parent;
+            if (j.get('rootId') == null) {
+                parent = '#';
+            } else {
+                if (j.get('groupId') != null) {
+                    let groupId = j.get('groupId');
+                    let rootId = j.get('rootId');
+
+                    let groupTuple = JSON.stringify([groupId, rootId]);
+                    parent = groupId;
+                    if (!(groupTuple in groupData)) {
+                        groupData[groupTuple] = null;
+                    }
+                } else {
+                    parent = j.get('rootId');
+                }
+            }
+            job.parent = parent;
+            job.text = j.get('title');
+            jobTreeData.push(job);
+        });
+
+        for (let tuple in groupData) {
+            let data = JSON.parse(tuple);
+            let group = {id: data[0], parent: data[1], text: 'Group'};
+            jobTreeData.push(group);
+        }
+        return jobTreeData;
     },
 
     _statusChange: function (event) {
