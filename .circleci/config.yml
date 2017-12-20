@@ -67,7 +67,7 @@ jobs:
   py3_serverInstall:
     docker:
       # This image uses the newest version of many dependencies
-      - image: girder/girder_test:latest-py3
+      - image: girder/girder_test:test-python-3.6
 
     working_directory: /home/circleci/project # as $CIRCLE_WORKING_DIRECTORY
 
@@ -75,7 +75,7 @@ jobs:
       - checkout:
           path: girder
       - restore_cache:
-          key: venv-py3.5-{{ arch }}-{{ checksum "girder/setup.py" }}-{{ checksum "girder/requirements-dev.txt" }}
+          key: venv-py3.6-{{ arch }}-{{ checksum "girder/setup.py" }}-{{ checksum "girder/requirements-dev.txt" }}
       - run:
           name: Create virtual environment (if necessary)
           command: if [ ! -d girder_env ]; then python3 -m venv girder_env; fi
@@ -96,7 +96,7 @@ jobs:
             pyclean girder_env
       - save_cache:
           paths: girder_env
-          key: venv-py3.5-{{ arch }}-{{ checksum "girder/setup.py" }}-{{ checksum "girder/requirements-dev.txt" }}
+          key: venv-py3.6-{{ arch }}-{{ checksum "girder/setup.py" }}-{{ checksum "girder/requirements-dev.txt" }}
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
@@ -105,7 +105,7 @@ jobs:
 
   py3_serverTest:
     docker:
-      - image: girder/girder_test:latest-py3
+      - image: girder/girder_test:test-python-3.6
       # Use the latest MongoDB
       - image: circleci/mongo:3.6-ram
 
@@ -125,7 +125,7 @@ jobs:
           command: ctest --extra-verbose --script "$CIRCLE_WORKING_DIRECTORY/girder/.circleci/ci_test.cmake" --exclude-regex '^server_pytest_core$'
           environment:
             TEST_GROUP: python
-            PYTHON_VERSION: 3.5
+            PYTHON_VERSION: 3.6
             PYTHON_EXECUTABLE: /home/circleci/project/girder_env/bin/python
             VIRTUALENV_EXECUTABLE: /home/circleci/project/girder_env/bin/python3 -m venv
           working_directory: girder_build
@@ -142,7 +142,7 @@ jobs:
 
   py3_webBuild_webTest:
     docker:
-      - image: girder/girder_test:latest-py3
+      - image: girder/girder_test:test-python-3.6
       - image: circleci/mongo:3.6-ram
 
     working_directory: /home/circleci/project # as $CIRCLE_WORKING_DIRECTORY
@@ -171,7 +171,7 @@ jobs:
           command: ctest --extra-verbose --script "$CIRCLE_WORKING_DIRECTORY/girder/.circleci/ci_test.cmake"
           environment:
             TEST_GROUP: browser
-            PYTHON_VERSION: 3.5
+            PYTHON_VERSION: 3.6
             PYTHON_EXECUTABLE: /home/circleci/project/girder_env/bin/python
             VIRTUALENV_EXECUTABLE: /home/circleci/project/girder_env/bin/python3 -m venv
             JASMINE_TIMEOUT: 15000
@@ -317,10 +317,10 @@ jobs:
           name: allow boto to work with python 3
           command: sudo rm --force /etc/boto.cfg
       - run:
-          name: Set up Python 3.5
+          name: Set up Python 3.6
           command: |
-             pyenv install 3.5.4 || true
-             pyenv global 3.5.4
+             pyenv install 3.6.4 || true
+             pyenv global 3.6.4
       - run:
           name: Set up virtualenv
           command: |
@@ -356,7 +356,7 @@ jobs:
           command: girder-install web --all-plugins --dev | cat
       - run:
           name: CMake
-          command: cmake ../girder -DPYTHON_VERSION=3.5 -DPYTHON_EXECUTABLE=/home/circleci/.virtualenvs/girder/bin/python -DVIRTUALENV_EXECUTABLE=/home/circleci/.virtualenvs/girder/bin/virtualenv
+          command: cmake ../girder -DPYTHON_VERSION=3.6 -DPYTHON_EXECUTABLE=/home/circleci/.virtualenvs/girder/bin/python -DVIRTUALENV_EXECUTABLE=/home/circleci/.virtualenvs/girder/bin/virtualenv
           working_directory: girder_build
       - run:
           name: make
@@ -376,7 +376,7 @@ jobs:
 
   py3_coverage:
     docker:
-      - image: girder/girder_test:latest-py3
+      - image: girder/girder_test:test-python-3.6
       - image: circleci/mongo:3.6-ram
     working_directory: /home/circleci/project # as $CIRCLE_WORKING_DIRECTORY
     steps:
@@ -390,7 +390,7 @@ jobs:
           command: ctest --extra-verbose --script "$CIRCLE_WORKING_DIRECTORY/girder/.circleci/ci_test.cmake"
           environment:
             TEST_GROUP: coverage
-            PYTHON_VERSION: 3.5
+            PYTHON_VERSION: 3.6
             PYTHON_EXECUTABLE: /home/circleci/project/girder_env/bin/python
             JASMINE_TIMEOUT: 15000
             BUILD_JAVASCRIPT_TESTS: ON
@@ -412,7 +412,7 @@ jobs:
           working_directory: girder
   deploy:
     docker:
-      - image: girder/girder_test:latest-py3
+      - image: girder/girder_test:test-python-3.6
     working_directory: /home/circleci/project # as $CIRCLE_WORKING_DIRECTORY
     steps:
       # This step depends on both "py2_coverage" and "py3_coverage", as it should only run when
@@ -423,7 +423,7 @@ jobs:
       # Since this cache must have been created in a previous step of this workflow, we can get
       # a virtualenv without having to create one or install anything.
       - restore_cache:
-          key: venv-py3.5-{{ arch }}-{{ checksum "girder/setup.py" }}-{{ checksum "girder/requirements-dev.txt" }}
+          key: venv-py3.6-{{ arch }}-{{ checksum "girder/setup.py" }}-{{ checksum "girder/requirements-dev.txt" }}
       - run:
           name: Activate virtual environment
           command: echo ". $CIRCLE_WORKING_DIRECTORY/girder_env/bin/activate" >> $BASH_ENV
