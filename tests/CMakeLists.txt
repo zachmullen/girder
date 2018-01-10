@@ -46,7 +46,6 @@ if(RUN_CORE_TESTS)
   add_python_test(rest_decorator BIND_SERVER)
   add_python_test(routes BIND_SERVER)
   add_python_test(search)
-  add_python_test(setting)
   add_python_test(sftp)
   add_python_test(stream BIND_SERVER TIMEOUT 90)
   # The system test depends on javascript-generate version information, so add
