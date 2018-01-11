@@ -33,3 +33,31 @@ def assertStatus(response, code):
 def assertStatusOk(response):
     __tracebackhide__ = True
     return assertStatus(response, 200)
+
+
+def assertMissingParameter(response, param):
+    """
+    Assert that the response was a "parameter missing" error response.
+
+    :param response: The response object.
+    :param param: The name of the missing parameter.
+    :type param: str
+    """
+    __tracebackhide__ = True
+    assert response.json.get('message', '') == 'Parameter "%s" is required.' % param
+    assertStatus(response, 400)
+
+
+def assertRequiredParams(server, path='/', method='GET', required=(), user=None):
+    """
+    Ensure that a set of parameters is required by the endpoint.
+    :param path: The endpoint path to test.
+    :param method: The HTTP method of the endpoint.
+    :param required: The required parameter set.
+    :type required: sequence of str
+    """
+    __tracebackhide__ = True
+    for exclude in required:
+        params = dict.fromkeys([p for p in required if p != exclude], '')
+        resp = server.request(path=path, method=method, params=params, user=user)
+        assertMissingParameter(resp, exclude)

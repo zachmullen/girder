@@ -23,6 +23,21 @@ from girder.utility import setting_utilities
 
 import pytest
 
+# This is another side effect of having global state, see
+# https://github.com/girder/girder/issues/2530.
+@pytest.fixture
+def mockSettingUtilities():
+    oldValidators = setting_utilities._validators
+    oldDefaultFunctions = setting_utilities._defaultFunctions
+
+    setting_utilities._validators = {}
+    setting_utilities._defaultFunctions = {}
+
+    yield
+
+    setting_utilities._validators = oldValidators
+    setting_utilities._defaultFunctions = oldDefaultFunctions
+
 
 def testUniqueIndex(db):
     settingModel = Setting()
@@ -60,7 +75,7 @@ def testUniqueIndex(db):
     assert settingModel.find({'key': 'duplicate'}).count() == 1
 
 
-def testValidators(db):
+def testValidators(db, mockSettingUtilities):
     @setting_utilities.validator('test.key1')
     def key1v1(doc):
         raise ValidationException('key1v1')
@@ -83,7 +98,7 @@ def testValidators(db):
         Setting().set('test.key2', '')
 
 
-def testValidatorReplacement(db):
+def testValidatorReplacement(db, mockSettingUtilities):
     @setting_utilities.validator('test.key2')
     def key2v1(doc):
         raise ValidationException('key2v1')
@@ -96,7 +111,7 @@ def testValidatorReplacement(db):
     assert setting['value'] == 'modified'
 
 
-def testDefaultSettingFunction(db):
+def testDefaultSettingFunction(db, mockSettingUtilities):
     assert Setting().get('test.key') is None
 
     @setting_utilities.default('test.key')
