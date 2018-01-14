@@ -32,6 +32,22 @@ NAMESPACE = 'girder.plugin'
 _pluginRegistry = None
 _pluginFailureInfo = {}
 _pluginLoadOrder = []
+_pluginWebroots = {}
+
+
+def getPluginWebroots():
+    global _pluginWebroots
+    return _pluginWebroots
+
+
+def registerPluginWebroot(webroot, name):
+    """
+    Adds a webroot to the global registry for plugins based on
+    the plugin name.
+    """
+    global _pluginWebroots
+
+    _pluginWebroots[name] = webroot
 
 
 def _wrapPluginLoad(func):
@@ -197,7 +213,7 @@ def loadPlugins(names, info):
 
 def allPlugins():
     """Return a list of all detected plugins."""
-    return _getPluginRegistry().keys()
+    return list(_getPluginRegistry().keys())
 
 
 def loadedPlugins():

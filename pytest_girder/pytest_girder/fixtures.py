@@ -88,10 +88,7 @@ def server(db, request):
     from girder.api import docs
     from girder.constants import SettingKey
     from girder.models.setting import Setting
-    from girder.utility import plugin_utilities
     from girder.utility.server import setup as setupServer
-
-    oldPluginDir = plugin_utilities.getPluginDir
 
     girder.events.daemon = girder.events.AsyncEventsThread()
 
@@ -101,12 +98,6 @@ def server(db, request):
         for testPluginMarker in testPluginMarkers:
             pluginName = testPluginMarker.args[0]
             enabledPlugins.append(pluginName)
-
-        # testFilePath is a py.path.local object that we *assume* lives in 'test/',
-        # with 'test/test_plugins' nearby
-        testFilePath = request.node.fspath
-        testPluginsPath = testFilePath.dirpath('test_plugins').strpath
-        plugin_utilities.getPluginDir = mock.Mock(return_value=testPluginsPath)
 
         Setting().set(SettingKey.PLUGINS_ENABLED, enabledPlugins)
 
@@ -126,9 +117,6 @@ def server(db, request):
     cherrypy.engine.stop()
     cherrypy.engine.exit()
     cherrypy.tree.apps = {}
-    plugin_utilities.getPluginDir = oldPluginDir
-    plugin_utilities.getPluginWebroots().clear()
-    plugin_utilities.getPluginFailureInfo().clear()
     docs.routes.clear()
 
 
