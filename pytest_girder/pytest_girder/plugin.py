@@ -27,6 +27,8 @@ def _addCustomMarkers(config):
         ('plugin(pluginName): enable an installed plugin.  this marker cannot be used with '
          'this marker can be provided multiple times to enable more than one installed plugin, '
          'and is incompatible with "@pytest.mark.testPlugin".'),
+        ('dbFixture(filename): load a YAML file for database preparation (may be marked '
+         'multiple times)')
     ]
     for markerDoc in markerDocs:
         config.addinivalue_line('markers', markerDoc)
