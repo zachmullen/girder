@@ -6,6 +6,7 @@ import os
 import pytest
 import shutil
 
+from .dbfixtures import main as setupDbFixture
 from .utils import MockSmtpReceiver, request as restRequest
 
 
@@ -60,6 +61,12 @@ def db(request):
     # Since some models bind to events during initialize(), we force reinitialization
     model_base._modelSingletons = []
 
+    # Apply any database fixture setup
+    if request.node.get_marker('dbFixture'):
+        setupDbFixture(request.node.fspath.join(request.node.get_marker('dbFixture').args[0]))
+
+        setupDbFixture(request.node.fspath.dirpath().join(request.node.get_marker('dbFixture')
+                                                          .args[0]).strpath)
     yield connection
 
     if not keepDb:

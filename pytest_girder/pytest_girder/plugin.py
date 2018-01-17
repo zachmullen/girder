@@ -22,6 +22,8 @@ def _makeCoverageDirs(config):
 def _addCustomMarkers(config):
     markerDocs = [
         'testPlugin(pluginName): load a test plugin (may be marked multiple times)',
+        'dbFixture(filename): load a YAML file for database preparation (may be marked '
+        'multiple times)'
     ]
     for markerDoc in markerDocs:
         config.addinivalue_line('markers', markerDoc)
