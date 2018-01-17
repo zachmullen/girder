@@ -51,7 +51,7 @@ from . import mongo_replicaset
 
 with warnings.catch_warnings():
     warnings.filterwarnings('ignore', 'setup_database.*')
-    from . import setup_database
+    from pytest_girder import dbfixtures
 
 local = cherrypy.lib.httputil.Host('127.0.0.1', 30000)
 remote = cherrypy.lib.httputil.Host('127.0.0.1', 30001)
@@ -241,7 +241,7 @@ class TestCase(unittest.TestCase, model_importer.ModelImporter):
         settings.set(SettingKey.PLUGINS_ENABLED, enabledPlugins)
 
         if os.environ.get('GIRDER_TEST_DATABASE_CONFIG'):
-            setup_database.main(os.environ['GIRDER_TEST_DATABASE_CONFIG'])
+            dbfixtures.main(os.environ['GIRDER_TEST_DATABASE_CONFIG'])
 
     def tearDown(self):
         """
