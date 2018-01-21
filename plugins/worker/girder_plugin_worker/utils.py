@@ -21,7 +21,7 @@ from .constants import PluginSettings
 from girder.api.rest import getApiUrl
 from girder.models.file import File
 from girder.models.setting import Setting
-from girder.plugins.jobs.models.job import Job
+from girder_plugin_jobs.models.job import Job
 
 
 def getWorkerApiUrl():
