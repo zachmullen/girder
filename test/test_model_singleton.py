@@ -9,9 +9,8 @@ class Subclass(Item):
 
 
 @pytest.mark.parametrize('cls', (Item, Subclass))
-def testModelSingletonBehavior(cls):
+def testModelSingletonBehavior(cls, db):
     with mock.patch.object(cls, '__init__', return_value=None) as init:
         init.assert_not_called()
-        cls()
-        cls()
+        assert id(cls()) == id(cls())
         init.assert_called_once()

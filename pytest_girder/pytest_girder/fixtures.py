@@ -57,9 +57,6 @@ def db(request):
 
     connection.drop_database(dbName)
 
-    # Since some models bind to events during initialize(), we force reinitialization
-    model_base._modelSingletons = []
-
     yield connection
 
     if not keepDb:
