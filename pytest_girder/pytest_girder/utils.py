@@ -251,3 +251,10 @@ def buildHeaders(headers, cookie, user, token, basicAuth, authHeader):
         headers.append((authHeader, 'Basic %s' % auth.decode()))
 
     return headers
+
+
+def getSseMessages(response):
+    messages = getResponseBody(response).strip().split('\n\n')
+    if not messages or messages == ['']:
+        return ()
+    return [json.loads(m.replace('data: ', '')) for m in messages]
