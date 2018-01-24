@@ -170,6 +170,7 @@ def request(path='/', method='GET', params=None, user=None,
     :type appPrefix: str
     :returns: The cherrypy response object from the request.
     """
+    __tracebackhide__ = True
     local = cherrypy.lib.httputil.Host('127.0.0.1', 30000)
     remote = cherrypy.lib.httputil.Host('127.0.0.1', 30001)
     headers = [('Host', '127.0.0.1'), ('Accept', 'application/json')]

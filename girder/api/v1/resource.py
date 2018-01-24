@@ -70,6 +70,8 @@ class Resource(BaseResource):
         """
         Perform a search using one of the registered search modes.
         """
+        # if q == 'gibberish':
+        #     import pdb; pdb.set_trace()
         level = AccessType.validate(level)
         user = self.getCurrentUser()
         handler = getSearchModeHandler(mode)
