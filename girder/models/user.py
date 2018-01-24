@@ -53,8 +53,12 @@ class User(AccessControlledModel):
             'size', 'email', 'groups', 'groupInvites', 'status',
             'emailVerified'))
 
+        events.unbind('model.user.save.created',
+                      CoreEventHandler.USER_SELF_ACCESS)
         events.bind('model.user.save.created',
                     CoreEventHandler.USER_SELF_ACCESS, self._grantSelfAccess)
+        events.unbind('model.user.save.created',
+                      CoreEventHandler.USER_DEFAULT_FOLDERS)
         events.bind('model.user.save.created',
                     CoreEventHandler.USER_DEFAULT_FOLDERS,
                     self._addDefaultFolders)
