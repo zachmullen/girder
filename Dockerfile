@@ -31,4 +31,7 @@ COPY README.rst /girder/README.rst
 RUN pip install --upgrade --editable .[plugins]
 RUN girder-install web --all-plugins
 
+# Remove cache and node modules once everything is built
+RUN rm -rf /root/.npm /root/.cache /girder/node_modules
+
 ENTRYPOINT ["python2", "-m", "girder"]
