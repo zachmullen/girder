@@ -25,7 +25,7 @@ from girder.constants import AccessType, TokenScope
 from girder.exceptions import RestException
 from girder.api import access
 from girder.utility import parseTimestamp
-from girder.utility.search import getSearchModeHandler
+from girder.utility.search import search_registry
 from girder.utility import ziputil
 from girder.utility import path as path_util
 from girder.utility.progress import ProgressContext
@@ -74,7 +74,7 @@ class Resource(BaseResource):
         #     import pdb; pdb.set_trace()
         level = AccessType.validate(level)
         user = self.getCurrentUser()
-        handler = getSearchModeHandler(mode)
+        handler = search_registry.getSearchModeHandler(mode)
         if handler is None:
             raise RestException('Search mode handler %r not found.' % mode)
         results = handler(

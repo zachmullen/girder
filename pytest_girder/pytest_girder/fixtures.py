@@ -85,7 +85,7 @@ def db(request):
 
 
 @pytest.fixture
-def server(db, request):
+def server(app, db, request):
     """
     Require a CherryPy embedded server.
 
@@ -122,7 +122,7 @@ def server(db, request):
 
         Setting().set(SettingKey.PLUGINS_ENABLED, enabledPlugins)
 
-    server = setupServer(test=True, plugins=enabledPlugins)
+    server = setupServer(test=True, plugins=enabledPlugins, app=app)
     server.request = restRequest
 
     cherrypy.server.unsubscribe()
@@ -138,6 +138,7 @@ def server(db, request):
     cherrypy.engine.stop()
     cherrypy.engine.exit()
     cherrypy.tree.apps = {}
+    cherrypy.tree.girder_app = None
     plugin_utilities.getPluginDir = oldPluginDir
     plugin_utilities.getPluginWebroots().clear()
     plugin_utilities.getPluginFailureInfo().clear()

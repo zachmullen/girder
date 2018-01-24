@@ -614,10 +614,12 @@ def endpoint(fun):
     """
     @six.wraps(fun)
     def endpointDecorator(self, *args, **kwargs):
+        import cherrypy
         _setCommonCORSHeaders()
         cherrypy.lib.caching.expires(0)
         try:
-            val = fun(self, args, kwargs)
+            with cherrypy.tree.girder_app.app_context():
+                val = fun(self, args, kwargs)
 
             # If this is a partial response, we set the status appropriately
             if 'Content-Range' in cherrypy.response.headers:
