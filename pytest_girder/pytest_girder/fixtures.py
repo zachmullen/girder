@@ -112,6 +112,13 @@ def server(db, request):
 
     yield server
 
+    from girder import plugin
+
+    plugin._pluginRegistry = None
+    plugin._pluginFailureInfo = {}
+    plugin._pluginLoadOrder = []
+    plugin._pluginWebroots = {}
+
     cherrypy.engine.unsubscribe('start', girder.events.daemon.start)
     cherrypy.engine.unsubscribe('stop', girder.events.daemon.stop)
     cherrypy.engine.stop()
