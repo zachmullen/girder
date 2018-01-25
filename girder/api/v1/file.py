@@ -214,9 +214,10 @@ class File(Resource):
                'data can be sent as a file in the "chunk" field in multipart '
                'form data.  Multipart uploads are much less efficient and '
                'their use is deprecated.')
-        .modelParam('uploadId', paramType='formData', model=Upload)
+        .modelParam('uploadId', paramType='query', model=Upload)
         .param('offset', 'Offset of the chunk in the file.', dataType='integer',
-               paramType='formData')
+               paramType='query')
+        .param('body', '', paramType='body')
         .errorResponse(('ID was invalid.',
                         'Received too many bytes.',
                         'Chunk is smaller than the minimum size.'))
