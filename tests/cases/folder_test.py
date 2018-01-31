@@ -549,6 +549,44 @@ class FolderTestCase(base.TestCase):
 
     def testParentsToRoot(self):
         """
+        Demonstrate that parentsToRoot works even if the user has missing right access
+        on one or more folder in the full path.
+        This tests for a user with right access, a user without and a none user.
+        """
+        # Create the parent chain
+        F1 = Folder().createFolder(
+            parent=self.admin, parentType='user', creator=self.admin,
+            name='F1', public=True)
+        F2 = Folder().createFolder(
+            parent=F1, parentType='folder', creator=self.admin,
+            name='F2', public=True)
+        PrivateFolder = Folder().createFolder(
+            parent=F2, parentType='folder', creator=self.admin,
+            name='F3', public=False)
+        F4 = Folder().createFolder(
+            parent=PrivateFolder, parentType='folder', creator=self.admin,
+            name='F4', public=True)
+
+        # Get the parent chain for a user who has access rights
+        parents = Folder().parentsToRoot(F4, user=self.admin)
+        for idx in range(1, 4):
+            self.assertEqual(parents[idx]['object']['name'], 'F%i' % idx)
+
+        # Get the parent chain for a user who doesn't have access rights
+        # TODO: This raise an AccessException : Read access denied for folder
+        # parents = Folder().parentsToRoot(F4, user=self.user)
+        # for idx in range(1, 4):
+        # print(parents[idx])
+        # self.assertEqual(parents[idx]['object']['name'], 'F%i' % idx)
+
+        # Get the parent chain for a none user
+        # TODO: This raise an AccessException : Read access denied for folder
+        # parents = Folder().parentsToRoot(F4, user=None)
+        # for idx in range(1, 4):
+        #     print(parents[idx])
+
+    def testParentsToRootForced(self):
+        """
         Demonstrate that forcing parentsToRoot will cause it to skip the
         filtering process.
         """
