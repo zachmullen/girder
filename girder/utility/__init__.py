@@ -17,6 +17,7 @@
 #  limitations under the License.
 ###############################################################################
 
+import bson
 import cherrypy
 import datetime
 import dateutil.parser
@@ -136,14 +137,25 @@ class JsonEncoder(json.JSONEncoder):
     """
     def default(self, obj):
         event = girder.events.trigger('rest.json_encode', obj)
-        if len(event.responses):
+        if event.responses:
             return event.responses[-1]
 
-        if isinstance(obj, set):
-            return tuple(obj)
-        elif isinstance(obj, datetime.datetime):
+        try:
+            iter(obj)
+        except TypeError:
+            pass
+        else:
+            return list(obj)
+
+        if isinstance(obj, datetime.datetime):
             return obj.replace(tzinfo=pytz.UTC).isoformat()
-        return str(obj)
+
+        if isinstance(obj, bson.ObjectId):
+            return str(obj)
+
+        # Fail if an object can't be meaningfully serialized, to prevent inaccurate data from
+        # silently being passed on
+        return super(JsonEncoder, self).default(obj)
 
 
 class RequestBodyStream(object):
