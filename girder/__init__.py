@@ -312,4 +312,8 @@ from flask import Flask
 
 def create_app():
     app = Flask('girder')
+
+    from girder.utility.search import searchRegistry
+    searchRegistry.init_app(app)
+
     return app
