@@ -82,7 +82,7 @@ def testGetApiUrl():
         rest.getApiUrl(url)
 
 
-def testCustomJsonEncoder():
+def testCustomJsonEncoder(server):
     resource = TestResource()
     resp = resource.returnsSet().decode('utf8')
     assert json.loads(resp) == {'key': [1, 2, 3]}
@@ -95,7 +95,7 @@ def testCustomJsonEncoder():
         resource.returnsInf()
 
 
-def testCustomJsonEncoderEvent():
+def testCustomJsonEncoderEvent(server):
     def _toString(event):
         obj = event.info
         if isinstance(obj, set):

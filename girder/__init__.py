@@ -307,3 +307,9 @@ logprint.exception = functools.partial(
 
 # alias girder.plugin => girder.utility.plugin_utilities
 from girder.utility import plugin_utilities as plugin  # noqa
+
+from flask import Flask
+
+def create_app():
+    app = Flask('girder')
+    return app

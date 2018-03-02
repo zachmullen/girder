@@ -210,7 +210,7 @@ def loadRouteTable(reconcileRoutes=False):
     return {name: route for (name, route) in six.viewitems(routeTable) if route}
 
 
-def setup(test=False, plugins=None, curConfig=None):
+def setup(test=False, plugins=None, curConfig=None, app=None):
     """
     Configure and mount the Girder server and plugins under the
     appropriate routes.
@@ -252,6 +252,12 @@ def setup(test=False, plugins=None, curConfig=None):
 
     if test:
         application.merge({'server': {'mode': 'testing'}})
+
+    if app is None:
+        from girder import create_app
+        app = create_app()
+
+    cherrypy.tree.girder_app = app
 
     return application
 
