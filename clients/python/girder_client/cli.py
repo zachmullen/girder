@@ -20,6 +20,8 @@ import click
 import requests
 import sys
 import types
+import six
+import os
 from girder_client import GirderClient, __version__
 
 
@@ -122,6 +124,50 @@ class _Group(click.Group):
         self.format_commands(ctx, formatter)
 
 
+def _parseConfigFile(path):
+    config = six.moves.configparser.ConfigParser(allow_no_value=True)
+    params = ['username', 'password', 'api_key', 'api_url', 'scheme', 'host', 'port', 'api_root',
+              'no_ssl_verify', 'certificate']
+    data = {}
+    try:
+        with open(path, 'r') as configFile:
+            config.readfp(configFile)
+            for key in params:
+                try:
+                    value = config.get('CLI', key)
+                    if value:
+                        data[key] = value
+                except six.moves.configparser.NoOptionError:
+                    continue
+        return data
+    except six.moves.configparser.NoSectionError:
+        return []
+
+
+def _loadConfigPaths(ctx, configOption):
+    configFiles = []
+    paths = []
+    # Check '/etc/girder_cliecnt.cfg' and '~/.girder/girder_client.cfg' for config files
+    configFiles.append(os.path.join('/etc', 'girder_client.cfg'))
+    configFiles.append(os.path.join(os.path.expanduser('~'), '.girder', 'girder_client.cfg'))
+    # Check girder client environment variable
+    if 'GIRDER_CLIENT_CONFIG' in os.environ:
+        configFiles.append(os.environ['GIRDER_CONFIG'])
+    # Check if path to config file was provided by user
+    if configOption:
+        configFiles.append(configOption)
+
+    # Update click context for each config file
+    for path in configFiles:
+        if os.path.exists(path):
+            paths.append(path)
+    for path in paths:
+        data = _parseConfigFile(path)
+        for key in data:
+            if not ctx.params.get(key, None):
+                ctx.params[key] = data[key]
+
+
 _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
@@ -165,11 +211,14 @@ _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
               show_default=True,
               cls=_AdvancedOption
               )
+@click.option('--config', default=None,
+              help='full path to the config file',
+              show_default=True,
+              cls=_AdvancedOption)
 @click.version_option(version=__version__, prog_name='Girder command line interface')
 @click.pass_context
-def main(ctx, username, password,
-         api_key, api_url, scheme, host, port, api_root,
-         no_ssl_verify, certificate):
+def main(ctx, username, password, api_key, api_url, scheme, host, port, api_root,
+         no_ssl_verify, certificate, config):
     """Perform common Girder CLI operations.
 
     The CLI is particularly suited to upload (or download) large, nested
@@ -184,14 +233,26 @@ def main(ctx, username, password,
     input his/her password.
     """
     # --api-url and URL by part arguments are mutually exclusive
-    url_part_options = ['host', 'scheme', 'port', 'api_root']
-    has_api_url = ctx.params.get('api_url', None)
+    _loadConfigPaths(ctx, config)
+
+    username = ctx.params.get('username')
+    password = ctx.params.get('password')
+    api_key = ctx.params.get('api_key')
+    api_url = ctx.params.get('api_url')
+    scheme = ctx.params.get('scheme')
+    host = ctx.params.get('host')
+    port = ctx.params.get('port')
+    api_root = ctx.params.get('api_root')
+    no_ssl_verify = ctx.params.get('no_ssl_verify')
+    certificate = ctx.params.get('certificate')
+
+    url_part_options = [host, scheme, port, api_root]
     for name in url_part_options:
-        has_url_part = ctx.params.get(name, None)
-        if has_api_url and has_url_part:
+        if api_url and name:
             raise click.BadArgumentUsage(
                 'Option "--api-url" and option "--%s" are mutually exclusive.' %
                 name.replace("_", "-"))
+
     if certificate and no_ssl_verify:
         raise click.BadArgumentUsage(
             'Option "--no-ssl-verify" and option "--certificate" are mutually exclusive.')
@@ -212,7 +273,6 @@ def main(ctx, username, password,
 
 
 def _lookup_parent_type(client, object_id):
-
     object_id = client._checkResourcePath(object_id)
 
     for parent_type in ['folder', 'collection', 'user', 'item', 'file']:
