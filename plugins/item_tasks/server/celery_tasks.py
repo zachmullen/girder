@@ -65,7 +65,7 @@ def celeryTaskDescriptionForFolder(self, folder, extension, params):
     itemModel = self.model('item')
     items = []
     for name, func in six.iteritems(tasks):
-        desc = decorators.describe_function(func)
+        desc = decorators.get_item_tasks_description(func)
         item = itemModel.createItem(
             name=desc['name'],
             creator=user,
@@ -81,7 +81,7 @@ def celeryTaskDescriptionForFolder(self, folder, extension, params):
 @boundHandler
 def describeItemTaskFromFunction(self, func, item, importName, setName=True, setDescription=True):
     try:
-        description = decorators.describe_function(func)
+        description = decorators.get_item_tasks_description(func)
     except Exception:
         raise RestException('Could not get a task description')
 
@@ -113,7 +113,7 @@ def runCeleryTask(taskName, inputs, outputs={}):
 
     task = tasks[taskName]
     try:
-        decorators.describe_function(task.run)
+        decorators.get_item_tasks_description(task)
     except decorators.MissingDescriptionException:
         raise RestException('"%s" is not a girder_worker decorated task' % taskName)
 
