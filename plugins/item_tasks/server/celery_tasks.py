@@ -118,8 +118,8 @@ def runCeleryTask(taskName, inputs, outputs={}):
         raise RestException('"%s" is not a girder_worker decorated task' % taskName)
 
     try:
-        args, kwargs = decorators.parse_inputs(task.run, inputs)
-    except decorators.MissingInputException as e:
+        args, kwargs = task.main.parse_inputs(inputs)
+    except Exception as e:
         raise RestException(str(e))
 
     try:
