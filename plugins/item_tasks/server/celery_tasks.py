@@ -122,9 +122,11 @@ def runCeleryTask(taskName, inputs, outputs={}):
     except Exception as e:
         raise RestException(str(e))
 
+    hooks = task.main.generate_result_hooks(outputs, inputs=inputs)
     try:
         result = task.apply_async(args=args, kwargs=kwargs,
-                                  girder_job_title=taskName)
+                                  girder_job_title=taskName,
+                                  girder_result_hooks=hooks)
     except Exception as e:
         raise RestException(str(e))
 
