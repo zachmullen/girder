@@ -71,12 +71,17 @@ def startServer(mock=True, mockS3=False):
     dbName = cherrypy.config['database']['uri'].split('/')[-1]
     usedDBs[dbName] = True
 
-    server = setupServer(test=True, plugins=enabledPlugins)
+    from werkzeug.test import Client
+    from werkzeug.wrappers import BaseResponse
+
+    app = setupServer(test=True, plugins=enabledPlugins)
+    server = Client(cherrypy.tree, BaseResponse)
+    cherrypy.wz_server = server
 
     if mock:
         cherrypy.server.unsubscribe()
 
-    cherrypy.engine.start()
+    # cherrypy.engine.start()
 
     # Make server quiet (won't announce start/stop or requests)
     cherrypy.config.update({'environment': 'embedded'})
@@ -278,20 +283,17 @@ class TestCase(unittest.TestCase, model_importer.ModelImporter):
         :param code: The status code.
         :type code: int or str
         """
-        code = str(code)
+        if response.status_code != code:
+            msg = 'Response status was %s, not %s.' % (response.status, code)
 
-        if not response.output_status.startswith(code.encode()):
-            msg = 'Response status was %s, not %s.' % (response.output_status,
-                                                       code)
-
-            if hasattr(response, 'json'):
+            if response.headers['Content-Type'] == 'application/json':
                 msg += ' Response body was:\n%s' % json.dumps(
-                    response.json, sort_keys=True, indent=4,
+                    response.data, sort_keys=True, indent=4,
                     separators=(',', ': '))
             else:
-                msg += 'Response body was:\n%s' % self.getBody(response)
+                msg += 'Response body was:\n%s' % getResponseBody(response)
 
-            self.fail(msg)
+            assert response.status_code == code, msg
 
     def assertDictContains(self, expected, actual, msg=''):
         """
@@ -467,20 +469,25 @@ class TestCase(unittest.TestCase, model_importer.ModelImporter):
 
     def _buildHeaders(self, headers, cookie, user, token, basicAuth,
                       authHeader):
+        from girder.models.token import Token
+
         if cookie is not None:
-            headers.append(('Cookie', cookie))
+            headers.add('Cookie', cookie)
 
         if user is not None:
-            headers.append(('Girder-Token', self._genToken(user)))
+            token = Token().createToken(user)
+            headers.add('Girder-Token', str(token['_id']))
         elif token is not None:
             if isinstance(token, dict):
-                headers.append(('Girder-Token', token['_id']))
+                headers.add('Girder-Token', token['_id'])
             else:
-                headers.append(('Girder-Token', token))
+                headers.add('Girder-Token', token)
 
         if basicAuth is not None:
             auth = base64.b64encode(basicAuth.encode('utf8'))
-            headers.append((authHeader, 'Basic %s' % auth.decode()))
+            headers.add(authHeader, 'Basic %s' % auth.decode())
+
+        return headers
 
     def request(self, path='/', method='GET', params=None, user=None,
                 prefix='/api/v1', isJson=True, basicAuth=None, body=None,
@@ -515,48 +522,46 @@ class TestCase(unittest.TestCase, model_importer.ModelImporter):
         :type appPrefix: str
         :returns: The cherrypy response object from the request.
         """
-        headers = [('Host', '127.0.0.1'), ('Accept', 'application/json')]
-        qs = fd = None
+        from werkzeug import Headers
+
+        headers = Headers({
+            'Host': '127.0.0.1',
+            'Accept': 'application/json'
+        })
 
         if additionalHeaders:
             headers.extend(additionalHeaders)
+
+        headers = self._buildHeaders(headers, cookie, user, token, basicAuth, authHeader)
+
+        qs = fd = None
 
         if isinstance(body, six.text_type):
             body = body.encode('utf8')
 
         if params:
-            # Python2 can't urlencode unicode and this does no harm in Python3
-            qs = urllib.parse.urlencode({
-                k: v.encode('utf8') if isinstance(v, six.text_type) else v
-                for k, v in params.items()})
+            qs = urllib.parse.urlencode(params)
 
         if params and body:
             # In this case, we are forced to send params in query string
             fd = BytesIO(body)
-            headers.append(('Content-Type', type))
-            headers.append(('Content-Length', '%d' % len(body)))
+            headers.add('Content-Type', type)
+            headers.add('Content-Length', '%d' % len(body))
         elif method in ['POST', 'PUT', 'PATCH'] or body:
             if type:
                 qs = body
             elif params:
                 qs = qs.encode('utf8')
 
-            headers.append(('Content-Type', type or 'application/x-www-form-urlencoded'))
-            headers.append(('Content-Length', '%d' % len(qs or b'')))
+            headers.add('Content-Type', type or 'application/x-www-form-urlencoded')
+            headers.add('Content-Length', '%d' % len(qs or b''))
             fd = BytesIO(qs or b'')
             qs = None
-
-        app = cherrypy.tree.apps[appPrefix]
-        request, response = app.get_serving(
-            local, remote, 'http' if not useHttps else 'https', 'HTTP/1.1')
-        request.show_tracebacks = True
-
-        self._buildHeaders(headers, cookie, user, token, basicAuth, authHeader)
 
         # Python2 will not match Unicode URLs
         url = str(prefix + path)
         try:
-            response = request.run(method, url, qs, 'HTTP/1.1', headers, fd)
+            response = cherrypy.wz_server.open(path=url, method=method, query_string=qs, headers=headers, data=fd)
         finally:
             if fd:
                 fd.close()
@@ -568,11 +573,12 @@ class TestCase(unittest.TestCase, model_importer.ModelImporter):
             except ValueError:
                 raise AssertionError('Did not receive JSON response')
 
-        if not exception and response.output_status.startswith(b'500'):
+        if not exception and response.status_code >= 500:
             raise AssertionError("Internal server error: %s" %
                                  self.getBody(response))
 
         return response
+
 
     def getBody(self, response, text=True):
         """
@@ -584,7 +590,7 @@ class TestCase(unittest.TestCase, model_importer.ModelImporter):
         """
         data = '' if text else b''
 
-        for chunk in response.body:
+        for chunk in response.data:
             if text and isinstance(chunk, six.binary_type):
                 chunk = chunk.decode('utf8')
             elif not text and not isinstance(chunk, six.binary_type):
