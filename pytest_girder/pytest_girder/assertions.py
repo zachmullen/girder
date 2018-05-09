@@ -14,20 +14,17 @@ def assertStatus(response, code):
     # Hide tracebacks for this function within pytest
     __tracebackhide__ = True
 
-    code = str(code)
+    if response.status_code != code:
+        msg = 'Response status was %s, not %s.' % (response.status, code)
 
-    if not response.output_status.startswith(code.encode()):
-        msg = 'Response status was %s, not %s.' % (response.output_status,
-                                                   code)
-
-        if hasattr(response, 'json'):
+        if response.headers['Content-Type'] == 'application/json':
             msg += ' Response body was:\n%s' % json.dumps(
-                response.json, sort_keys=True, indent=4,
+                response.data, sort_keys=True, indent=4,
                 separators=(',', ': '))
         else:
             msg += 'Response body was:\n%s' % getResponseBody(response)
 
-        assert response.output_status.startswith(code.encode()), msg
+        assert response.status_code == code, msg
 
 
 def assertStatusOk(response):

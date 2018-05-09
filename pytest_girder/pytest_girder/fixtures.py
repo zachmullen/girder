@@ -1,10 +1,13 @@
 import cherrypy
+import functools
 import hashlib
 import mock
 import mongomock
 import os
 import pytest
 import shutil
+from werkzeug.test import Client
+from werkzeug.wrappers import BaseResponse
 
 from .utils import MockSmtpReceiver, request as restRequest
 
@@ -88,7 +91,7 @@ def server(db, request):
     from girder.api import docs
     from girder.constants import SettingKey
     from girder.models.setting import Setting
-    from girder.utility import plugin_utilities
+    from girder.utility import plugin_utilities, config
     from girder.utility.server import setup as setupServer
 
     oldPluginDir = plugin_utilities.getPluginDir
@@ -122,21 +125,27 @@ def server(db, request):
 
         Setting().set(SettingKey.PLUGINS_ENABLED, enabledPlugins)
 
-    server = setupServer(test=True, plugins=enabledPlugins)
-    server.request = restRequest
+
+    config.loadConfig()  # Read the config files first, so we can override some values
+    cherrypy.config.update({'engine.autoreload.on': False,
+                            'environment': 'embedded'})
+
+    app = setupServer(test=True, plugins=enabledPlugins)
+    server = Client(cherrypy.tree, BaseResponse)
+    server.request = functools.partial(restRequest, server)
 
     cherrypy.server.unsubscribe()
     cherrypy.config.update({'environment': 'embedded',
                             'log.screen': False,
                             'request.throw_errors': True})
-    cherrypy.engine.start()
+    # cherrypy.engine.start()
 
     yield server
 
-    cherrypy.engine.unsubscribe('start', girder.events.daemon.start)
-    cherrypy.engine.unsubscribe('stop', girder.events.daemon.stop)
-    cherrypy.engine.stop()
-    cherrypy.engine.exit()
+    # cherrypy.engine.unsubscribe('start', girder.events.daemon.start)
+    # cherrypy.engine.unsubscribe('stop', girder.events.daemon.stop)
+    # cherrypy.engine.stop()
+    # cherrypy.engine.exit()
     cherrypy.tree.apps = {}
     plugin_utilities.getPluginDir = oldPluginDir
     plugin_utilities.getPluginWebroots().clear()
