@@ -19,6 +19,7 @@
 
 import collections
 
+from .girder_provider import Girder
 from .google import Google
 from .globus import Globus
 from .github import GitHub
@@ -33,7 +34,7 @@ def addProvider(provider):
 
 idMap = collections.OrderedDict()
 
-
+addProvider(Girder)
 addProvider(Google)
 addProvider(Globus)
 addProvider(GitHub)

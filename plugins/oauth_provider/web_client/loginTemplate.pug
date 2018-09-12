@@ -1,0 +1,14 @@
+.g-login-view-container
+  form.g-login-form(role="form")
+    h4 Log in with Girder
+    .form-group
+      label.control-label(for="g-login") Login or email
+      input#g-login.input-sm.form-control(type="text", placeholder="Enter login")
+    .form-group
+      label.control-label(for="g-password") Password
+      input#g-password.input-sm.form-control(type="password", placeholder="Enter password")
+    .g-validation-failed-message
+    .g-login-buttons
+      button.g-login-button.btn.btn-primary.btn-lg(type="submit")
+        i.icon-login
+        |  Login
