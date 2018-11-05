@@ -40,3 +40,6 @@ class PluginSettings(object):
 
     BOX_CLIENT_ID = 'oauth.box_client_id'
     BOX_CLIENT_SECRET = 'oauth.box_client_secret'
+
+    AUTH0_CLIENT_ID = 'oauth.auth0_client_id'
+    AUTH0_CLIENT_SECRET = 'oauth.auth0_client_secret'

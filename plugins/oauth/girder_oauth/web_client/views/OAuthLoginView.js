@@ -88,6 +88,10 @@ var OAuthLoginView = View.extend({
         box: {
             icon: 'box',
             class: 'g-oauth-button-box'
+        },
+        auth0: {
+            icon: 'auth0',
+            class: 'g-oauth-button-auth0'
         }
     }
 });
