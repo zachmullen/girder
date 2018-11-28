@@ -20,6 +20,8 @@
 import importlib
 
 from girder import events
+from girder.models.file import File
+from girder.models.user import User
 from girder.plugin import GirderPlugin
 from girder.utility.model_importer import ModelImporter
 
@@ -47,6 +49,25 @@ def scheduleLocal(event):
         fn(job)
 
 
+def _onJobRemove(event):
+    # Remove any existing artifacts attached to this job
+    cursor = File().find({
+        'attachedToType': ['job', 'jobs'],
+        'attachedToId': event.info['_id']
+    })
+
+    for file in cursor:
+        File().remove(file)
+
+
+def _onFileRemove(event):
+    file = event.info
+    if file.get('attachedToType') == ['job', 'jobs'] and file.get('creatorId') is not None:
+        User().increment(query={
+            '_id': file['creatorId']
+        }, field='size', amount=-file['size'], multi=False)
+
+
 class JobsPlugin(GirderPlugin):
     DISPLAY_NAME = 'Jobs'
     CLIENT_SOURCE_PATH = 'web_client'
@@ -55,3 +76,5 @@ class JobsPlugin(GirderPlugin):
         ModelImporter.registerModel('job', Job, 'jobs')
         info['apiRoot'].job = job_rest.Job()
         events.bind('jobs.schedule', 'jobs', scheduleLocal)
+        events.bind('model.job.remove', 'jobs', _onJobRemove)
+        events.bind('model.file.remove', 'jobs', _onFileRemove)

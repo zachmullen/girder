@@ -259,13 +259,19 @@ class QuotaPolicy(Resource):
             return False
         return assetstore
 
+    def _getModel(self, modelSpec):
+        if isinstance(modelSpec, six.string_types):
+            return self.model(modelSpec)
+        else:
+            return self.model(*modelSpec)
+
     def _getBaseResource(self, model, resource):
         """
         Get the base resource for something pertaining to quota policies.  If
         the base resource has no quota policy, return (None, None).
 
         :param model: the initial model type.  Could be file, item, folder,
-                      user, or collection.
+                      user, or collection, or a 2-tuple to use
         :param resource: the initial resource document.
         :returns: A pair ('model', 'resource'), where 'model' is the base model
                  type, either 'user' or 'collection'., and 'resource' is the
@@ -273,7 +279,7 @@ class QuotaPolicy(Resource):
         """
         if isinstance(resource, six.string_types + (ObjectId,)):
             try:
-                resource = self.model(model).load(id=resource, force=True)
+                resource = self._getModel(model).load(id=resource, force=True)
             except ImportError:
                 return None, None
         if model == 'file':
@@ -367,7 +373,10 @@ class QuotaPolicy(Resource):
         else:
             model, resource = self._getBaseResource(upload['parentType'], upload['parentId'])
         if resource is None:
-            return None
+            if upload['userId'] is None:
+                return None
+            else:  # Any other parent types will just use the upload's userId
+                model, resource = 'user', User().load(upload['userId'], force=True)
         fileSizeQuota = self._getFileSizeQuota(model, resource)
         if not fileSizeQuota:
             return None

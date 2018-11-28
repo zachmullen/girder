@@ -117,6 +117,17 @@ class Upload(Model):
 
         doc['updated'] = datetime.datetime.utcnow()
 
+        parentType = doc.get('parentType')
+        if isinstance(parentType, six.string_types):
+            doc['parentType'] = parentType.lower()
+        elif isinstance(parentType, list):
+            try:
+                self.model(*parentType)
+            except ImportError:
+                raise ValidationException('Invalid upload parent type: %s' % parentType)
+        elif parentType is not None:
+            raise ValidationException('Parent type must be a string or list of [model, plugin].')
+
         return doc
 
     def handleChunk(self, upload, chunk, filter=False, user=None):
@@ -382,7 +393,7 @@ class Upload(Model):
             upload['reference'] = reference
 
         if parentType and parent:
-            upload['parentType'] = parentType.lower()
+            upload['parentType'] = parentType
             upload['parentId'] = parent['_id']
         else:
             upload['parentType'] = None

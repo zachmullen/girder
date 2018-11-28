@@ -53,6 +53,7 @@ installReqs = [
 ]
 
 extrasReqs = {
+    'audit_logs': ['girder-audit-logs'],
     'authorized_upload': ['girder-authorized-upload'],
     'autojoin': ['girder-autojoin'],
     'dicom_viewer': ['girder-dicom-viewer'],
