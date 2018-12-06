@@ -26,7 +26,6 @@ from girder import logger
 from girder.exceptions import AccessException, ValidationException, ResourcePathNotFound
 from girder.models.file import File
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.user import User
 from girder.utility.path import lookUpPath
 from girder.utility.model_importer import ModelImporter
@@ -124,10 +123,7 @@ class _SftpServerAdapter(paramiko.SFTPServerInterface):
                 entries.append(_stat(folder, 'folder'))
 
         if model == 'folder':
-            for item in Folder().childItems(document):
-                entries.append(_stat(item, 'item'))
-        elif model == 'item':
-            for file in Item().childFiles(document):
+            for file in Folder().childFiles(document):
                 entries.append(_stat(file, 'file'))
 
         return entries

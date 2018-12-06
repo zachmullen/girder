@@ -20,7 +20,7 @@
 import cherrypy
 
 from . import describe
-from .v1 import api_key, assetstore, file, collection, folder, group, item,\
+from .v1 import api_key, assetstore, file, collection, folder, group,\
     resource, system, token, user, notification
 
 
@@ -50,7 +50,6 @@ def _addV1ToNode(node):
     node.v1.file = file.File()
     node.v1.folder = folder.Folder()
     node.v1.group = group.Group()
-    node.v1.item = item.Item()
     node.v1.notification = notification.Notification()
     node.v1.resource = resource.Resource()
     node.v1.system = system.System()

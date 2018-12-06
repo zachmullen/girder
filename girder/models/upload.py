@@ -21,7 +21,7 @@ import datetime
 import six
 from bson.objectid import ObjectId
 
-from girder import events, logger
+from girder import events
 from girder.api import rest
 from girder.constants import SettingKey
 from .model_base import Model
@@ -52,9 +52,8 @@ class Upload(Model):
         minChunkSize = Setting().get(SettingKey.UPLOAD_MINIMUM_CHUNK_SIZE)
         return max(minChunkSize, minSize)
 
-    def uploadFromFile(self, obj, size, name, parentType=None, parent=None,
-                       user=None, mimeType=None, reference=None,
-                       assetstore=None, attachParent=False):
+    def uploadFromFile(self, obj, size, name, parent=None, user=None, mimeType=None,
+                       reference=None, assetstore=None, attachParent=False, parentType='folder'):
         """
         This method wraps the entire upload process into a single function to
         facilitate "internal" uploads from a file-like object. Example:
@@ -64,7 +63,7 @@ class Upload(Model):
             size = os.path.getsize(filename)
 
             with open(filename, 'rb') as f:
-                Upload().uploadFromFile(f, size, filename, 'item', parentItem, user)
+                Upload().uploadFromFile(f, size, filename, folder, user)
 
         :param obj: The object representing the content to upload.
         :type obj: file-like
@@ -72,10 +71,10 @@ class Upload(Model):
         :type size: int
         :param name: The name of the file to create.
         :type name: str
-        :param parentType: The type of the parent: "folder" or "item".
-        :type parentType: str
-        :param parent: The parent (item or folder) to upload into.
+        :param parent: The parent to upload into.
         :type parent: dict
+        :param parentType: The parent type to upload into, if doing an attached upload.
+        :type parentType: str
         :param user: The user who is creating the file.
         :type user: dict
         :param mimeType: MIME type of the file.
@@ -85,18 +84,17 @@ class Upload(Model):
         :param assetstore: An optional assetstore to use to store the file.  If
             unspecified, the current assetstore is used.
         :type reference: str
-        :param attachParent: if True, instead of creating an item within the
-            parent or giving the file an itemId, set itemId to None and set
-            attachedToType and attachedToId instead (using the values passed in
-            parentType and parent).  This is intended for files that shouldn't
-            appear as direct children of the parent, but are still associated
-            with it.
+        :param attachParent: if True, instead of creating a file within a parent
+            folder, set folderId to None and set attachedToType and attachedToId
+            instead (using the values passed in parentType and parent). This is
+            intended for files that shouldn't appear as direct children of the parent,
+            but are still associated with it for lifecycle control.
         :type attachParent: boolean
         """
         upload = self.createUpload(
-            user=user, name=name, parentType=parentType, parent=parent,
-            size=size, mimeType=mimeType, reference=reference,
-            assetstore=assetstore, attachParent=attachParent)
+            user=user, name=name, parent=parent, size=size, parentType=parentType,
+            mimeType=mimeType, reference=reference, assetstore=assetstore,
+            attachParent=attachParent)
         # The greater of 32 MB or the the upload minimum chunk size.
         chunkSize = self._getChunkSize()
 
@@ -186,7 +184,7 @@ class Upload(Model):
         """
         from .assetstore import Assetstore
         from .file import File
-        from .item import Item
+        from .folder import Folder
         from girder.utility import assetstore_utilities
 
         events.trigger('model.upload.finalize', upload)
@@ -200,8 +198,8 @@ class Upload(Model):
             assetstore_utilities.getAssetstoreAdapter(
                 Assetstore().load(file['assetstoreId'])).deleteFile(file)
 
-            item = Item().load(file['itemId'], force=True)
-            File().propagateSizeChange(item, upload['size'] - file['size'])
+            folder = Folder().load(file['folderId'], force=True)
+            File().propagateSizeChange(folder, upload['size'] - file['size'])
 
             # Update file info
             file['creatorId'] = upload['userId']
@@ -214,19 +212,12 @@ class Upload(Model):
 
         else:  # Creating a new file record
             if upload.get('attachParent'):
-                item = None
-            elif upload['parentType'] == 'folder':
-                # Create a new item with the name of the file.
-                item = Item().createItem(
-                    name=upload['name'], creator={'_id': upload['userId']},
-                    folder={'_id': upload['parentId']})
-            elif upload['parentType'] == 'item':
-                item = Item().load(id=upload['parentId'], force=True)
+                folder = None
             else:
-                item = None
+                folder = Folder().load(id=upload['parentId'], force=True)
 
             file = File().createFile(
-                item=item, name=upload['name'], size=upload['size'],
+                folder=folder, name=upload['name'], size=upload['size'],
                 creator={'_id': upload['userId']}, assetstore=assetstore,
                 mimeType=upload['mimeType'], saveFile=False)
             if upload.get('attachParent'):
@@ -237,26 +228,21 @@ class Upload(Model):
         adapter = assetstore_utilities.getAssetstoreAdapter(assetstore)
         file = adapter.finalizeUpload(upload, file)
 
-        event_document = {'file': file, 'upload': upload}
-        events.trigger('model.file.finalizeUpload.before', event_document)
+        info = {'file': file, 'upload': upload}
+        events.trigger('model.file.finalizeUpload.before', info)
         file = File().save(file)
-        events.trigger('model.file.finalizeUpload.after', event_document)
+        events.trigger('model.file.finalizeUpload.after', info)
         if '_id' in upload:
             self.remove(upload)
 
-        logger.info('Upload complete. Upload=%s File=%s User=%s' % (
-            upload['_id'], file['_id'], upload['userId']))
-
         # Add an async event for handlers that wish to process this file.
-        eventParams = {
+        events.daemon.trigger('data.process', {
             'file': file,
             'assetstore': assetstore,
             'currentToken': rest.getCurrentToken(),
-            'currentUser': rest.getCurrentUser()
-        }
-        if 'reference' in upload:
-            eventParams['reference'] = upload['reference']
-        events.daemon.trigger('data.process', eventParams)
+            'currentUser': rest.getCurrentUser(),
+            'reference': upload.get('reference')
+        })
 
         return file
 
@@ -285,8 +271,7 @@ class Upload(Model):
 
         return assetstore
 
-    def createUploadToFile(self, file, user, size, reference=None,
-                           assetstore=None):
+    def createUploadToFile(self, file, user, size, reference=None, assetstore=None):
         """
         Creates a new upload record into a file that already exists. This
         should be used when updating the contents of a file. Deletes any
@@ -318,16 +303,13 @@ class Upload(Model):
             'size': size,
             'name': file['name'],
             'mimeType': file['mimeType'],
-            'received': 0
+            'received': 0,
+            'reference': reference
         }
-        if reference is not None:
-            upload['reference'] = reference
-        upload = adapter.initUpload(upload)
-        return self.save(upload)
+        return self.save(adapter.initUpload(upload))
 
-    def createUpload(self, user, name, parentType, parent, size, mimeType=None,
-                     reference=None, assetstore=None, attachParent=False,
-                     save=True):
+    def createUpload(self, user, name, parent, size, parentType='folder', mimeType=None,
+                     reference=None, assetstore=None, attachParent=False, save=True):
         """
         Creates a new upload record, and creates its temporary file
         that the chunks will be written into. Chunks should then be sent
@@ -338,24 +320,23 @@ class Upload(Model):
         :param name: The name of the file being uploaded.
         :type name: str
         :param parentType: The type of the parent being uploaded into.
-        :type parentType: str ('folder' or 'item')
+        :type parentType: str
         :param parent: The document representing the parent.
         :type parent: dict.
         :param size: Total size in bytes of the whole file.
         :type size: int
         :param mimeType: The mimeType of the file.
         :type mimeType: str
-        :param reference: An optional reference string that will be sent to the
-                          data.process event.
+        :param reference: An optional reference string that will be passed through
+            to the eventual file creation event hooks.
         :type reference: str
         :param assetstore: An optional assetstore to use to store the file.  If
             unspecified, the current assetstore is used.
-        :param attachParent: if True, instead of creating an item within the
-            parent or giving the file an itemId, set itemId to None and set
-            attachedToType and attachedToId instead (using the values passed in
-            parentType and parent).  This is intended for files that shouldn't
-            appear as direct children of the parent, but are still associated
-            with it.
+        :param attachParent: if True, instead of creating a file within the
+            folder, set folderId to None and set attachedToType and attachedToId
+            instead (using the values passed in parentType and parent). This is
+            intended for files that shouldn't appear as direct children of the parent,
+            but are still associated with it for lifecycle control.
         :type attachParent: boolean
         :param save: if True, save the document after it is created.
         :type save: boolean
@@ -366,38 +347,28 @@ class Upload(Model):
         assetstore = self.getTargetAssetstore(parentType, parent, assetstore)
         adapter = assetstore_utilities.getAssetstoreAdapter(assetstore)
         now = datetime.datetime.utcnow()
-
-        if not mimeType:
-            mimeType = 'application/octet-stream'
         upload = {
             'created': now,
             'updated': now,
             'assetstoreId': assetstore['_id'],
             'size': size,
             'name': name,
-            'mimeType': mimeType,
-            'received': 0
+            'mimeType': mimeType or 'application/octet-stream',
+            'received': 0,
+            'reference': reference,
+            'parentType': None,
+            'parentId': None,
+            'attachParent': attachParent,
+            'userId': user['_id'] if user else None
         }
-        if reference is not None:
-            upload['reference'] = reference
 
         if parentType and parent:
             upload['parentType'] = parentType.lower()
             upload['parentId'] = parent['_id']
-        else:
-            upload['parentType'] = None
-            upload['parentId'] = None
-        if attachParent:
-            upload['attachParent'] = attachParent
-
-        if user:
-            upload['userId'] = user['_id']
-        else:
-            upload['userId'] = None
 
         upload = adapter.initUpload(upload)
         if save:
-            upload = self.save(upload)
+            return self.save(upload)
         return upload
 
     def moveFileToAssetstore(self, file, user, assetstore, progress=noProgress):
@@ -456,7 +427,7 @@ class Upload(Model):
         :param offset: Offset into the results.
         :param sort: The sort direction.
         :param filters: if not None, a dictionary that can contain ids that
-                        must match the uploads, plus an minimumAge value.
+            must match the uploads, plus an minimumAge value.
         """
         query = {}
         if filters:
@@ -474,7 +445,7 @@ class Upload(Model):
                 query['updated'] = {
                     '$lte': datetime.datetime.utcnow() -
                     datetime.timedelta(days=float(filters['minimumAge']))
-                    }
+                }
         # Perform the find; we'll do access-based filtering of the result
         # set afterward.
         return self.find(query, limit=limit, sort=sort, offset=offset)
@@ -482,7 +453,7 @@ class Upload(Model):
     def cancelUpload(self, upload):
         """
         Discard an upload that is in progress.  This asks the assetstore to
-        discard the data, then removes the item from the upload database.
+        discard the data, then removes the upload record.
 
         :param upload: The upload document to remove.
         :type upload: dict
@@ -511,10 +482,10 @@ class Upload(Model):
         :param action: 'delete' to discard the untracked uploads, anything else
             to just return with a list of them.
         :type action: str
-        :param assetstoreId: if present, only include untracked items from the
+        :param assetstoreId: if present, only include untracked records from the
             specified assetstore.
         :type assetstoreId: str
-        :returns: a list of items that were removed or could be removed.
+        :returns: a list of records that were removed or could be removed.
         """
         from .assetstore import Assetstore
         from girder.utility import assetstore_utilities

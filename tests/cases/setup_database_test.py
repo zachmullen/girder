@@ -21,7 +21,6 @@ from .. import base
 from girder.models.collection import Collection
 from girder.models.file import File
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.user import User
 
 
@@ -40,12 +39,7 @@ class SetupDatabaseTestCase(base.TestCase):
             'name': 'folder'
         }, folder, 'imported folder')
 
-        item = Item().findOne({'folderId': folder['_id']})
-        self.assertDictContains({
-            'name': 'file.txt'
-        }, item, 'imported item')
-
-        file = File().findOne({'itemId': item['_id']})
+        file = File().findOne({'folderId': folder['_id']})
         self.assertDictContains({
             'name': 'file.txt',
             'mimeType': 'text/plain',
@@ -86,12 +80,7 @@ class SetupDatabaseTestCase(base.TestCase):
             'name': 'folder'
         }, folder, 'imported folder')
 
-        item = Item().findOne({'folderId': folder['_id']})
-        self.assertDictContains({
-            'name': 'file.txt'
-        }, item, 'imported item')
-
-        file = File().findOne({'itemId': item['_id']})
+        file = File().findOne({'folderId': folder['_id']})
         self.assertDictContains({
             'name': 'file.txt',
             'mimeType': 'text/plain',
@@ -131,19 +120,12 @@ class SetupDatabaseTestCase(base.TestCase):
             'creatorId': admin['_id']
         }, folder, 'Public folder')
 
-        item = Item().findOne(
-            {'name': 'Item 1', 'folderId': folder['_id']})
-        self.assertDictContains({
-            'description': 'This is an item',
-            'creatorId': admin['_id']
-        }, item, 'Item 1')
-
-        file = File().findOne({'name': 'File1.txt', 'itemId': item['_id']})
+        file = File().findOne({'name': 'File1.txt', 'folderId': folder['_id']})
         self.assertDictContains({
             'mimeType': 'text/plain'
         }, file, 'File1.txt')
 
-        file = File().findOne({'name': 'File2.txt', 'itemId': item['_id']})
+        file = File().findOne({'name': 'File2.txt', 'folderId': folder['_id']})
         self.assertDictContains({
             'mimeType': 'application/json'
         }, file, 'File2.txt')
@@ -163,23 +145,7 @@ class SetupDatabaseTestCase(base.TestCase):
             'creatorId': admin['_id']
         }, folder, 'folder1')
 
-        item = Item().findOne(
-            {'name': 'emptyfile.txt', 'folderId': folder['_id']})
-        self.assertDictContains({
-            'creatorId': admin['_id']
-        }, item, 'emptyfile')
-
-        # empty files only create items, not files
-        file = File().findOne({'itemId': item['_id']})
-        self.assertEqual(file, None)
-
-        item = Item().findOne(
-            {'name': 'file.txt', 'folderId': folder['_id']})
-        self.assertDictContains({
-            'creatorId': admin['_id']
-        }, item, 'emptyfile')
-
-        file = File().findOne({'itemId': item['_id']})
+        file = File().findOne({'folderId': folder['_id']})
         self.assertDictContains({
             'name': 'file.txt',
             'mimeType': 'text/plain',
@@ -191,14 +157,9 @@ class SetupDatabaseTestCase(base.TestCase):
             'creatorId': admin['_id']
         }, folder, 'folder2')
 
-        item = Item().findOne({'name': 'icon.png', 'folderId': folder['_id']})
+        file = File().findOne({'name': 'icon.png', 'folderId': folder['_id']})
         self.assertDictContains({
-            'creatorId': admin['_id']
-        }, item, 'icon.png')
-
-        file = File().findOne({'itemId': item['_id']})
-        self.assertDictContains({
-            'name': 'icon.png',
+            'creatorId': admin['_id'],
             'mimeType': 'image/png',
             'size': 1494
         }, file, 'icon.png')
@@ -225,11 +186,6 @@ class SetupDatabaseTestCase(base.TestCase):
             'creatorId': admin['_id']
         }, folder, 'imported folder root')
 
-        item = Item().findOne({'name': 'item.txt', 'folderId': folder['_id']})
-        self.assertDictContains({
-            'creatorId': admin['_id']
-        }, item, 'item.txt')
-
         self.assertImported(folder)
 
     def testYAMLAliases(self):
@@ -239,5 +195,5 @@ class SetupDatabaseTestCase(base.TestCase):
 
         for folder in aliasedFolders:
             self.assertTrue(
-                len(list(folderModel.childItems(folder, force=True))) == 2
+                len(list(folderModel.childFiles(folder, force=True))) == 2
             )

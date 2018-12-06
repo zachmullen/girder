@@ -128,7 +128,7 @@ def createUser(defaultFolders=False, **args):
 
     The default behavior is to **not** create the default public and
     private folders.  Automatically created folders cannot be used
-    by this module as a parent for new folders and items.
+    by this module as a parent for new folders and files.
 
     :param defaultFolders: Create default public and private folders
     :type defaultFolders: bool
@@ -174,22 +174,6 @@ def createFolder(parent, **args):
     return folderModel.createFolder(parent, **args)
 
 
-def createItem(parent, **args):
-    """Create an item document from an item spec.
-
-    The parent folder document must be provided and is injected
-    automatically into the keyword arguments.
-
-    :param parent: The parent folder
-    :type parent: dict
-    :returns: The generated item document
-    """
-    addCreator(args, parent)
-    itemModel = loadModel('item')
-    args['folder'] = parent
-    return itemModel.createItem(**args)
-
-
 def createFile(parent, path, **args):
     """Create a file document from a file path.
 
@@ -197,7 +181,7 @@ def createFile(parent, path, **args):
     ``size`` and ``mimeType`` of the file will be automatically
     resolved from this path.
 
-    :param parent: The parent item
+    :param parent: The parent folder
     :type parent: dict
     :param path: The local path to a file
     :type path: str
@@ -207,7 +191,6 @@ def createFile(parent, path, **args):
     uploadModel = loadModel('upload')
 
     path = resolvePath(path)
-    args['parentType'] = 'item'
     args['parent'] = parent
     args['user'] = args.pop('creator')
     args['size'] = os.path.getsize(path)
@@ -227,7 +210,6 @@ dispatch = {
     'user': createUser,
     'collection': createCollection,
     'folder': createFolder,
-    'item': createItem,
     'file': createFile
 }
 
@@ -249,19 +231,12 @@ def createDocument(type, node):
     # create the return object with all possible children
     children = {
         'folder': node.pop('folders', []),
-        'item': node.pop('items', []),
         'file': node.pop('files', [])
     }
 
     # remove invalid child types
     if type in ['user', 'collection']:
-        del children['item']
         del children['file']
-    elif type == 'folder':
-        del children['file']
-    elif type == 'item':
-        del children['folder']
-        del children['item']
 
     # generate the document
     doc = dispatch[type](**node)
@@ -333,7 +308,7 @@ def importRecursive(type, parent, root):
     for root, dirs, files in os.walk(root, followlinks=True):
         parent = folders[root]
         parent.setdefault('folders', [])
-        parent.setdefault('items', [])
+        parent.setdefault('files', [])
 
         for dir in dirs:
             path = os.path.join(root, dir)
@@ -346,12 +321,9 @@ def importRecursive(type, parent, root):
         for file in files:
             path = os.path.join(root, file)
 
-            parent['items'].append({
+            parent['files'].append({
                 'name': file,
-                'files': [{
-                    'name': file,
-                    'path': path
-                }]
+                'path': path
             })
 
 

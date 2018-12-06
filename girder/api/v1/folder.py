@@ -113,7 +113,7 @@ class Folder(Resource):
     )
     def getFolderDetails(self, folder):
         return {
-            'nItems': self._model.countItems(folder),
+            'nFiles': self._model.countFiles(folder),
             'nFolders': self._model.countFolders(
                 folder, user=self.getCurrentUser(), level=AccessType.READ)
         }
@@ -208,7 +208,7 @@ class Folder(Resource):
                              message='Calculating progress...') as ctx:
             if progress:
                 ctx.update(total=self._model.subtreeCount(
-                    folder, includeItems=False, user=user, level=AccessType.ADMIN))
+                    folder, includeFiles=False, user=user, level=AccessType.ADMIN))
             return self._model.setAccessList(
                 folder, access, save=True, recurse=recurse, user=user,
                 progress=ctx, setPublic=public, publicFlags=publicFlags)
@@ -356,7 +356,7 @@ class Folder(Resource):
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
         Description('Remove all contents from a folder.')
-        .notes('Cleans out all the items and subfolders from under a folder, '
+        .notes('Cleans out all the files and subfolders from under a folder, '
                'but does not remove the folder itself.')
         .modelParam('id', 'The ID of the folder to clean.', model=FolderModel,
                     level=AccessType.WRITE)

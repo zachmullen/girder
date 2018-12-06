@@ -35,7 +35,6 @@ from girder.models.collection import Collection
 from girder.models.file import File
 from girder.models.folder import Folder
 from girder.models.group import Group
-from girder.models.item import Item
 from girder.models.setting import Setting
 from girder.models.upload import Upload
 from girder.models.user import User
@@ -251,7 +250,7 @@ class System(Resource):
         .param('userId', 'Restrict listing uploads to those started by a '
                'specific user.', required=False)
         .param('parentId', 'Restrict listing uploads to those within a '
-               'specific folder or item.', required=False)
+               'specific parent.', required=False)
         .param('assetstoreId', 'Restrict listing uploads within a specific assetstore.',
                required=False)
         .param('minimumAge', 'Restrict listing uploads to those that are at '
@@ -297,7 +296,7 @@ class System(Resource):
         .param('userId', 'Restrict clearing uploads to those started by a '
                'specific user.', required=False)
         .param('parentId', 'Restrict clearing uploads to those within a '
-               'specific folder or item.', required=False)
+               'specific parent.', required=False)
         .param('assetstoreId', 'Restrict clearing uploads within a specific assetstore.',
                required=False)
         .param('minimumAge', 'Restrict clearing uploads to those that are at '
@@ -415,7 +414,6 @@ class System(Resource):
             results['sizesChanged'] = self._recalculateSizes(pc)
             return results
         # TODO:
-        # * check that all files are associated with an existing item
         # * check that all files exist within their assetstore and are the
         #   expected size
         # * check that all folders have a valid ancestor tree leading to a
@@ -539,13 +537,16 @@ class System(Resource):
 
     def _fixBaseParents(self, progress):
         fixes = 0
-        models = [Folder(), Item()]
+        models = [Folder(), File()]
         steps = sum(model.find().count() for model in models)
         progress.update(total=steps, current=0)
         for model in models:
             for doc in model.find():
                 progress.update(increment=1)
-                baseParent = model.parentsToRoot(doc, force=True)[0]
+                ancestors = model.parentsToRoot(doc, force=True)
+                if not ancestors:
+                    continue
+                baseParent = ancestors[0]
                 baseParentType = baseParent['type']
                 baseParentId = baseParent['object']['_id']
                 if (doc['baseParentType'] != baseParentType or
@@ -560,7 +561,7 @@ class System(Resource):
 
     def _pruneOrphans(self, progress):
         count = 0
-        models = [File(), Folder(), Item()]
+        models = [File(), Folder()]
         steps = sum(model.find().count() for model in models)
         progress.update(total=steps, current=0)
         for model in models:

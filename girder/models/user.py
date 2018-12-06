@@ -521,7 +521,7 @@ class User(AccessControlledModel):
                                 result which is the JSON string of the
                                 metadata.  This is given a name of
                                 metadata[-(number).json that is distinct from
-                                any file within the item.
+                                any file within the folder.
         :param subpath: if True, add the user's name to the path.
         :param data: If True return raw content of each file as stored in the
             assetstore, otherwise return file document.
@@ -537,14 +537,14 @@ class User(AccessControlledModel):
                     folder, user, path, includeMetadata, subpath=True, data=data):
                 yield (filepath, file)
 
-    def subtreeCount(self, doc, includeItems=True, user=None, level=None):
+    def subtreeCount(self, doc, includeFiles=True, user=None, level=None):
         """
         Return the size of the user's folders.  The user is counted as well.
 
         :param doc: The user.
-        :param includeItems: Whether to include items in the subtree count, or
+        :param includeFiles: Whether to include files in the subtree count, or
             just folders.
-        :type includeItems: bool
+        :type includeFiles: bool
         :param user: If filtering by permission, the user to filter against.
         :param level: If filtering by permission, the required permission level.
         :type level: AccessLevel
@@ -559,7 +559,7 @@ class User(AccessControlledModel):
         }, fields='access', user=user, level=level)
 
         count += sum(folderModel.subtreeCount(
-            folder, includeItems=includeItems, user=user, level=level)
+            folder, includeFiles=includeFiles, user=user, level=level)
             for folder in folders)
         return count
 

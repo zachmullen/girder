@@ -68,7 +68,7 @@ class User(Resource):
     @autoDescribeRoute(
         Description('List or search for users.')
         .responseClass('User', array=True)
-        .param('text', "Pass this to perform a full text search for items.", required=False)
+        .param('text', "Pass this to perform a full text search for users.", required=False)
         .pagingParams(defaultSort='lastName')
     )
     def find(self, text, limit, offset, sort):

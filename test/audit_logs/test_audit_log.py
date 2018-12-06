@@ -80,7 +80,7 @@ def testDownloadLogging(server, recordModel, freshLog, admin, fsAssetstore):
         'name': 'Public'
     })[0]
     file = Upload().uploadFromFile(
-        six.BytesIO(b'hello'), size=5, name='test', parentType='folder', parent=folder,
+        six.BytesIO(b'hello'), size=5, name='test', parent=folder,
         user=admin, assetstore=fsAssetstore)
 
     recordModel.collection.remove({})  # Clear existing records

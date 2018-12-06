@@ -111,8 +111,7 @@ class FileTestCase(base.TestCase):
         """
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': self.privateFolder['_id'],
+                'folderId': self.privateFolder['_id'],
                 'name': name,
                 'size': 0
             })
@@ -120,7 +119,7 @@ class FileTestCase(base.TestCase):
 
         file = resp.json
 
-        self.assertHasKeys(file, ['itemId'])
+        self.assertHasKeys(file, ['folderId'])
         self.assertEqual(file['size'], 0)
         self.assertEqual(file['name'], name)
         self.assertEqual(file['assetstoreId'], str(self.assetstore['_id']))
@@ -154,8 +153,7 @@ class FileTestCase(base.TestCase):
         # Initialize the upload
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': self.privateFolder['_id'],
+                'folderId': self.privateFolder['_id'],
                 'name': name,
                 'size': len(chunk1) + len(chunk2),
                 'mimeType': 'text/plain'
@@ -244,7 +242,7 @@ class FileTestCase(base.TestCase):
 
         file = resp.json
 
-        self.assertHasKeys(file, ['itemId'])
+        self.assertHasKeys(file, ['folderId'])
         self.assertEqual(file['assetstoreId'], str(self.assetstore['_id']))
         self.assertEqual(file['name'], name)
         self.assertEqual(file['size'], len(chunk1 + chunk2))
@@ -260,8 +258,7 @@ class FileTestCase(base.TestCase):
         :param contents: The expected contents.
         :type contents: str
         """
-        resp = self.request(path='/file/%s/download' % str(file['_id']),
-                            method='GET', user=self.user, isJson=False)
+        resp = self.request(path='/file/%s/download' % file['_id'], user=self.user, isJson=False)
         self.assertStatusOk(resp)
         if not contentDisposition:
             contentDisposition = 'filename="%s"' % file['name']
@@ -274,9 +271,8 @@ class FileTestCase(base.TestCase):
 
         # Test downloading the file with contentDisposition=inline.
         params = {'contentDisposition': 'inline'}
-        resp = self.request(path='/file/%s/download' % str(file['_id']),
-                            method='GET', user=self.user, isJson=False,
-                            params=params)
+        resp = self.request(
+            path='/file/%s/download' % file['_id'], user=self.user, isJson=False, params=params)
         self.assertStatusOk(resp)
         if contents:
             self.assertEqual(resp.headers['Content-Type'],
@@ -286,9 +282,10 @@ class FileTestCase(base.TestCase):
         self.assertEqual(contents, self.getBody(resp))
 
         # Test downloading with an offset
-        resp = self.request(path='/file/%s/download' % str(file['_id']),
-                            method='GET', user=self.user, isJson=False,
-                            params={'offset': 1})
+        resp = self.request(
+            path='/file/%s/download' % file['_id'], user=self.user, isJson=False, params={
+                'offset': 1
+            })
         if file['size']:
             self.assertStatus(resp, 206)
         else:
@@ -296,12 +293,12 @@ class FileTestCase(base.TestCase):
         self.assertEqual(contents[1:], self.getBody(resp))
 
         # Test downloading with a range header and query range params
-        respHeader = self.request(path='/file/%s/download' % str(file['_id']),
-                                  method='GET', user=self.user, isJson=False,
-                                  additionalHeaders=[('Range', 'bytes=2-7')])
-        respQuery = self.request(path='/file/%s/download' % str(file['_id']),
-                                 method='GET', user=self.user, isJson=False,
-                                 params={'offset': 2, 'endByte': 8})
+        respHeader = self.request(
+            path='/file/%s/download' % file['_id'], user=self.user, isJson=False,
+            additionalHeaders=[('Range', 'bytes=2-7')])
+        respQuery = self.request(
+            path='/file/%s/download' % file['_id'], user=self.user, isJson=False,
+            params={'offset': 2, 'endByte': 8})
         for resp in [respHeader, respQuery]:
             self.assertEqual(contents[2:8], self.getBody(resp))
             self.assertEqual(resp.headers['Accept-Ranges'], 'bytes')
@@ -310,8 +307,8 @@ class FileTestCase(base.TestCase):
             self.assertEqual(resp.headers['Content-Length'], end - begin)
             if length:
                 self.assertStatus(resp, 206)
-                self.assertEqual(resp.headers['Content-Range'],
-                                 'bytes %d-%d/%d' % (begin, end - 1, length))
+                self.assertEqual(
+                    resp.headers['Content-Range'], 'bytes %d-%d/%d' % (begin, end - 1, length))
             else:
                 self.assertStatusOk(resp)
 
@@ -320,7 +317,7 @@ class FileTestCase(base.TestCase):
             path='/file/%s/download/%s' % (
                 str(file['_id']),
                 urllib.parse.quote(file['name'].encode('utf8'))
-            ), method='GET', user=self.user, isJson=False)
+            ), user=self.user, isJson=False)
         self.assertStatusOk(resp)
         if contents:
             self.assertEqual(resp.headers['Content-Type'],
@@ -418,8 +415,7 @@ class FileTestCase(base.TestCase):
         # Upload the file into that subfolder
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': test['_id'],
+                'folderId': test['_id'],
                 'name': 'random.bin',
                 'size': len(contents)
             })
@@ -444,8 +440,7 @@ class FileTestCase(base.TestCase):
 
         # Download the folder
         resp = self.request(
-            path='/folder/%s/download' % str(self.privateFolder['_id']),
-            method='GET', user=self.user, isJson=False)
+            path='/folder/%s/download' % self.privateFolder['_id'], user=self.user, isJson=False)
         self.assertEqual(resp.headers['Content-Type'], 'application/zip')
         zip = zipfile.ZipFile(io.BytesIO(self.getBody(resp, text=False)), 'r')
         self.assertTrue(zip.testzip() is None)
@@ -457,8 +452,7 @@ class FileTestCase(base.TestCase):
         contents = b'not a jpeg'
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': str(self.privateFolder['_id']),
+                'folderId': str(self.privateFolder['_id']),
                 'name': 'fake.jpeg',
                 'size': len(contents),
                 'mimeType': 'image/jpeg'
@@ -476,8 +470,8 @@ class FileTestCase(base.TestCase):
 
         # Download the folder with a MIME type filter
         resp = self.request(
-            path='/folder/%s/download' % str(self.privateFolder['_id']),
-            method='GET', user=self.user, isJson=False, params={
+            path='/folder/%s/download' % self.privateFolder['_id'],
+            user=self.user, isJson=False, params={
                 'mimeFilter': json.dumps(['image/png', 'image/jpeg'])
             })
         self.assertStatusOk(resp)
@@ -519,8 +513,7 @@ class FileTestCase(base.TestCase):
         # Upload the file into that subfolder
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': test['_id'],
+                'folderId': test['_id'],
                 'name': 'random.bin',
                 'size': len(contents)
             })
@@ -536,10 +529,8 @@ class FileTestCase(base.TestCase):
         self.assertStatusOk(resp)
 
         # Download the collection
-        path = '/collection/%s/download' % str(collection['_id'])
-        resp = self.request(
-            path=path,
-            method='GET', user=self.user, isJson=False)
+        path = '/collection/%s/download' % collection['_id']
+        resp = self.request(path=path, user=self.user, isJson=False)
         self.assertStatusOk(resp)
         self.assertEqual(resp.headers['Content-Disposition'],
                          'attachment; filename="Test Collection.zip"')
@@ -556,10 +547,8 @@ class FileTestCase(base.TestCase):
         collection = Collection().save(collection)
 
         # Download the collection as anonymous
-        path = '/collection/%s/download' % str(collection['_id'])
-        resp = self.request(
-            path=path,
-            method='GET', user=None, isJson=False)
+        path = '/collection/%s/download' % collection['_id']
+        resp = self.request(path=path, user=None, isJson=False)
         self.assertStatusOk(resp)
         zip = zipfile.ZipFile(io.BytesIO(self.getBody(resp, text=False)), 'r')
         # Zip file should have no entries
@@ -569,8 +558,7 @@ class FileTestCase(base.TestCase):
         contents = b'not a jpeg'
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': test['_id'],
+                'folderId': test['_id'],
                 'name': 'fake.jpeg',
                 'size': len(contents),
                 'mimeType': 'image/jpeg'
@@ -587,9 +575,9 @@ class FileTestCase(base.TestCase):
         self.assertStatusOk(resp)
 
         # Download the collection using a MIME type filter
-        path = '/collection/%s/download' % str(collection['_id'])
+        path = '/collection/%s/download' % collection['_id']
         resp = self.request(
-            path=path, method='GET', user=self.user, isJson=False, params={
+            path=path, user=self.user, isJson=False, params={
                 'mimeFilter': json.dumps(['image/png', 'image/jpeg'])
             })
         self.assertStatusOk(resp)
@@ -609,46 +597,38 @@ class FileTestCase(base.TestCase):
         """
         Deletes the previously uploaded file from the server.
         """
-        resp = self.request(
-            path='/file/%s' % str(file['_id']), method='DELETE', user=self.user)
+        resp = self.request(path='/file/%s' % file['_id'], method='DELETE', user=self.user)
         self.assertStatusOk(resp)
 
     def _downloadFile(self, file):
-        resp = self.request(path='/file/%s/download' % str(file['_id']),
-                            method='GET', user=self.user, isJson=False)
+        resp = self.request(path='/file/%s/download' % file['_id'], user=self.user, isJson=False)
         self.assertStatusOk(resp)
-
         return self.getBody(resp)
 
     def _assertFileContent(self, file, copy):
-
-        # Assert that the two files have the same content
-        fileContent = self._downloadFile(file)
-        fileCopyContent = self._downloadFile(copy)
-        self.assertEqual(fileContent, fileCopyContent)
+        self.assertEqual(self._downloadFile(file), self._downloadFile(copy))
 
     def _testCopyFile(self, file, assertContent=True):
-        # First create a test item
+        # First create a subfolder
         params = {
-            'name': 'copyItem',
-            'description': 'Another item',
-            'folderId': self.privateFolder['_id']
+            'name': 'subfolder',
+            'parentId': self.privateFolder['_id'],
+            'parentType': 'folder'
         }
-        resp = self.request(path='/item', method='POST', params=params,
-                            user=self.user)
+        resp = self.request(path='/folder', method='POST', params=params, user=self.user)
         self.assertStatusOk(resp)
-        item = resp.json
+        folder = resp.json
 
         # Now do the copy
         params = {
-            'itemId': item['_id']
+            'folderId': folder['_id']
         }
-        resp = self.request(path='/file/%s/copy' % str(file['_id']),
-                            method='POST',  params=params, user=self.user)
+        resp = self.request(
+            path='/file/%s/copy' % file['_id'], method='POST',  params=params, user=self.user)
         self.assertStatusOk(resp)
         copy = resp.json
-        # Assert the copy is attached to the item
-        self.assertEqual(copy['itemId'], item['_id'])
+        # Assert the copy is attached to the folder
+        self.assertEqual(copy['folderId'], folder['_id'])
         # Assert the we have two different id
         self.assertNotEqual(file['_id'], copy['_id'])
         if assertContent:
@@ -674,8 +654,10 @@ class FileTestCase(base.TestCase):
         file = self._testUploadFile('helloWorld1.txt')
 
         # Test editing of the file info
-        resp = self.request(path='/file/%s' % file['_id'], method='PUT',
-                            user=self.user, params={'name': ' newName.json'})
+        resp = self.request(
+            path='/file/%s' % file['_id'], method='PUT', user=self.user, params={
+                'name': ' newName.json'
+            })
         self.assertStatusOk(resp)
         self.assertEqual(resp.json['name'], 'newName.json')
         file['name'] = resp.json['name']
@@ -703,32 +685,28 @@ class FileTestCase(base.TestCase):
         self.assertEqual(File().getLocalFilePath(file), abspath)
 
         # Make sure access control is enforced on download
-        resp = self.request(
-            path='/file/%s/download' % file['_id'], method='GET')
+        resp = self.request(path='/file/%s/download' % file['_id'])
         self.assertStatus(resp, 401)
 
         # Make sure access control is enforced on get info
-        resp = self.request(
-            path='/file/' + str(file['_id']), method='GET')
+        resp = self.request(path='/file/%s' % file['_id'])
         self.assertStatus(resp, 401)
 
         # Make sure we can get the file info and that it's filtered
-        resp = self.request(
-            path='/file/' + str(file['_id']), method='GET', user=self.user)
+        resp = self.request(path='/file/%s' % file['_id'], user=self.user)
         self.assertStatusOk(resp)
         self.assertEqual(resp.json['mimeType'], 'text/plain')
         self.assertEqual(resp.json['exts'], ['json'])
         self.assertEqual(resp.json['_modelType'], 'file')
         self.assertEqual(resp.json['creatorId'], str(self.user['_id']))
         self.assertEqual(resp.json['size'], file['size'])
-        self.assertTrue('itemId' in resp.json)
+        self.assertTrue('folderId' in resp.json)
         self.assertTrue('assetstoreId' in resp.json)
         self.assertFalse('path' in resp.json)
         self.assertFalse('sha512' in resp.json)
 
         resp = self.request(
-            path='/folder/%s/download' % self.privateFolder['_id'],
-            method='GET')
+            path='/folder/%s/download' % self.privateFolder['_id'])
         self.assertStatus(resp, 401)
 
         # Ensure the model layer raises an exception when trying to access
@@ -889,8 +867,7 @@ class FileTestCase(base.TestCase):
         # Initialize the upload
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': self.privateFolder['_id'],
+                'folderId': self.privateFolder['_id'],
                 'name': 'hello.txt',
                 'size': len(chunk1) + len(chunk2),
                 'mimeType': 'text/plain'
@@ -920,7 +897,7 @@ class FileTestCase(base.TestCase):
 
         # Request offset from server (simulate a resume event)
         resp = self.request(
-            path='/file/offset', method='GET', user=self.user, params={'uploadId': uploadId})
+            path='/file/offset', user=self.user, params={'uploadId': uploadId})
         self.assertStatusOk(resp)
 
         initRequests = []
@@ -967,7 +944,7 @@ class FileTestCase(base.TestCase):
 
         # The offset should not have changed
         resp = self.request(
-            path='/file/offset', method='GET', user=self.user, params={'uploadId': uploadId})
+            path='/file/offset', user=self.user, params={'uploadId': uploadId})
         self.assertStatusOk(resp)
         self.assertEqual(resp.json['offset'], currentOffset)
 
@@ -983,7 +960,7 @@ class FileTestCase(base.TestCase):
 
         file = File().load(resp.json['_id'], force=True)
 
-        self.assertHasKeys(file, ['itemId'])
+        self.assertHasKeys(file, ['folderId'])
         self.assertEqual(file['assetstoreId'], self.assetstore['_id'])
         self.assertEqual(file['name'], 'hello.txt')
         self.assertEqual(file['size'], len(chunk1 + chunk2))
@@ -1006,8 +983,7 @@ class FileTestCase(base.TestCase):
 
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': self.privateFolder['_id'],
+                'folderId': self.privateFolder['_id'],
                 'name': 'hello.txt',
                 'size': len(chunk1) + len(chunk2),
                 'mimeType': 'text/plain'
@@ -1029,8 +1005,7 @@ class FileTestCase(base.TestCase):
 
         resp = self.request(
             path='/file', method='POST', user=self.user, params={
-                'parentType': 'folder',
-                'parentId': self.privateFolder['_id'],
+                'folderId': self.privateFolder['_id'],
                 'name': 'hello.txt',
                 'size': len(chunk1) + len(chunk2),
                 'mimeType': 'text/plain'
@@ -1069,7 +1044,7 @@ class FileTestCase(base.TestCase):
         file = resp.json
 
         self.assertEqual(file['_modelType'], 'file')
-        self.assertHasKeys(file, ['itemId'])
+        self.assertHasKeys(file, ['folderId'])
         self.assertEqual(file['assetstoreId'], str(self.assetstore['_id']))
         self.assertEqual(file['name'], 'hello.txt')
         self.assertEqual(file['size'], len(chunk1 + chunk2))
@@ -1096,45 +1071,39 @@ class FileTestCase(base.TestCase):
 
     def testLinkFile(self):
         params = {
-            'parentType': 'folder',
-            'parentId': self.privateFolder['_id'],
-            'name': 'My Link Item',
+            'folderId': self.privateFolder['_id'],
+            'name': 'My Link File',
             'linkUrl': 'javascript:alert("x");'
         }
 
         # Try to create a link file with a disallowed URL, should be rejected
-        resp = self.request(
-            path='/file', method='POST', user=self.user, params=params)
+        resp = self.request(path='/file', method='POST', user=self.user, params=params)
         self.assertValidationError(resp, 'linkUrl')
 
         # Create a valid link file
         params['linkUrl'] = ' http://www.google.com  '
-        resp = self.request(
-            path='/file', method='POST', user=self.user, params=params)
+        resp = self.request(path='/file', method='POST', user=self.user, params=params)
         self.assertStatusOk(resp)
         file = resp.json
         self.assertEqual(file['assetstoreId'], None)
-        self.assertEqual(file['name'], 'My Link Item')
+        self.assertEqual(file['name'], 'My Link File')
         self.assertEqual(file['linkUrl'], params['linkUrl'].strip())
 
         # Attempt to download the link file, make sure we are redirected
-        resp = self.request(
-            path='/file/%s/download' % file['_id'], method='GET',
-            isJson=False, user=self.user)
+        resp = self.request(path='/file/%s/download' % file['_id'], isJson=False, user=self.user)
         self.assertStatus(resp, 303)
         self.assertEqual(resp.headers['Location'], params['linkUrl'].strip())
 
         # Download containing folder as zip file
         resp = self.request(
-            path='/folder/%s/download' % self.privateFolder['_id'],
-            method='GET', user=self.user, isJson=False)
+            path='/folder/%s/download' % self.privateFolder['_id'], user=self.user, isJson=False)
         self.assertEqual(resp.headers['Content-Type'], 'application/zip')
         body = self.getBody(resp, text=False)
         zip = zipfile.ZipFile(io.BytesIO(body), 'r')
         self.assertTrue(zip.testzip() is None)
 
         # The file should just contain the URL of the link
-        extracted = zip.read('Private/My Link Item').decode('utf8')
+        extracted = zip.read('Private/My Link File').decode('utf8')
         self.assertEqual(extracted, params['linkUrl'].strip())
 
         # The file should report no assetstore adapter

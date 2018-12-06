@@ -107,11 +107,6 @@ Folder
 .. automodule:: girder.models.folder
    :members:
 
-Item
-~~~~
-.. automodule:: girder.models.item
-   :members:
-
 Setting
 ~~~~~~~
 

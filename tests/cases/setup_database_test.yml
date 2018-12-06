@@ -3,13 +3,16 @@
 _common: &common
   folders:
     - name: 'Common'
-      items:
-        - name: 'Item 1'
-        - name: 'Item 2'
+      files:
+        - name: 'File 1'
+          path: 'setup_database_test/publicCollection/file.txt'
+        - name: 'File 2'
+          path: 'setup_database_test/publicCollection/file.txt'
       folders:
         - name: 'Common subfolder'
-          items:
-            - name: 'Item 3'
+          files:
+            - name: 'File 3'
+              path: 'setup_database_test/publicCollection/file.txt'
 
 users:
   # a typical admin user
@@ -74,24 +77,21 @@ collections:
       - name: 'Folder 1'
         description: 'This is a public folder'
         public: true
-        items:
-          - name: 'Item 1'
-            description: 'This is an item'
-            files:
-              - name: 'File1.txt'
-                path: 'setup_database_test/publicCollection/file.txt'
-              - name: 'File2.txt'
-                path: 'setup_database_test/publicCollection/file.txt'
-                mimeType: 'application/json'
+        files:
+          - name: 'File1.txt'
+            path: 'setup_database_test/publicCollection/file.txt'
+          - name: 'File2.txt'
+            path: 'setup_database_test/publicCollection/file.txt'
+            mimeType: 'application/json'
 
         folders:
           - name: 'Private folder'
             description: 'Private folder in a public folder'
             creator: 'defaultFolders'
             public: False
-            items:
-              - name: 'Item in private folder'
-
+            files:
+              - name: 'File in private folder'
+                path: 'setup_database_test/publicCollection/file.txt'
 
       - name: 'Folder 2'
         description: 'This is a private folder'

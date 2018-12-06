@@ -148,7 +148,6 @@ class SftpTestCase(base.TestCase):
             set(sftpClient.listdir('/collection')), {'public collection', 'private collection'})
 
         self.assertEqual(sftpClient.listdir('/user/regularuser/Private'), ['test.txt'])
-        self.assertEqual(sftpClient.listdir('/user/regularuser/Private/test.txt'), ['test.txt'])
 
         with six.assertRaisesRegex(self, IOError, 'No such file'):
             sftpClient.listdir('/user/nonexistent')
@@ -157,13 +156,13 @@ class SftpTestCase(base.TestCase):
             sftpClient.file('/user/regularuser/Private')
 
         # Read a file using small enough buf size to require multiple chunks internally.
-        file = sftpClient.file('/user/regularuser/Private/test.txt/test.txt', 'r', bufsize=4)
+        file = sftpClient.file('/user/regularuser/Private/test.txt', 'r', bufsize=4)
         self.assertEqual(file.read(2), b'he')
         self.assertEqual(file.read(), b'llo world')
 
         # Make sure we enforce max buffer length
         tmp, sftp.MAX_BUF_LEN = sftp.MAX_BUF_LEN, 2
-        file = sftpClient.file('/user/regularuser/Private/test.txt/test.txt', 'r', bufsize=4)
+        file = sftpClient.file('/user/regularuser/Private/test.txt', 'r', bufsize=4)
         with self.assertRaises(IOError):
             file.read()
         sftp.MAX_BUF_LEN = tmp
@@ -175,7 +174,7 @@ class SftpTestCase(base.TestCase):
         self.assertEqual(info.st_mode & 0o777, 0o777)
 
         # lstat should also work
-        info = sftpClient.lstat('/user/regularuser/Private/test.txt/test.txt')
+        info = sftpClient.lstat('/user/regularuser/Private/test.txt')
         self.assertFalse(stat.S_ISDIR(info.st_mode))
         self.assertTrue(stat.S_ISREG(info.st_mode))
         self.assertEqual(info.st_size, 11)
@@ -236,7 +235,7 @@ class SftpTestCase(base.TestCase):
             sftpClient.listdir('/user/regularuser/Private')
 
         with six.assertRaisesRegex(self, IOError, 'No such file'):
-            sftpClient.file('/user/regularuser/Private/test.txt/test.txt', 'r')
+            sftpClient.file('/user/regularuser/Private/test.txt', 'r')
 
         sftpClient.close()
         trans.close()
@@ -263,7 +262,7 @@ class SftpTestCase(base.TestCase):
             sftpClient.listdir('/user/regularuser/Private')
 
         with six.assertRaisesRegex(self, IOError, 'No such file'):
-            sftpClient.file('/user/regularuser/Private/test.txt/test.txt', 'r')
+            sftpClient.file('/user/regularuser/Private/test.txt', 'r')
 
         sftpClient.close()
         client.close()

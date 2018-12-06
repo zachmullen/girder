@@ -800,17 +800,9 @@ class UserTestCase(base.TestCase):
         folder = six.next(Folder().childFolders(parentType='user', parent=pvt))
 
         # Private users should be able to upload files
-        resp = self.request(path='/item', method='POST', user=pvt, params={
-            'name': 'foo.txt',
-            'folderId': folder['_id']
-        })
-        self.assertStatusOk(resp)
-        itemId = resp.json['_id']
-
         resp = self.request(
             path='/file', method='POST', user=pvt, params={
-                'parentType': 'item',
-                'parentId': itemId,
+                'folderId': folder['_id'],
                 'name': 'foo.txt',
                 'size': 5,
                 'mimeType': 'text/plain'
@@ -822,7 +814,7 @@ class UserTestCase(base.TestCase):
         resp = self.multipartRequest(
             path='/file/chunk', user=pvt, fields=fields, files=files)
         self.assertStatusOk(resp)
-        self.assertEqual(resp.json['itemId'], itemId)
+        self.assertEqual(resp.json['folderId'], str(folder['_id']))
 
     def testUsersDetails(self):
         """

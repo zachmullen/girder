@@ -22,9 +22,9 @@ def exceptionServer(server):
     def _raiseException(*args, **kwargs):
         raise Exception('Specific message ' + cherrypy.request.girderRequestUid)
 
-    server.root.api.v1.item.route('GET', ('exception',), _raiseException)
+    server.root.api.v1.system.route('GET', ('exception',), _raiseException)
     yield server
-    server.root.api.v1.item.removeRoute('GET', ('exception',))
+    server.root.api.v1.system.removeRoute('GET', ('exception',))
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def uuidMock():
 ])
 def testExceptionHandlingBasedOnServerMode(exceptionServer, uuidMock, mode, msg, hasTrace):
     with serverMode(mode):
-        resp = exceptionServer.request('/item/exception', exception=True)
+        resp = exceptionServer.request('/system/exception', exception=True)
 
     assertStatus(resp, 500)
     assert resp.json['message'] == msg

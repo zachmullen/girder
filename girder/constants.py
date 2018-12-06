@@ -344,8 +344,8 @@ class CoreEventHandler(object):
     # For removing deleted user/group references from AccessControlledModel
     ACCESS_CONTROL_CLEANUP = 'core.cleanupDeletedEntity'
 
-    # For updating an item's size to include a new file.
-    FILE_PROPAGATE_SIZE = 'core.propagateSizeToItem'
+    # For updating a folder's size to include a new file.
+    FILE_PROPAGATE_SIZE = 'core.propagateSizeToFolder'
 
     # For adding a group's creator into its ACL at creation time.
     GROUP_CREATOR_ACCESS = 'core.grantCreatorAccess'

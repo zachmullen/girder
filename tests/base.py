@@ -370,8 +370,7 @@ class TestCase(unittest.TestCase):
             return ()
         return [json.loads(m.replace('data: ', '')) for m in messages]
 
-    def uploadFile(self, name, contents, user, parent, parentType='folder',
-                   mimeType=None):
+    def uploadFile(self, name, contents, user, folder, mimeType=None):
         """
         Upload a file. This is meant for small testing files, not very large
         files that should be sent in multiple chunks.
@@ -382,10 +381,8 @@ class TestCase(unittest.TestCase):
         :type contents: str
         :param user: The user performing the upload.
         :type user: dict
-        :param parent: The parent document.
-        :type parent: dict
-        :param parentType: The type of the parent ("folder" or "item")
-        :type parentType: str
+        :param folder: The parent folder.
+        :type folder: dict
         :param mimeType: Explicit MIME type to set on the file.
         :type mimeType: str
         :returns: The file that was created.
@@ -394,8 +391,7 @@ class TestCase(unittest.TestCase):
         mimeType = mimeType or 'application/octet-stream'
         resp = self.request(
             path='/file', method='POST', user=user, params={
-                'parentType': parentType,
-                'parentId': str(parent['_id']),
+                'folderId': str(folder['_id']),
                 'name': name,
                 'size': len(contents),
                 'mimeType': mimeType
@@ -409,7 +405,7 @@ class TestCase(unittest.TestCase):
         self.assertStatusOk(resp)
 
         file = resp.json
-        self.assertHasKeys(file, ['itemId'])
+        self.assertHasKeys(file, ['folderId'])
         self.assertEqual(file['name'], name)
         self.assertEqual(file['size'], len(contents))
         self.assertEqual(file['mimeType'], mimeType)

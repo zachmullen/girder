@@ -107,8 +107,7 @@ def lookUpToken(token, parentType, parent):
             'parentId': parent['_id'],
             'parentCollection': parentType
         }),
-        ('item', parentType == 'folder', {'name': token, 'folderId': parent['_id']}),
-        ('file', parentType == 'item', {'name': token, 'itemId': parent['_id']}),
+        ('file', parentType == 'folder', {'name': token, 'folderId': parent['_id']}),
     )
 
     for candidateModel, mask, filterObject in searchTable:
@@ -214,7 +213,7 @@ def getResourceName(type, doc):
     """
     if type == 'user':
         return doc['login']
-    elif type in ('file', 'item', 'folder', 'user', 'collection'):
+    elif type in ('file', 'folder', 'user', 'collection'):
         return doc['name']
     else:
         raise GirderException('Invalid resource type.')
@@ -239,9 +238,6 @@ def getResourcePath(type, doc, user=None, force=False):
     while True:
         path.insert(0, getResourceName(type, doc))
         if type == 'file':
-            parentModel = 'item'
-            parentId = doc['itemId']
-        elif type == 'item':
             parentModel = 'folder'
             parentId = doc['folderId']
         elif type == 'folder':

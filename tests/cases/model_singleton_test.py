@@ -19,20 +19,19 @@
 
 import mock
 import unittest
-
-from girder.models.item import Item
+from girder.models.folder import Folder
 
 
 class ModelSingletonTest(unittest.TestCase):
-    @mock.patch.object(Item, '__init__', return_value=None)
+    @mock.patch.object(Folder, '__init__', return_value=None)
     def testModelSingletonBehavior(self, initMock):
         self.assertEqual(len(initMock.mock_calls), 0)
-        Item()
-        Item()
+        Folder()
+        Folder()
         self.assertEqual(len(initMock.mock_calls), 1)
 
         # Make sure it works for subclasses of other models
-        class Subclass(Item):
+        class Subclass(Folder):
             pass
 
         with mock.patch.object(Subclass, '__init__', return_value=None) as patch:

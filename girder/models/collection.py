@@ -161,10 +161,8 @@ class Collection(AccessControlledModel):
         :param user: a user used to validate data that is returned.
         :param path: a path prefix to add to the results.
         :param includeMetadata: if True and there is any metadata, include a
-                                result which is the JSON string of the
-                                metadata.  This is given a name of
-                                metadata[-(number).json that is distinct from
-                                any file within the item.
+            result which is the JSON string of the metadata. This is given a name of
+            metadata[-(number).json that is distinct from any file within the folder.
         :param subpath: if True, add the collection's name to the path.
         :param mimeFilter: Optional list of MIME types to filter by. Set to
             None to include all files.
@@ -185,14 +183,14 @@ class Collection(AccessControlledModel):
                     mimeFilter=mimeFilter, data=data):
                 yield (filepath, file)
 
-    def subtreeCount(self, doc, includeItems=True, user=None, level=None):
+    def subtreeCount(self, doc, includeFiles=True, user=None, level=None):
         """
         Return the size of the folders within the collection.  The collection
         is counted as well.
 
         :param doc: The collection.
-        :param includeItems: Whether items should be included in the count.
-        :type includeItems: bool
+        :param includeFiles: Whether files should be included in the count.
+        :type includeFiles: bool
         :param user: If filtering by permission, the user to filter against.
         :param level: If filtering by permission, the required permission level.
         :type level: AccessLevel
@@ -207,7 +205,7 @@ class Collection(AccessControlledModel):
         }, fields='access', user=user, level=level)
 
         count += sum(folderModel.subtreeCount(
-            folder, includeItems=includeItems, user=user, level=level)
+            folder, includeFiles=includeFiles, user=user, level=level)
             for folder in folders)
         return count
 

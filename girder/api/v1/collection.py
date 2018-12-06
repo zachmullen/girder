@@ -167,7 +167,7 @@ class Collection(Resource):
                              message='Calculating progress...') as ctx:
             if progress:
                 ctx.update(total=self._model.subtreeCount(
-                    collection, includeItems=False, user=user, level=AccessType.ADMIN))
+                    collection, includeFiles=False, user=user, level=AccessType.ADMIN))
             return self._model.setAccessList(
                 collection, access, save=True, user=user, recurse=recurse,
                 progress=ctx, setPublic=public, publicFlags=publicFlags)

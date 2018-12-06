@@ -28,19 +28,14 @@ from ...constants import AccessType, TokenScope
 from girder.exceptions import AccessException, GirderException, RestException
 from girder.models.assetstore import Assetstore
 from girder.models.file import File as FileModel
-from girder.models.item import Item
+from girder.models.folder import Folder
 from girder.models.upload import Upload
 from girder.api import access
 from girder.utility import RequestBodyStream
-from girder.utility.model_importer import ModelImporter
 from girder.utility.progress import ProgressContext
 
 
 class File(Resource):
-    """
-    API Endpoint for files. Includes utilities for uploading and downloading
-    them.
-    """
     def __init__(self):
         super(File, self).__init__()
         self._model = FileModel()
@@ -48,6 +43,7 @@ class File(Resource):
         self.resourceName = 'file'
         self.route('DELETE', (':id',), self.deleteFile)
         self.route('DELETE', ('upload', ':id'), self.cancelUpload)
+        self.route('GET', (), self.find)
         self.route('GET', ('offset',), self.requestOffset)
         self.route('GET', (':id',), self.getFile)
         self.route('GET', (':id', 'download'), self.download)
@@ -59,6 +55,19 @@ class File(Resource):
         self.route('PUT', (':id',), self.updateFile)
         self.route('PUT', (':id', 'contents'), self.updateFileContents)
         self.route('PUT', (':id', 'move'), self.moveFileToAssetstore)
+
+    @access.public(scope=TokenScope.DATA_READ)
+    @filtermodel(model=FileModel)
+    @autoDescribeRoute(
+        Description('Get the files within a folder.')
+        .responseClass('File', array=True)
+        .modelParam('folderId', model=Folder, level=AccessType.READ, paramType='formData')
+        .pagingParams(defaultSort='name')
+        .errorResponse('ID was invalid.')
+        .errorResponse('Read access was denied for the folder.', 403)
+    )
+    def find(self, folder, limit, offset, sort):
+        return Folder().childFiles(folder=folder, limit=limit, offset=offset, sort=sort)
 
     @access.public(scope=TokenScope.DATA_READ)
     @filtermodel(model=FileModel)
@@ -81,24 +90,22 @@ class File(Resource):
                'part of the query string.  If the entire file is uploaded via '
                'this call, the resulting file is returned.')
         .responseClass('Upload')
-        .param('parentType', 'Type being uploaded into.', enum=['folder', 'item'])
-        .param('parentId', 'The ID of the parent.')
+        .modelParam('folderId', 'The ID of the parent folder.', level=AccessType.WRITE,
+                    paramType='formData', model=Folder)
         .param('name', 'Name of the file being created.')
         .param('size', 'Size in bytes of the file.', dataType='integer', required=False)
         .param('mimeType', 'The MIME type of the file.', required=False)
         .param('linkUrl', 'If this is a link file, pass its URL instead '
                'of size and mimeType using this parameter.', required=False)
         .param('reference', 'If included, this information is passed to the '
-               'data.process event when the upload is complete.',
-               required=False)
+               'data.process event when the upload is complete.', required=False)
         .param('assetstoreId', 'Direct the upload to a specific assetstore (admin-only).',
                required=False)
         .errorResponse()
         .errorResponse('Write access was denied on the parent folder.', 403)
         .errorResponse('Failed to create upload.', 500)
     )
-    def initUpload(self, parentType, parentId, name, size, mimeType, linkUrl, reference,
-                   assetstoreId):
+    def initUpload(self, folder, name, size, mimeType, linkUrl, reference, assetstoreId):
         """
         Before any bytes of the actual file are sent, a request should be made
         to initialize the upload. This creates the temporary record of the
@@ -107,14 +114,12 @@ class File(Resource):
         in the designated parent.
         """
         user = self.getCurrentUser()
-        parent = ModelImporter.model(parentType).load(
-            id=parentId, user=user, level=AccessType.WRITE, exc=True)
 
         if linkUrl is not None:
             return self._model.filter(
                 self._model.createLinkFile(
-                    url=linkUrl, parent=parent, name=name, parentType=parentType, creator=user,
-                    size=size, mimeType=mimeType), user)
+                    url=linkUrl, folder=folder, name=name, creator=user, size=size,
+                    mimeType=mimeType), user)
         else:
             self.requireParams({'size': size})
             assetstore = None
@@ -139,8 +144,8 @@ class File(Resource):
                 # a breaking change, that should be deferred until a major
                 # version upgrade.
                 upload = Upload().createUpload(
-                    user=user, name=name, parentType=parentType, parent=parent, size=size,
-                    mimeType=mimeType, reference=reference, assetstore=assetstore)
+                    user=user, name=name, parent=folder, size=size, mimeType=mimeType,
+                    reference=reference, assetstore=assetstore)
             except OSError as exc:
                 if exc.errno == errno.EACCES:
                     raise GirderException(
@@ -186,22 +191,16 @@ class File(Resource):
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
-        Description('Request required offset before resuming an upload.')
+        Description('Request required byte offset before resuming an upload.')
         .modelParam('uploadId', paramType='formData', model=Upload)
         .errorResponse("The ID was invalid, or the offset did not match the server's record.")
     )
     def requestOffset(self, upload):
-        """
-        This should be called when resuming an interrupted upload. It will
-        report the offset into the upload that should be used to resume.
-        :param uploadId: The _id of the temp upload record being resumed.
-        :returns: The offset in bytes that the client should use.
-        """
         offset = Upload().requestOffset(upload)
 
         if isinstance(offset, six.integer_types):
-            upload['received'] = offset
-            Upload().save(upload)
+            if offset != upload['received']:
+                Upload().update({'_id': upload['_id']}, {'$set': {'received': offset}}, multi=False)
             return {'offset': offset}
         else:
             return offset
@@ -292,7 +291,7 @@ class File(Resource):
     def download(self, file, offset, endByte, contentDisposition, extraParameters):
         """
         Defers to the underlying assetstore adapter to stream a file out.
-        Requires read permission on the folder that contains the file's item.
+        Requires read permission on the folder that contains the file.
         """
         rangeHeader = cherrypy.lib.httputil.get_ranges(
             cherrypy.request.headers.get('Range'), file.get('size', 0))
@@ -353,20 +352,27 @@ class File(Resource):
     @access.user(scope=TokenScope.DATA_WRITE)
     @filtermodel(model=FileModel)
     @autoDescribeRoute(
-        Description('Change file metadata such as name or MIME type.')
+        Description('Change file metadata or move a file.')
         .modelParam('id', model=FileModel, level=AccessType.WRITE)
         .param('name', 'The name to set on the file.', required=False, strip=True)
         .param('mimeType', 'The MIME type of the file.', required=False, strip=True)
+        .modelParam('folderId', 'Pass this to move the file to a new folder.', model=Folder,
+                    required=False, paramType='query', level=AccessType.WRITE)
         .errorResponse('ID was invalid.')
         .errorResponse('Write access was denied on the parent folder.', 403)
     )
-    def updateFile(self, file, name, mimeType):
+    def updateFile(self, file, name, mimeType, folder):
         if name is not None:
             file['name'] = name
         if mimeType is not None:
             file['mimeType'] = mimeType
 
-        return self._model.updateFile(file)
+        file = self._model.updateFile(file)
+
+        if folder and folder['_id'] != file['folderId']:
+            file = self._model.move(file, folder)
+
+        return file
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
@@ -420,8 +426,8 @@ class File(Resource):
     @autoDescribeRoute(
         Description('Copy a file.')
         .modelParam('id', model=FileModel, level=AccessType.READ)
-        .modelParam('itemId', description='The ID of the item to copy the file to.',
-                    level=AccessType.WRITE, paramType='formData', model=Item)
+        .modelParam('folderId', description='The ID of the folder to copy the file to.',
+                    level=AccessType.WRITE, paramType='formData', model=Folder)
     )
-    def copy(self, file, item):
-        return self._model.copyFile(file, self.getCurrentUser(), item=item)
+    def copy(self, file, folder):
+        return self._model.copyFile(file, self.getCurrentUser(), folder=folder)

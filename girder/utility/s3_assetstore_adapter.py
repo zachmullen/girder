@@ -32,7 +32,6 @@ from girder.api.rest import setContentDisposition
 from girder.exceptions import GirderException, ValidationException
 from girder.models.file import File
 from girder.models.folder import Folder
-from girder.models.item import Item
 from .abstract_assetstore_adapter import AbstractAssetstoreAdapter
 
 BUF_LEN = 65536  # Buffer size for download stream
@@ -448,12 +447,10 @@ class S3AssetstoreAdapter(AbstractAssetstoreAdapter):
                     'Keys cannot be imported directly underneath a %s.' % parentType)
 
             if self.shouldImportFile(obj['Key'], params):
-                item = Item().createItem(
-                    name=name, creator=user, folder=parent, reuseExisting=True)
                 # Create a file record; delay saving it until we have added the
                 # import information.
                 file = File().createFile(
-                    name=name, creator=user, item=item, reuseExisting=True,
+                    name=name, creator=user, folder=parent, reuseExisting=True,
                     assetstore=self.assetstore, mimeType=None, size=obj['Size'],
                     saveFile=False)
                 file['s3Key'] = obj['Key']

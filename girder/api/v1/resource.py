@@ -32,8 +32,8 @@ from girder.utility.model_importer import ModelImporter
 from girder.utility.progress import ProgressContext
 
 # Plugins can modify this set to allow other types to be searched
-allowedSearchTypes = {'collection', 'file', 'folder', 'group', 'item', 'user'}
-allowedDeleteTypes = {'collection', 'file', 'folder', 'group', 'item', 'user'}
+allowedSearchTypes = {'collection', 'file', 'folder', 'group', 'user'}
+allowedDeleteTypes = {'collection', 'file', 'folder', 'group', 'user'}
 
 
 class Resource(BaseResource):
@@ -61,7 +61,7 @@ class Resource(BaseResource):
         .param('mode', 'The search mode. Can always use either a text search or a '
                'prefix-based search.', required=False, default='text')
         .jsonParam('types', 'A JSON list of resource types to search for, e.g. '
-                   '["user", "folder", "item"].', requireArray=True)
+                   '["user", "folder"].', requireArray=True)
         .param('level', 'Minimum required access level.', required=False,
                dataType='integer', default=AccessType.READ)
         .pagingParams(defaultSort=None, defaultLimit=10)
@@ -143,7 +143,7 @@ class Resource(BaseResource):
     @autoDescribeRoute(
         Description('Get path of a resource.')
         .param('id', 'The ID of the resource.', paramType='path')
-        .param('type', 'The type of the resource (item, file, etc.).')
+        .param('type', 'The type of the resource (folder, file, etc.).')
         .errorResponse('ID was invalid.')
         .errorResponse('Invalid resource type.')
         .errorResponse('Read access was denied for the resource.', 403)
@@ -158,14 +158,14 @@ class Resource(BaseResource):
     @access.cookie(force=True)
     @access.public(scope=TokenScope.DATA_READ)
     @autoDescribeRoute(
-        Description('Download a set of items, folders, collections, and users '
+        Description('Download a set of files, folders, collections, and/or users '
                     'as a zip archive.')
         .notes('This route is also exposed via the POST method because the '
                'request parameters can be quite long, and encoding them in the '
                'URL (as is standard when using the GET method) can cause the '
                'URL to become too long, which causes errors.')
         .jsonParam('resources', 'A JSON-encoded set of resources to download. Each type is '
-                   'a list of ids. For example: {"item": [(item id 1), (item id 2)], '
+                   'a list of ids. For example: {"file": [(file id 1), (file id 2)], '
                    '"folder": [(folder id 1)]}.', requireObject=True)
         .param('includeMetadata', 'Include any metadata in JSON files in the '
                'archive.', required=False, dataType='boolean', default=False)
@@ -209,10 +209,10 @@ class Resource(BaseResource):
 
     @access.user(scope=TokenScope.DATA_OWN)
     @autoDescribeRoute(
-        Description('Delete a set of items, folders, or other resources.')
+        Description('Delete a set of files, folders, or other resources.')
         .jsonParam('resources', 'A JSON-encoded set of resources to delete. Each '
-                   'type is a list of ids.  For example: {"item": [(item id 1), '
-                   '(item id2)], "folder": [(folder id 1)]}.', requireObject=True)
+                   'type is a list of ids.  For example: {"file": [(file id 1), '
+                   '(file id2)], "folder": [(folder id 1)]}.', requireObject=True)
         .param('progress', 'Whether to record progress on this task.',
                default=False, required=False, dataType='boolean')
         .errorResponse('Unsupported or unknown resource type.')
@@ -255,7 +255,7 @@ class Resource(BaseResource):
     @autoDescribeRoute(
         Description('Get any resource by ID.')
         .param('id', 'The ID of the resource.', paramType='path')
-        .param('type', 'The type of the resource (item, file, etc.).')
+        .param('type', 'The type of the resource (folder, file, etc.).')
         .errorResponse('ID was invalid.')
         .errorResponse('Read access was denied for the resource.', 403)
     )
@@ -266,7 +266,7 @@ class Resource(BaseResource):
     @autoDescribeRoute(
         Description('Set the created or updated timestamp for a resource.')
         .param('id', 'The ID of the resource.', paramType='path')
-        .param('type', 'The type of the resource (item, file, etc.).')
+        .param('type', 'The type of the resource (folder, file, etc.).')
         .param('created', 'The new created timestamp.', required=False)
         .param('updated', 'The new updated timestamp.', required=False)
         .errorResponse('ID was invalid.')
@@ -289,19 +289,19 @@ class Resource(BaseResource):
 
     def _prepareMoveOrCopy(self, resources, parentType, parentId):
         user = self.getCurrentUser()
-        self._validateResourceSet(resources, ('folder', 'item'))
+        self._validateResourceSet(resources, ('folder', 'file'))
 
-        if resources.get('item') and parentType != 'folder':
+        if resources.get('file') and parentType != 'folder':
             raise RestException('Invalid parentType.')
         return ModelImporter.model(parentType).load(
             parentId, level=AccessType.WRITE, user=user, exc=True)
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
-        Description('Move a set of items and folders.')
+        Description('Move a set of files and folders.')
         .jsonParam('resources', 'A JSON-encoded set of resources to move. Each type '
-                   'is a list of ids.  Only folders and items may be specified.  '
-                   'For example: {"item": [(item id 1), (item id2)], "folder": '
+                   'is a list of ids.  Only folders and files may be specified.  '
+                   'For example: {"file": [(file id 1), (file id2)], "folder": '
                    '[(folder id 1)]}.', requireObject=True)
         .param('parentType', 'Parent type for the new parent of these resources.',
                enum=('user', 'collection', 'folder'))
@@ -327,7 +327,7 @@ class Resource(BaseResource):
                 for id in resources[kind]:
                     doc = model.load(id=id, user=user, level=AccessType.WRITE, exc=True)
                     ctx.update(message='Moving %s %s' % (kind, doc.get('name', '')))
-                    if kind == 'item':
+                    if kind == 'file':
                         if parent['_id'] != doc['folderId']:
                             model.move(doc, parent)
                     elif kind == 'folder':
@@ -338,10 +338,10 @@ class Resource(BaseResource):
 
     @access.user(scope=TokenScope.DATA_WRITE)
     @autoDescribeRoute(
-        Description('Copy a set of items and folders.')
+        Description('Copy a set of files and folders.')
         .jsonParam('resources', 'A JSON-encoded set of resources to copy. Each type '
-                   'is a list of ids.  Only folders and items may be specified.  '
-                   'For example: {"item": [(item id 1), (item id2)], "folder": '
+                   'is a list of ids.  Only folders and files may be specified.  '
+                   'For example: {"file": [(file id 1), (file id2)], "folder": '
                    '[(folder id 1)]}.', requireObject=True)
         .param('parentType', 'Parent type for the new parent of these '
                'resources.')
@@ -358,7 +358,7 @@ class Resource(BaseResource):
     def copyResources(self, resources, parentType, parentId, progress):
         user = self.getCurrentUser()
         parent = self._prepareMoveOrCopy(resources, parentType, parentId)
-        total = len(resources.get('item', []))
+        total = len(resources.get('file', []))
         if 'folder' in resources:
             model = self._getResourceModel('folder')
             for id in resources['folder']:
@@ -372,8 +372,8 @@ class Resource(BaseResource):
                 for id in resources[kind]:
                     doc = model.load(id=id, user=user, level=AccessType.READ, exc=True)
                     ctx.update(message='Copying %s %s' % (kind, doc.get('name', '')))
-                    if kind == 'item':
-                        model.copyItem(doc, folder=parent, creator=user)
+                    if kind == 'file':
+                        model.copyFile(doc, folder=parent, creator=user)
                         ctx.update(increment=1)
                     elif kind == 'folder':
                         model.copyFolder(

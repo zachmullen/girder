@@ -906,14 +906,14 @@ class Resource(object):
 
         This method fires two events for each request if a matching route is
         found. The names of these events are derived from the route matched by
-        the request. As an example, if the user calls GET /api/v1/item/123,
+        the request. As an example, if the user calls GET /api/v1/file/123,
         the following two events would be fired:
 
-            ``rest.get.item/:id.before``
+            ``rest.get.file/:id.before``
 
         would be fired prior to calling the default API function, and
 
-            ``rest.get.item/:id.after``
+            ``rest.get.file/:id.after``
 
         would be fired after the route handler returns. The query params are
         passed in the info of the before and after event handlers as

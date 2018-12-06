@@ -40,45 +40,66 @@ class File(acl_mixin.AccessControlMixin, Model):
 
         self.name = 'file'
         self.ensureIndices(
-            ['itemId', 'assetstoreId', 'exts'] +
-            assetstore_utilities.fileIndexFields())
+            ['folderId', 'assetstoreId', 'exts'] + assetstore_utilities.fileIndexFields())
         self.ensureTextIndex({'name': 1})
-        self.resourceColl = 'item'
-        self.resourceParent = 'itemId'
+        self.resourceColl = 'folder'
+        self.resourceParent = 'folderId'
 
-        self.exposeFields(level=AccessType.READ, fields=(
-            '_id', 'mimeType', 'itemId', 'exts', 'name', 'created', 'creatorId',
-            'size', 'updated', 'linkUrl'))
+        self.exposeFields(level=AccessType.READ, fields={
+            '_id', 'mimeType', 'folderId', 'exts', 'name', 'created', 'creatorId',
+            'size', 'updated', 'linkUrl', 'meta'})
 
-        self.exposeFields(level=AccessType.SITE_ADMIN, fields=('assetstoreId',))
+        self.exposeFields(level=AccessType.SITE_ADMIN, fields={'assetstoreId'})
 
         events.bind('model.file.save.created',
                     CoreEventHandler.FILE_PROPAGATE_SIZE,
-                    self._propagateSizeToItem)
+                    self._propagateSizeToFolder)
 
-    def remove(self, file, updateItemSize=True, **kwargs):
+    def remove(self, file, updateFolderSize=True, **kwargs):
         """
         Use the appropriate assetstore adapter for whatever assetstore the
         file is stored in, and call deleteFile on it, then delete the file
         record from the database.
 
         :param file: The file document to remove.
-        :param updateItemSize: Whether to update the item size. Only set this
-            to False if you plan to delete the item and do not care about
-            updating its size.
+        :param updateFolderSize: Whether to update the folder size. Only set this
+            to False if you plan to delete the folder and do not care about updating its size.
         """
-        from .item import Item
+        from .folder import Folder
 
         if file.get('assetstoreId'):
             self.getAssetstoreAdapter(file).deleteFile(file)
 
-        if file['itemId']:
-            item = Item().load(file['itemId'], force=True)
+        if file['folderId']:
+            folder = Folder().load(file['folderId'], force=True)
             # files that are linkUrls might not have a size field
             if 'size' in file:
-                self.propagateSizeChange(item, -file['size'], updateItemSize)
+                self.propagateSizeChange(folder, -file['size'])
 
         Model.remove(self, file)
+
+    def move(self, file, folder):
+        """
+        Move an existing file to a new folder.
+
+        :param file: the file to move.
+        :type file: dict
+        :param folder: the new parent destination
+        :type folder: dict
+        :return: the modified file
+        """
+        from .folder import Folder
+
+        parent = Folder().load(file['folderId'], force=True)
+        self.propagateSizeChange(parent, -file['size'])
+
+        file['folderId'] = folder['_id']
+        file['baseParentType'] = folder['baseParentType']
+        file['baseParentId'] = folder['baseParentId']
+
+        self.propagateSizeChange(folder, file['size'])
+
+        return self.save(file)
 
     def download(self, file, offset=0, headers=True, endByte=None,
                  contentDisposition=None, extraParameters=None):
@@ -199,42 +220,31 @@ class File(acl_mixin.AccessControlMixin, Model):
         else:
             return Assetstore()
 
-    def createLinkFile(self, name, parent, parentType, url, creator, size=None,
-                       mimeType=None, reuseExisting=False):
+    def createLinkFile(self, name, folder, url, creator, size=None, mimeType=None,
+                       reuseExisting=False):
         """
         Create a file that is a link to a URL, rather than something we maintain
         in an assetstore.
 
         :param name: The local name for the file.
         :type name: str
-        :param parent: The parent object for this file.
-        :type parent: girder.models.folder or girder.models.item
-        :param parentType: The parent type (folder or item)
-        :type parentType: str
+        :param folder: The parent folder for this file.
+        :type folder: dict
         :param url: The URL that this file points to
         :param creator: The user creating the file.
         :type creator: dict
-        :param size: The size of the file in bytes. (optional)
+        :param size: The size of the file in bytes.
         :type size: int
-        :param mimeType: The mimeType of the file. (optional)
+        :param mimeType: The mimeType of the file.
         :type mimeType: str
         :param reuseExisting: If a file with the same name already exists in
             this location, return it rather than creating a new file.
         :type reuseExisting: bool
         """
-        from .item import Item
-
-        if parentType == 'folder':
-            # Create a new item with the name of the file.
-            item = Item().createItem(
-                name=name, creator=creator, folder=parent, reuseExisting=reuseExisting)
-        elif parentType == 'item':
-            item = parent
-
         existing = None
         if reuseExisting:
             existing = self.findOne({
-                'itemId': item['_id'],
+                'folderId': folder['_id'],
                 'name': name
             })
 
@@ -243,7 +253,7 @@ class File(acl_mixin.AccessControlMixin, Model):
         else:
             file = {
                 'created': datetime.datetime.utcnow(),
-                'itemId': item['_id'],
+                'folderId': folder['_id'],
                 'assetstoreId': None,
                 'name': name
             }
@@ -256,58 +266,68 @@ class File(acl_mixin.AccessControlMixin, Model):
         if size is not None:
             file['size'] = int(size)
 
-        try:
-            if existing:
-                file = self.updateFile(file)
-            else:
-                file = self.save(file)
-            return file
-        except ValidationException:
-            if parentType == 'folder':
-                Item().remove(item)
-            raise
+        if existing:
+            file = self.updateFile(file)
+        else:
+            file = self.save(file)
+        return file
 
-    def propagateSizeChange(self, item, sizeIncrement, updateItemSize=True):
+    def parentsToRoot(self, file, user=None, force=False):
+        """
+        Get the path to traverse to a root of the hierarchy.
+
+        :param file: The item whose root to find
+        :type file: dict
+        :param user: The user making the request (not required if force=True).
+        :type user: dict or None
+        :param force: Set to True to skip permission checking. If False, the
+            returned models will be filtered.
+        :type force: bool
+        :returns: an ordered list of dictionaries from root to the current item
+        """
+        from .folder import Folder
+
+        curFolder = Folder().load(file['folderId'], user=user, level=AccessType.READ, force=force)
+        folderIdsToRoot = Folder().parentsToRoot(
+            curFolder, user=user, level=AccessType.READ, force=force)
+        if force:
+            folderIdsToRoot.append({'type': 'folder', 'object': curFolder})
+        else:
+            filteredFolder = Folder().filter(curFolder, user)
+            folderIdsToRoot.append({'type': 'folder', 'object': filteredFolder})
+        return folderIdsToRoot
+
+    def propagateSizeChange(self, folder, sizeIncrement):
         """
         Propagates a file size change (or file creation) to the necessary
         parents in the hierarchy. Internally, this records subtree size in
-        the item, the parent folder, and the root node under which the item
+        the parent folder, and the root node under which the file
         lives. Should be called anytime a new file is added, a file is
         deleted, or a file size changes.
 
-        :param item: The parent item of the file.
-        :type item: dict
+        :param folder: The parent folder of the file.
+        :type folder: dict
         :param sizeIncrement: The change in size to propagate.
         :type sizeIncrement: int
-        :param updateItemSize: Whether the item size should be updated. Set to
-            False if you plan to delete the item immediately and don't care to
-            update its size.
         """
         from .folder import Folder
-        from .item import Item
-
-        if updateItemSize:
-            # Propagate size up to item
-            Item().increment(query={
-                '_id': item['_id']
-            }, field='size', amount=sizeIncrement, multi=False)
 
         # Propagate size to direct parent folder
         Folder().increment(query={
-            '_id': item['folderId']
+            '_id': folder['_id']
         }, field='size', amount=sizeIncrement, multi=False)
 
         # Propagate size up to root data node
-        ModelImporter.model(item['baseParentType']).increment(query={
-            '_id': item['baseParentId']
+        ModelImporter.model(folder['baseParentType']).increment(query={
+            '_id': folder['baseParentId']
         }, field='size', amount=sizeIncrement, multi=False)
 
-    def createFile(self, creator, item, name, size, assetstore, mimeType=None,
+    def createFile(self, creator, folder, name, size, assetstore, mimeType=None,
                    saveFile=True, reuseExisting=False, assetstoreType=None):
         """
         Create a new file record in the database.
 
-        :param item: The parent item.
+        :param folder: The parent folder.
         :param creator: The user creating the file.
         :param assetstore: The assetstore this file is stored in.
         :param name: The filename.
@@ -329,20 +349,22 @@ class File(acl_mixin.AccessControlMixin, Model):
         """
         if reuseExisting:
             existing = self.findOne({
-                'itemId': item['_id'],
+                'folderId': folder['_id'],
                 'name': name
             })
             if existing:
                 return existing
-
+        now = datetime.datetime.utcnow()
         file = {
-            'created': datetime.datetime.utcnow(),
+            'created': now,
+            'updated': now,
             'creatorId': creator['_id'],
             'assetstoreId': assetstore['_id'],
             'name': name,
             'mimeType': mimeType,
             'size': size,
-            'itemId': item['_id'] if item else None
+            'folderId': folder['_id'] if folder else None,
+            'meta': {}
         }
 
         if assetstoreType:
@@ -352,27 +374,24 @@ class File(acl_mixin.AccessControlMixin, Model):
             return self.save(file)
         return file
 
-    def _propagateSizeToItem(self, event):
+    def _propagateSizeToFolder(self, event):
         """
-        This callback updates an item's size to include that of a newly-created
-        file.
+        This callback updates the parent folder's size to include that of a newly-created file.
 
-        This generally should not be called or overridden directly. This should
-        not be unregistered, as that would cause item, folder, and collection
-        sizes to be inaccurate.
+        This generally should not be called or overridden directly. This should not be
+        unregistered, as that would cause folder, and collection sizes to be inaccurate.
         """
         # This task is not performed in "createFile", in case
-        # "saveFile==False". The item size should be updated only when it's
+        # "saveFile==False". The folder size should be updated only when it's
         # certain that the file will actually be saved. It is also possible for
         # "model.file.save" to set "defaultPrevented", which would prevent the
-        # item from being saved initially.
-        from .item import Item
+        # folder from being saved initially.
+        from .folder import Folder
 
         fileDoc = event.info
-        itemId = fileDoc.get('itemId')
-        if itemId and fileDoc.get('size'):
-            item = Item().load(itemId, force=True)
-            self.propagateSizeChange(item, fileDoc['size'])
+        folderId = fileDoc.get('folderId')
+        if folderId and fileDoc.get('size'):
+            self.propagateSizeChange(Folder().load(folderId, force=True), fileDoc['size'])
 
     def updateFile(self, file):
         """
@@ -400,14 +419,14 @@ class File(acl_mixin.AccessControlMixin, Model):
         assetstore = self._getAssetstoreModel(file).load(file['assetstoreId'])
         return assetstore_utilities.getAssetstoreAdapter(assetstore)
 
-    def copyFile(self, srcFile, creator, item=None):
+    def copyFile(self, srcFile, creator, folder=None):
         """
         Copy a file so that we don't need to duplicate stored data.
 
         :param srcFile: The file to copy.
         :type srcFile: dict
         :param creator: The user copying the file.
-        :param item: a new item to assign this file to (optional)
+        :param folder: a new folder to assign this file to (optional)
         :returns: a dict with the new file.
         """
         # Copy the source file's dictionary.  The individual assetstore
@@ -418,8 +437,8 @@ class File(acl_mixin.AccessControlMixin, Model):
         del file['_id']
         file['copied'] = datetime.datetime.utcnow()
         file['copierId'] = creator['_id']
-        if item:
-            file['itemId'] = item['_id']
+        if folder:
+            file['folderId'] = folder['_id']
         if file.get('assetstoreId'):
             self.getAssetstoreAdapter(file).copyFile(srcFile, file)
         elif file.get('linkUrl'):
@@ -429,8 +448,7 @@ class File(acl_mixin.AccessControlMixin, Model):
 
     def isOrphan(self, file):
         """
-        Returns True if this file is orphaned (its item or attached entity is
-        missing).
+        Returns True if this file is orphaned (its folder or attached entity is missing).
 
         :param file: The file to check.
         :type file: dict
@@ -444,28 +462,14 @@ class File(acl_mixin.AccessControlMixin, Model):
             else:
                 # Invalid 'attachedToType'
                 return True
-            if isinstance(modelType, (acl_mixin.AccessControlMixin,
-                                      AccessControlledModel)):
-                attachedDoc = modelType.load(
-                    file.get('attachedToId'), force=True)
+            if isinstance(modelType, (acl_mixin.AccessControlMixin, AccessControlledModel)):
+                attachedDoc = modelType.load(file.get('attachedToId'), force=True)
             else:
-                attachedDoc = modelType.load(
-                    file.get('attachedToId'))
+                attachedDoc = modelType.load(file.get('attachedToId'))
         else:
-            from .item import Item
-            attachedDoc = Item().load(file.get('itemId'), force=True)
+            from .folder import Folder
+            attachedDoc = Folder().load(file.get('folderId'), force=True)
         return not attachedDoc
-
-    def updateSize(self, file):
-        """
-        Returns the size of this file. Does not currently check the underlying
-        assetstore to verify the size.
-
-        :param file: The file.
-        :type file: dict
-        """
-        # TODO: check underlying assetstore for size?
-        return file.get('size', 0), 0
 
     def open(self, file):
         """
@@ -511,7 +515,7 @@ class File(acl_mixin.AccessControlMixin, Model):
     def getLocalFilePath(self, file):
         """
         If an assetstore adapter supports it, return a path to the file on the
-        local file system.
+        local filesystem.
 
         :param file: The file document.
         :returns: a local path to the file or None if no such path is known.
@@ -527,3 +531,6 @@ class File(acl_mixin.AccessControlMixin, Model):
                 # exception
                 pass
             raise exc
+
+    def fileList(self, doc, *args, **kwargs):
+        yield (doc['name'], self.download(doc, headers=False))

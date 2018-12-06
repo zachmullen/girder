@@ -61,8 +61,8 @@ def addLoggingFilter(regex, frequency=None, duration=None):
 
     :param regex: a regular expression to match against log messages.  For
         matching cherrypy endpoint logging, this should probably be something
-        like 'GET /api/v1/item/[0-9a-fA-F]+/download[/ ?#]'.   More generally,
-        a value like GET (/[^/ ?#]+)*/item/[^/ ?#]+/download[/ ?#] would be
+        like 'GET /api/v1/file/[0-9a-fA-F]+/download[/ ?#]'. More generally,
+        a value like GET (/[^/ ?#]+)*/file/[^/ ?#]+/download[/ ?#] would be
         agnostic to the api_root.
     :param frequency: either None to never log matching log messages, or an
         integer, where one log message is emitted out of the specified number.

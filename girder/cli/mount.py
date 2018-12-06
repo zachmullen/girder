@@ -34,7 +34,6 @@ from girder.constants import SettingKey
 from girder.exceptions import AccessException, ValidationException
 from girder.models.file import File
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.setting import Setting
 from girder.utility import config
 from girder.utility.model_importer import ModelImporter
@@ -174,12 +173,11 @@ class ServerFuse(fuse.Operations):
 
     def _list(self, doc, model):
         """
-        List the entries in a Girder user, collection, folder, or item.
+        List the entries in a Girder user, collection, or folder.
 
         :param doc: the girder resource document.
         :param model: the girder model.
-        :returns: a list of the names of resources within the specified
-        document.
+        :returns: a list of the names of resources within the specified document.
         """
         entries = []
         if model in ('collection', 'user', 'folder'):
@@ -190,10 +188,7 @@ class ServerFuse(fuse.Operations):
             for folder in folderList:
                 entries.append(self._name(folder, 'folder'))
         if model == 'folder':
-            for item in Folder().childItems(doc):
-                entries.append(self._name(item, 'item'))
-        elif model == 'item':
-            for file in Item().childFiles(doc):
+            for file in Folder().childFiles(doc):
                 entries.append(self._name(file, 'file'))
         return entries
 

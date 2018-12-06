@@ -141,8 +141,6 @@ class Assetstore(Resource):
                enum=('folder', 'collection', 'user'))
         .param('progress', 'Whether to record progress on the import.',
                dataType='boolean', default=False, required=False)
-        .param('leafFoldersAsItems', 'Whether folders containing only files should be '
-               'imported as items.', dataType='boolean', required=False, default=False)
         .param('fileIncludeRegex', 'If set, only filenames matching this regular '
                'expression will be imported.', required=False)
         .param('fileExcludeRegex', 'If set, only filenames that do not match this regular '
@@ -152,7 +150,7 @@ class Assetstore(Resource):
         .errorResponse('You are not an administrator.', 403)
     )
     def importData(self, assetstore, importPath, destinationId, destinationType, progress,
-                   leafFoldersAsItems, fileIncludeRegex, fileExcludeRegex):
+                   fileIncludeRegex, fileExcludeRegex):
         user = self.getCurrentUser()
         parent = ModelImporter.model(destinationType).load(
             destinationId, user=user, level=AccessType.ADMIN, exc=True)
@@ -163,7 +161,7 @@ class Assetstore(Resource):
                     'fileIncludeRegex': fileIncludeRegex,
                     'fileExcludeRegex': fileExcludeRegex,
                     'importPath': importPath,
-                }, progress=ctx, user=user, leafFoldersAsItems=leafFoldersAsItems)
+                }, progress=ctx, user=user)
 
     @access.admin
     @autoDescribeRoute(

@@ -25,7 +25,7 @@ from girder.constants import AccessType
 from girder.models.model_base import AccessControlledModel
 from girder.models.assetstore import Assetstore
 from girder.models.collection import Collection
-from girder.models.item import Item
+from girder.models.file import File
 from girder.models.user import User
 from girder.utility.acl_mixin import AccessControlMixin
 from girder.utility import search
@@ -50,7 +50,7 @@ class SearchTestCase(base.TestCase):
         user = User().findOne({'login': 'goodlogin'})
         coll1 = Collection().findOne({'name': 'Test Collection'})
         coll2 = Collection().findOne({'name': 'Magic collection'})
-        item1 = Item().findOne({'name': 'Public object'})
+        file1 = File().findOne({'name': 'Personal file'})
 
         # set user read permissions on the private collection
         Collection().setUserAccess(coll2, user, level=AccessType.READ, save=True)
@@ -133,7 +133,7 @@ class SearchTestCase(base.TestCase):
         resp = self.request(path='/resource/search', params={
             'q': 'pr',
             'mode': 'prefix',
-            'types': '["folder", "user", "collection", "item"]'
+            'types': '["folder", "user", "collection", "file"]'
         }, user=user)
         self.assertStatusOk(resp)
         self.assertEqual(1, len(resp.json['folder']))
@@ -142,7 +142,7 @@ class SearchTestCase(base.TestCase):
             'name': 'Private'
         }, resp.json['folder'][0])
         self.assertEqual(0, len(resp.json['collection']))
-        self.assertEqual(0, len(resp.json['item']))
+        self.assertEqual(0, len(resp.json['file']))
         self.assertEqual(0, len(resp.json['user']))
 
         # Ensure that weights are respected, e.g. description should be
@@ -178,17 +178,17 @@ class SearchTestCase(base.TestCase):
             'login': user['login']
         }, resp.json['user'][0])
 
-        # check item search with proper permissions
+        # check file search with proper permissions
         resp = self.request(path='/resource/search', params={
-            'q': 'object',
-            'types': '["item"]'
-        }, user=user)
+            'q': 'personal',
+            'types': '["file"]'
+        }, user=admin)
         self.assertStatusOk(resp)
-        self.assertEqual(1, len(resp.json['item']))
+        self.assertEqual(1, len(resp.json['file']))
         self.assertDictContainsSubset({
-            '_id': str(item1['_id']),
-            'name': item1['name']
-        }, resp.json['item'][0])
+            '_id': str(file1['_id']),
+            'name': file1['name']
+        }, resp.json['file'][0])
 
         # Check search for model that is not access controlled
         self.assertNotIsInstance(Assetstore(), AccessControlledModel)

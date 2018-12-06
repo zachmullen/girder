@@ -36,10 +36,10 @@ class AccessControlMixin(object):
     only alter functionality related to access control resolution.
 
     resourceColl corresponds to the resource collection that needs to be used
-    for resolution, for example the Item model has a resourceColl of folder.
+    for resolution, for example the File model has a resourceColl of folder.
 
     resourceParent corresponds to the field in which the parent resource
-    belongs, so for an item it would be the folderId.
+    belongs, so for a file it would be the folderId.
     """
     resourceColl = None
     resourceParent = None
@@ -47,9 +47,8 @@ class AccessControlMixin(object):
     def load(self, id, level=AccessType.ADMIN, user=None, objectId=True,
              force=False, fields=None, exc=False):
         """
-        Calls Model.load on the current item, and then attempts to load the
-        resourceParent which the user must have access to in order to load this
-        model.
+        Calls Model.load on the current id, and then attempts to load the
+        resourceParent which the user must have access to in order to load this model.
 
         Takes the same parameters as
         :py:func:`girder.models.model_base.AccessControlledModel.load`.

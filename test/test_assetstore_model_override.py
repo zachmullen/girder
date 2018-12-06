@@ -44,7 +44,7 @@ def testAssetstoreModelOverride(fakeModel, fakeAdapter, admin):
         'type': 'fake'
     })
     file = File().createFile(
-        creator=admin, item=None, name='a.out', size=0, assetstore=fakeAssetstore,
+        creator=admin, folder=None, name='a.out', size=0, assetstore=fakeAssetstore,
         assetstoreType=('fake', 'fake_plugin'))
 
     adapter = File().getAssetstoreAdapter(file)
@@ -56,5 +56,5 @@ def testAssetstoreModelIsValidated(fakeModel, admin):
     fake = fakeModel().save({})
     with pytest.raises(ValidationException) as exc:
         File().createFile(
-            creator=admin, item=None, name='foo', size=0, assetstore=fake, assetstoreType='bad')
+            creator=admin, folder=None, name='foo', size=0, assetstore=fake, assetstoreType='bad')
     assert str(exc.value) == 'Invalid assetstore type: bad.'

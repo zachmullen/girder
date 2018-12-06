@@ -26,8 +26,8 @@ from .. import base
 from girder import events
 from girder.constants import AccessType, SortDir
 from girder.models.notification import Notification, ProgressState
+from girder.models.file import File
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.user import User
 
 
@@ -451,13 +451,15 @@ class FolderTestCase(base.TestCase):
                 sort=[('name', SortDir.DESCENDING)])
             folderResp = six.next(folders)
 
-            # Add a subfolder and an item to that folder
+            # Add a subfolder and a file to that folder
             subfolder = Folder().createFolder(
                 folderResp, 'sub', parentType='folder', creator=self.admin)
-            item = Item().createItem('item', creator=self.admin, folder=subfolder)
+            file = File().createFile(
+                creator=self.admin, folder=subfolder, name='file', size=0,
+                assetstore=self.assetstore)
 
             self.assertTrue('_id' in subfolder)
-            self.assertTrue('_id' in item)
+            self.assertTrue('_id' in file)
 
             # Delete the folder
             resp = self.request(path='/folder/%s' % folderResp['_id'],
@@ -469,19 +471,18 @@ class FolderTestCase(base.TestCase):
             # Make sure the folder, its subfolder, and its item were all deleted
             folder = Folder().load(folderResp['_id'], force=True)
             subfolder = Folder().load(subfolder['_id'], force=True)
-            item = Item().load(item['_id'])
+            file = File().load(file['_id'])
 
-            self.assertEqual(folder, None)
-            self.assertEqual(subfolder, None)
-            self.assertEqual(item, None)
+            self.assertIsNone(folder)
+            self.assertIsNone(subfolder)
+            self.assertIsNone(file)
 
             # Make sure progress record exists and that it is set to expire soon
             notifs = list(Notification().get(self.admin))
             self.assertEqual(len(notifs), 1)
             self.assertEqual(notifs[0]['type'], 'progress')
             self.assertEqual(notifs[0]['data']['state'], ProgressState.SUCCESS)
-            self.assertEqual(notifs[0]['data']['title'],
-                             'Deleting folder Public')
+            self.assertEqual(notifs[0]['data']['title'], 'Deleting folder Public')
             self.assertEqual(notifs[0]['data']['message'], 'Done')
             self.assertEqual(notifs[0]['data']['total'], 3)
             self.assertEqual(notifs[0]['data']['current'], 3)
@@ -500,10 +501,11 @@ class FolderTestCase(base.TestCase):
             sort=[('name', SortDir.DESCENDING)]))
 
         # Add some data under the folder
-        subfolder = Folder().createFolder(
-            folder, 'sub', parentType='folder', creator=self.admin)
-        item = Item().createItem('item', creator=self.admin, folder=folder)
-        subitem = Item().createItem('item', creator=self.admin, folder=subfolder)
+        subfolder = Folder().createFolder(folder, 'sub', parentType='folder', creator=self.admin)
+        file = File().createFile(
+            creator=self.admin, folder=folder, name='file', size=0, assetstore=self.assetstore)
+        subfile = File().createFile(
+            creator=self.admin, folder=subfolder, name='file', size=0, assetstore=self.assetstore)
 
         # Clean the folder contents
         resp = self.request(path='/folder/%s/contents' % folder['_id'],
@@ -515,15 +517,11 @@ class FolderTestCase(base.TestCase):
         # Make sure the subfolder and items were deleted, but that the top
         # folder still exists.
         old, folder = folder, Folder().load(folder['_id'], force=True)
-        subfolder = Folder().load(subfolder['_id'], force=True)
-        item = Item().load(item['_id'])
-        subitem = Item().load(subitem['_id'])
-
-        self.assertTrue('_id' in folder)
+        self.assertIn('_id', folder)
         self.assertEqual(folder, old)
-        self.assertEqual(subfolder, None)
-        self.assertEqual(item, None)
-        self.assertEqual(subitem, None)
+        self.assertIsNone(Folder().load(subfolder['_id'], force=True))
+        self.assertIsNone(File().load(file['_id']))
+        self.assertIsNone(File().load(subfile['_id']))
 
     def testLazyFieldComputation(self):
         """
@@ -628,8 +626,9 @@ class FolderTestCase(base.TestCase):
         self.assertStatusOk(resp)
         self.assertEqual(resp.json['public'], True)
 
-        # Create an item in the folder
-        Item().createItem(folder=folder, creator=self.admin, name='Item')
+        # Create a file in the folder
+        File().createFile(
+            folder=folder, creator=self.admin, name='file', size=0, assetstore=self.assetstore)
         # Create a public and private folder within the folder
         Folder().createFolder(
             parent=folder, parentType='folder', creator=self.admin,
@@ -642,26 +641,23 @@ class FolderTestCase(base.TestCase):
         resp = self.request(
             path='/folder/%s/details' % str(folder['_id']))
         self.assertStatusOk(resp)
-        self.assertEqual(resp.json['nItems'], 1)
+        self.assertEqual(resp.json['nFiles'], 1)
         self.assertEqual(resp.json['nFolders'], 1)
 
         # Test folder details as admin
         resp = self.request(
             path='/folder/%s/details' % str(folder['_id']), user=self.admin)
         self.assertStatusOk(resp)
-        self.assertEqual(resp.json['nItems'], 1)
+        self.assertEqual(resp.json['nFiles'], 1)
         self.assertEqual(resp.json['nFolders'], 2)
 
     def testFolderCopy(self):
-        # create a folder with a subfolder, items, and metadata
+        # create a folder with subfolders and metadata
         mainFolder = Folder().createFolder(
-            parent=self.admin, parentType='user', creator=self.admin,
-            name='Main Folder')
-        subFolder = Folder().createFolder(
-            parent=mainFolder, parentType='folder', creator=self.admin,
-            name='Sub Folder')
-        mainItem = Item().createItem('Main Item', creator=self.admin, folder=mainFolder)
-        subItem = Item().createItem('Sub Item', creator=self.admin, folder=subFolder)
+            parent=self.admin, parentType='user', creator=self.admin, name='Main Folder')
+        subFolder = Folder().createFolder(parent=mainFolder, creator=self.admin, name='Sub Folder')
+        Folder().createFolder(name='Main Item', creator=self.admin, parent=mainFolder)
+        Folder().createFolder(name='Sub Item', creator=self.admin, parent=subFolder)
         metadata = {'key': 'value'}
         resp = self.request(
             path='/folder/%s/metadata' % mainFolder['_id'], method='PUT',
@@ -670,29 +666,30 @@ class FolderTestCase(base.TestCase):
         self.assertStatusOk(resp)
         # Add a file under the main item to test size reporting
         size = 5
-        self.uploadFile(
-            name='test.txt', contents='.' * size, user=self.admin,
-            parent=mainItem, parentType='item')
+        self.uploadFile(name='file', contents='.' * size, user=self.admin, folder=mainFolder)
         mainFolder = Folder().load(mainFolder['_id'], force=True)
         self.assertEqual(mainFolder['size'], size)
 
         # Now copy the folder alongside itself
         resp = self.request(
-            path='/folder/%s/copy' % mainFolder['_id'], method='POST',
-            user=self.admin)
+            path='/folder/%s/copy' % mainFolder['_id'], method='POST', user=self.admin)
         self.assertStatusOk(resp)
         # Check our new folder information
         newFolder = resp.json
         self.assertEqual(newFolder['name'], 'Main Folder (1)')
         self.assertEqual(newFolder['size'], size)
 
-        # Check the copied item inside the new folder
-        resp = self.request('/item', user=self.admin, params={
-            'folderId': newFolder['_id']})
+        # Check the copied subfolder inside the new folder
+        resp = self.request('/folder', user=self.admin, params={
+            'parentId': newFolder['_id'],
+            'parentType': 'folder'
+        })
         self.assertStatusOk(resp)
-        self.assertEqual(len(resp.json), 1)
+        self.assertEqual(len(resp.json), 2)
         self.assertEqual(resp.json[0]['name'], 'Main Item')
-        self.assertEqual(resp.json[0]['size'], size)
+        self.assertEqual(resp.json[0]['size'], 0)
+        self.assertEqual(resp.json[1]['name'], 'Sub Folder')
+        self.assertEqual(resp.json[1]['size'], 0)
 
         # Check copied folder metadata
         resp = self.request(
@@ -706,28 +703,19 @@ class FolderTestCase(base.TestCase):
             params={'parentType': 'folder', 'parentId': str(newFolder['_id'])},
             user=self.admin, type='application/json')
         self.assertStatusOk(resp)
-        self.assertEqual(len(resp.json), 1)
-        newSub = resp.json[0]
+        self.assertEqual(len(resp.json), 2)
+        newSub = resp.json[1]
         self.assertEqual(newSub['name'], subFolder['name'])
         self.assertNotEqual(str(newSub['_id']), str(subFolder['_id']))
         resp = self.request(
-            path='/item', method='GET',
+            path='/file', method='GET',
             params={'folderId': str(newFolder['_id'])},
             user=self.admin, type='application/json')
         self.assertStatusOk(resp)
         self.assertEqual(len(resp.json), 1)
-        newItem = resp.json[0]
-        self.assertEqual(newItem['name'], mainItem['name'])
-        self.assertNotEqual(str(newItem['_id']), str(mainItem['_id']))
-        resp = self.request(
-            path='/item', method='GET',
-            params={'folderId': str(newSub['_id'])},
-            user=self.admin, type='application/json')
-        self.assertStatusOk(resp)
-        self.assertEqual(len(resp.json), 1)
-        newSubItem = resp.json[0]
-        self.assertEqual(newSubItem['name'], subItem['name'])
-        self.assertNotEqual(str(newSubItem['_id']), str(subItem['_id']))
+        newFile = resp.json[0]
+        self.assertEqual(newFile['name'], 'file')
+
         # Test copying the subFolder
         resp = self.request(
             path='/folder/%s/copy' % subFolder['_id'], method='POST',

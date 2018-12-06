@@ -27,8 +27,8 @@ def _registerCoreModels():
         return
 
     from girder.models import (
-        api_key, assetstore, collection, file, folder, group, item, notification, password,
-        setting, token, upload, user)
+        api_key, assetstore, collection, file, folder, group, notification, password, setting,
+        token, upload, user)
 
     ModelImporter.registerModel('api_key', api_key.ApiKey)
     ModelImporter.registerModel('assetstore', assetstore.Assetstore)
@@ -36,7 +36,6 @@ def _registerCoreModels():
     ModelImporter.registerModel('file', file.File)
     ModelImporter.registerModel('folder', folder.Folder)
     ModelImporter.registerModel('group', group.Group)
-    ModelImporter.registerModel('item', item.Item)
     ModelImporter.registerModel('notification', notification.Notification)
     ModelImporter.registerModel('password', password.Password)
     ModelImporter.registerModel('setting', setting.Setting)
