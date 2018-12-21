@@ -62,12 +62,17 @@ class File(Resource):
         Description('Get the files within a folder.')
         .responseClass('File', array=True)
         .modelParam('folderId', model=Folder, level=AccessType.READ, paramType='formData')
+        .param('name', 'Find by name under a folder.', required=False)
         .pagingParams(defaultSort='name')
         .errorResponse('ID was invalid.')
         .errorResponse('Read access was denied for the folder.', 403)
     )
-    def find(self, folder, limit, offset, sort):
-        return Folder().childFiles(folder=folder, limit=limit, offset=offset, sort=sort)
+    def find(self, folder, name, limit, offset, sort):
+        filters = {}
+        if name:
+            filters['name'] = name
+        return Folder().childFiles(
+            folder=folder, limit=limit, offset=offset, sort=sort, filters=filters)
 
     @access.public(scope=TokenScope.DATA_READ)
     @filtermodel(model=FileModel)

@@ -31,7 +31,6 @@ import httmock
 from girder import config
 from girder.models.api_key import ApiKey
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.user import User
 from girder_client.cli import GirderCli
 from tests import base
@@ -240,33 +239,32 @@ class PythonCliTestCase(base.TestCase):
             os.path.join(localDir, 'world.txt'), '--dry-run'],
             username='mylogin', password='password')
         self.assertEqual(ret['exitVal'], 0)
-        self.assertIn('Uploading Item from hello.txt', ret['stdout'])
-        self.assertIn('Uploading Item from world.txt', ret['stdout'])
+        six.assertRegex(
+            self, ret['stdout'], 'Uploading file from .*tests/cases/py_client/testdata/hello.txt')
+        six.assertRegex(
+            self, ret['stdout'], 'Uploading file from .*tests/cases/py_client/testdata/world.txt')
 
         # Actually upload the test data
         ret = invokeCli(args, username='mylogin', password='password', useApiUrl=True)
         self.assertEqual(ret['exitVal'], 0)
         six.assertRegex(
             self, ret['stdout'], 'Creating Folder from .*tests/cases/py_client/testdata')
-        self.assertIn('Uploading Item from hello.txt', ret['stdout'])
+        six.assertRegex(
+            self, ret['stdout'], 'Uploading file from .*tests/cases/py_client/testdata/hello.txt')
 
         subfolder = six.next(Folder().childFolders(
             parent=self.publicFolder, parentType='folder', limit=1))
         self.assertEqual(subfolder['name'], 'testdata')
 
-        items = list(Folder().childItems(folder=subfolder))
-
+        files = list(Folder().childFiles(folder=subfolder))
         toUpload = list(os.listdir(localDir))
-        self.assertEqual(len(toUpload), len(items))
+        self.assertEqual(len(toUpload), len(files))
 
         downloadDir = os.path.join(os.path.dirname(localDir), '_testDownload')
-
         ret = invokeCli(('download', str(subfolder['_id']), downloadDir),
                         username='mylogin', password='password')
         self.assertEqual(ret['exitVal'], 0)
         for downloaded in os.listdir(downloadDir):
-            if downloaded == '.girder_metadata':
-                continue
             self.assertIn(downloaded, toUpload)
 
         # Download again to same location, we should not get errors
@@ -342,37 +340,21 @@ class PythonCliTestCase(base.TestCase):
             os.path.isfile(os.path.join(downloadDir, 'Public', 'testdata', 'hello.txt')))
         shutil.rmtree(downloadDir, ignore_errors=True)
 
-        # Test download of an item
-        items = list(Folder().childItems(folder=subfolder))
-        item_id = items[0]['_id']
-        item_name = items[0]['name']
-        ret = invokeCli(('download', '--parent-type=item', '%s' % item_id,
-                         downloadDir), username='mylogin', password='password')
-        self.assertEqual(ret['exitVal'], 0)
-        self.assertTrue(
-            os.path.isfile(os.path.join(downloadDir, item_name)))
-        shutil.rmtree(downloadDir, ignore_errors=True)
-
         # Test download of a file
-        os.makedirs(downloadDir)
-        items = list(Folder().childItems(folder=subfolder))
-        file_name, file_doc = next(Item().fileList(items[0], data=False))
-
-        ret = invokeCli(
-            ('download', '--parent-type=file', '%s' % file_doc['_id'],
-             os.path.join(downloadDir, file_name)),
-            username='mylogin', password='password')
-        self.assertEqual(ret['exitVal'], 0)
-        self.assertTrue(
-            os.path.isfile(os.path.join(downloadDir, file_name)))
-        shutil.rmtree(downloadDir, ignore_errors=True)
-
-        # Test download of an item auto-detecting parent-type
-        ret = invokeCli(('download', '%s' % item_id,
+        files = list(Folder().childFiles(folder=subfolder))
+        fileId = files[0]['_id']
+        filename = files[0]['name']
+        ret = invokeCli(('download', '--parent-type=file', str(fileId),
                          downloadDir), username='mylogin', password='password')
         self.assertEqual(ret['exitVal'], 0)
-        self.assertTrue(
-            os.path.isfile(os.path.join(downloadDir, item_name)))
+        self.assertTrue(os.path.isfile(os.path.join(downloadDir, filename)))
+        shutil.rmtree(downloadDir, ignore_errors=True)
+
+        # Test download of a file auto-detecting parent-type
+        ret = invokeCli(('download', str(fileId),
+                         downloadDir), username='mylogin', password='password')
+        self.assertEqual(ret['exitVal'], 0)
+        self.assertTrue(os.path.isfile(os.path.join(downloadDir, filename)))
         shutil.rmtree(downloadDir, ignore_errors=True)
 
         def _check_upload(ret):
@@ -380,7 +362,9 @@ class PythonCliTestCase(base.TestCase):
             six.assertRegex(
                 self, ret['stdout'],
                 'Creating Folder from .*tests/cases/py_client/testdata')
-            self.assertIn('Uploading Item from hello.txt', ret['stdout'])
+            six.assertRegex(
+                self, ret['stdout'],
+                'Uploading file from .*tests/cases/py_client/testdata/hello.txt')
 
         # Try uploading using API key
         _check_upload(invokeCli(['--api-key', self.apiKey['key']] + args))
@@ -390,72 +374,26 @@ class PythonCliTestCase(base.TestCase):
         _check_upload(invokeCli(args))
         del os.environ["GIRDER_API_KEY"]
 
-        # Test localsync, it shouldn't touch files on 2nd pass
-        ret = invokeCli(('localsync', str(subfolder['_id']),
-                         downloadDir), username='mylogin', password='password')
-        self.assertEqual(ret['exitVal'], 0)
-
-        old_mtimes = {}
-        for fname in os.listdir(downloadDir):
-            filename = os.path.join(downloadDir, fname)
-            old_mtimes[fname] = os.path.getmtime(filename)
-
-        ret = invokeCli(('localsync', str(subfolder['_id']),
-                         downloadDir), username='mylogin', password='password')
-        self.assertEqual(ret['exitVal'], 0)
-
-        for fname in os.listdir(downloadDir):
-            if fname == '.girder_metadata':
-                continue
-            filename = os.path.join(downloadDir, fname)
-            self.assertEqual(os.path.getmtime(filename), old_mtimes[fname])
-
-        # Check that localsync command do not show '--parent-type' option help
-        ret = invokeCli(('localsync', '--help'))
-        self.assertNotIn('--parent-type', ret['stdout'])
-        self.assertEqual(ret['exitVal'], 0)
-
-        # Check that localsync command still accepts '--parent-type' argument
-        ret = invokeCli(('localsync', '--parent-type', 'folder', str(subfolder['_id']),
-                         downloadDir), username='mylogin', password='password')
-        self.assertEqual(ret['exitVal'], 0)
-
-    def testLeafFoldersAsItems(self):
-        localDir = os.path.join(os.path.dirname(__file__), 'testdata')
-        args = ['upload', str(self.publicFolder['_id']), localDir, '--leaf-folders-as-items']
-
-        ret = invokeCli(args, username='mylogin', password='password')
-        self.assertEqual(ret['exitVal'], 0)
-        six.assertRegex(
-            self, ret['stdout'], 'Creating Item from folder .*tests/cases/py_client/testdata')
-        self.assertIn('Adding file world.txt', ret['stdout'])
-
-        # Test re-use existing case
-        args.append('--reuse')
-        ret = invokeCli(args, username='mylogin', password='password')
-        self.assertEqual(ret['exitVal'], 0)
-        self.assertIn('File hello.txt already exists in parent Item', ret['stdout'])
-
     def testVerboseLoggingLevel0(self):
-        args = ['localsync', '--help']
+        args = ['download', '--help']
         ret = invokeCli(args, username='mylogin', password='password')
         self.assertEqual(ret['exitVal'], 0)
         self.assertEqual(logging.getLogger('girder_client').level, logging.ERROR)
 
     def testVerboseLoggingLevel1(self):
-        args = ['-v', 'localsync', '--help']
+        args = ['-v', 'download', '--help']
         ret = invokeCli(args, username='mylogin', password='password')
         self.assertEqual(ret['exitVal'], 0)
         self.assertEqual(logging.getLogger('girder_client').level, logging.WARNING)
 
     def testVerboseLoggingLevel2(self):
-        args = ['-vv', 'localsync', '--help']
+        args = ['-vv', 'download', '--help']
         ret = invokeCli(args, username='mylogin', password='password')
         self.assertEqual(ret['exitVal'], 0)
         self.assertEqual(logging.getLogger('girder_client').level, logging.INFO)
 
     def testVerboseLoggingLevel3(self):
-        args = ['-vvv', 'localsync', '--help']
+        args = ['-vvv', 'download', '--help']
         ret = invokeCli(args, username='mylogin', password='password')
         self.assertEqual(ret['exitVal'], 0)
         self.assertEqual(logging.getLogger('girder_client').level, logging.DEBUG)

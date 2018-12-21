@@ -18,6 +18,7 @@
 ###############################################################################
 import click
 import logging
+import os
 import requests
 from requests.adapters import HTTPAdapter
 from six.moves.http_client import HTTPConnection
@@ -258,7 +259,7 @@ def _lookup_parent_type(client, object_id):
 
     object_id = client._checkResourcePath(object_id)
 
-    for parent_type in ['folder', 'collection', 'user', 'item', 'file']:
+    for parent_type in ['folder', 'collection', 'user', 'file']:
         try:
             client.get('resource/%s/path' % object_id, parameters={'type': parent_type})
             return parent_type
@@ -310,31 +311,18 @@ _short_help = 'Download files from Girder'
 @main.command('download', short_help=_short_help, help='%s\n\n%s' % (
     _short_help, _common_help.replace('LOCAL_FOLDER', 'LOCAL_FOLDER (default: ".")')))
 @_CommonParameters(additional_parent_types=[
-    'collection', 'user', 'item', 'file'], path_default='.')
+    'collection', 'user', 'file'], path_default='.')
 @click.pass_obj
 def _download(gc, parent_type, parent_id, local_folder):
     if parent_type == 'auto':
         parent_type = _lookup_parent_type(gc, parent_id)
-    if parent_type == 'item':
-        gc.downloadItem(parent_id, local_folder)
-    elif parent_type == 'file':
-        gc.downloadFile(parent_id, local_folder)
+
+    if parent_type == 'file':
+        name = gc.get('file/%s' % parent_id)['name']
+        path = os.path.join(local_folder, name)
+        gc.downloadFile(parent_id, path)
     else:
         gc.downloadResource(parent_id, local_folder, parent_type)
-
-
-_short_help = 'Synchronize local folder with remote Girder folder'
-
-
-@main.command('localsync', short_help=_short_help, help='%s\n\n%s' % (_short_help, _common_help))
-@_CommonParameters(additional_parent_types=[])
-@click.pass_obj
-def _localsync(gc, parent_type, parent_id, local_folder):
-    if parent_type != 'folder':
-        raise Exception('localsync command only accepts parent-type of folder')
-    gc.loadLocalMetadata(local_folder)
-    gc.downloadFolderRecursive(parent_id, local_folder, sync=True)
-    gc.saveLocalMetadata(local_folder)
 
 
 _short_help = 'Upload files to Girder'
@@ -345,10 +333,6 @@ _short_help = 'Upload files to Girder'
     'PARENT_ID is the id of the Girder parent target and '
     'LOCAL_FOLDER is one or more paths to local folders or files.'))
 @_CommonParameters(path_exists=True, path_writable=False, multiple_local=True)
-@click.option('--leaf-folders-as-items', is_flag=True,
-              help='upload all files in leaf folders to a single Item named after the folder')
-@click.option('--reuse', is_flag=True,
-              help='use existing items of same name at same location or create a new one')
 @click.option('--dry-run', is_flag=True,
               help='will not write anything to Girder, only report what would happen')
 @click.option('--blacklist', default='',
@@ -356,14 +340,12 @@ _short_help = 'Upload files to Girder'
 @click.option('--reference', default=None,
               help='optional reference to send along with the upload')
 @click.pass_obj
-def _upload(gc, parent_type, parent_id, local_folder,
-            leaf_folders_as_items, reuse, blacklist, dry_run, reference):
+def _upload(gc, parent_type, parent_id, local_folder, blacklist, dry_run, reference):
     if parent_type == 'auto':
         parent_type = _lookup_parent_type(gc, parent_id)
     gc.upload(
-        local_folder, parent_id, parent_type,
-        leafFoldersAsItems=leaf_folders_as_items, reuseExisting=reuse,
-        blacklist=blacklist.split(','), dryRun=dry_run, reference=reference)
+        local_folder, parent_id, parent_type, blacklist=blacklist.split(','),
+        dryRun=dry_run, reference=reference)
 
 
 if __name__ == '__main__':
