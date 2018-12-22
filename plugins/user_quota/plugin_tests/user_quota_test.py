@@ -79,7 +79,7 @@ class QuotaTestCase(base.TestCase):
     def _uploadFile(self, name, parent, parentType='folder', size=1024,
                     error=None, partial=False, validationError=None):
         """
-        Upload a random file to an item.
+        Upload a random file to a folder.
 
         :param name: name of the file.
         :param parent: parent document to upload the file to.
@@ -91,21 +91,20 @@ class QuotaTestCase(base.TestCase):
                         finishe the upload later.
         :returns: file: the created file object
         """
-        if parentType != 'file':
+        if parentType == 'file':
             resp = self.request(
-                path='/file', method='POST', user=self.admin, params={
-                    'parentType': parentType,
-                    'parentId': parent['_id'],
-                    'name': name,
-                    'size': size,
-                    'mimeType': 'application/octet-stream'
-                }, exception=error is not None)
-        else:
-            resp = self.request(
-                path='/file/%s/contents' % str(parent['_id']), method='PUT',
+                path='/file/%s/contents' % parent['_id'], method='PUT',
                 user=self.admin, params={
                     'size': size,
                 }, exception=error is not None)
+        else:
+            resp = self.request(
+                path='/file', method='POST', user=self.admin, params={
+                    'folderId': parent['_id'],
+                    'name': name,
+                    'size': size
+                }, exception=error is not None)
+
         if error:
             self.assertStatus(resp, 500)
             self.assertEqual(resp.json['type'], 'girder')
@@ -127,8 +126,8 @@ class QuotaTestCase(base.TestCase):
             files = [('chunk', name, contents)]
         else:
             files = [('chunk', name, contents[:-1])]
-        resp = self.multipartRequest(path='/file/chunk', user=self.admin,
-                                     fields=fields, files=files)
+        resp = self.multipartRequest(
+            path='/file/chunk', user=self.admin, fields=fields, files=files)
         self.assertStatusOk(resp)
         if partial:
             fields = [('offset', len(contents)-1), ('uploadId', upload['_id'])]
@@ -138,8 +137,7 @@ class QuotaTestCase(base.TestCase):
             return kwargs
         return resp.json
 
-    def _setPolicy(self, policy, model, resource, user, error=None,
-                   results=None):
+    def _setPolicy(self, policy, model, resource, user, error=None, results=None):
         """
         Set the quota or assetstore policy and check that it was set.
 
@@ -149,15 +147,14 @@ class QuotaTestCase(base.TestCase):
         :param user: user to use for authorization.
         :param error: if set, this is a substring expected in an error message.
         :param results: if not specified, we expect policy to match the set
-                        results.  Otherwise, these are the expected results.
+            results. Otherwise, these are the expected results.
         """
         if isinstance(policy, dict):
             policyJSON = json.dumps(policy)
         else:
             policyJSON = policy
         path = '/%s/%s/quota' % (model, resource['_id'])
-        resp = self.request(path=path, method='PUT', user=user,
-                            params={'policy': policyJSON})
+        resp = self.request(path=path, method='PUT', user=user, params={'policy': policyJSON})
         if error:
             self.assertStatus(resp, 400)
             self.assertIn(error, resp.json['message'])
@@ -174,20 +171,18 @@ class QuotaTestCase(base.TestCase):
             else:
                 self.assertEqual(currentPolicy[key], None)
 
-    def _setQuotaDefault(self, model, value, testVal='__NOCHECK__',
-                         error=None):
+    def _setQuotaDefault(self, model, value, testVal='__NOCHECK__', error=None):
         """
         Set the default quota for a particular model.
 
         :param model: either 'user' or 'collection'.
         :param value: the value to set.  Either None or a positive integer.
-        :param testVal: if not __NOCHECK__, test the current value to see if it
-                        matches this.
+        :param testVal: if not __NOCHECK__, test the current value to see if it matches this.
         :param error: if set, this is a substring expected in an error message.
         """
         if model == 'user':
             key = constants.PluginSettings.QUOTA_DEFAULT_USER_QUOTA
-        elif model == 'collection':
+        else:
             key = constants.PluginSettings.QUOTA_DEFAULT_COLLECTION_QUOTA
         try:
             Setting().set(key, value)
@@ -209,9 +204,10 @@ class QuotaTestCase(base.TestCase):
         :param resource: the document for the resource to test.
         :param user: user to use for authorization.
         """
-        resp = self.request(path='/folder', method='GET', user=user,
-                            params={'parentType': model,
-                                    'parentId': resource['_id']})
+        resp = self.request(path='/folder', method='GET', user=user, params={
+            'parentType': model,
+            'parentId': resource['_id']
+        })
         self.assertStatusOk(resp)
         self.assertGreaterEqual(len(resp.json), 1)
         folder = resp.json[0]
@@ -222,35 +218,29 @@ class QuotaTestCase(base.TestCase):
         file = self._uploadFile('Upload to Current', folder)
         self.assertEqual(file['assetstoreId'], curAssetstoreId)
         # A simple preferredASsetstore policy should work
-        self._setPolicy({'preferredAssetstore': altAssetstoreId},
-                        model, resource, user)
+        self._setPolicy({'preferredAssetstore': altAssetstoreId}, model, resource, user)
         file = self._uploadFile('Upload to Alt', folder)
         self.assertEqual(file['assetstoreId'], altAssetstoreId)
         # Uploading to an invalid preferredAssetstore policy should send the
         # data to the current asssetstore
-        self._setPolicy({'preferredAssetstore': invalidAssetstoreId},
-                        model, resource, user)
+        self._setPolicy({'preferredAssetstore': invalidAssetstoreId}, model, resource, user)
         file = self._uploadFile('Upload to Invalid', folder)
         self.assertEqual(file['assetstoreId'], curAssetstoreId)
         # Uploading to an unreachable preferredAssetstore policy should send
         # the data to the current asssetstore
-        self._setPolicy({'preferredAssetstore': badAssetstoreId},
-                        model, resource, user)
+        self._setPolicy({'preferredAssetstore': badAssetstoreId}, model, resource, user)
         file = self._uploadFile('Upload to Bad', folder)
         self.assertEqual(file['assetstoreId'], curAssetstoreId)
         # We can specify a fallback
-        self._setPolicy({'fallbackAssetstore': altAssetstoreId},
-                        model, resource, user)
+        self._setPolicy({'fallbackAssetstore': altAssetstoreId}, model, resource, user)
         file = self._uploadFile('Upload to Bad with fallback', folder)
         self.assertEqual(file['assetstoreId'], altAssetstoreId)
         # Or say there shouldn't be a fallback
-        self._setPolicy({'fallbackAssetstore': 'none'},
-                        model, resource, user)
+        self._setPolicy({'fallbackAssetstore': 'none'}, model, resource, user)
         self._uploadFile('Upload to Bad with no fallback', folder,
                          error='Required assetstore is unavailable')
         # if we clear the preferred policy, the fallback shouldn't matter.
-        self._setPolicy({'preferredAssetstore': ''},
-                        model, resource, user)
+        self._setPolicy({'preferredAssetstore': ''}, model, resource, user)
         file = self._uploadFile('Upload with not preferred', folder)
         self.assertEqual(file['assetstoreId'], curAssetstoreId)
 
@@ -263,9 +253,10 @@ class QuotaTestCase(base.TestCase):
         :param user: user to use for authorization.
         """
         Setting().set(SettingKey.UPLOAD_MINIMUM_CHUNK_SIZE, 0)
-        resp = self.request(path='/folder', method='GET', user=user,
-                            params={'parentType': model,
-                                    'parentId': resource['_id']})
+        resp = self.request(path='/folder', method='GET', user=user, params={
+            'parentType': model,
+            'parentId': resource['_id']
+        })
         self.assertStatusOk(resp)
         self.assertGreaterEqual(len(resp.json), 1)
         folder = resp.json[0]
@@ -282,10 +273,8 @@ class QuotaTestCase(base.TestCase):
         self._uploadFile('File too large', folder, size=2048,
                          validationError='Upload would exceed file storage quota')
         # If we start uploading two files, only one should complete
-        file1kwargs = self._uploadFile('First partial', folder, size=768,
-                                       partial=True)
-        file2kwargs = self._uploadFile('Second partial', folder, size=768,
-                                       partial=True)
+        file1kwargs = self._uploadFile('First partial', folder, size=768, partial=True)
+        file2kwargs = self._uploadFile('Second partial', folder, size=768, partial=True)
         resp = self.multipartRequest(**file1kwargs)
         self.assertStatusOk(resp)
         try:
@@ -333,8 +322,7 @@ class QuotaTestCase(base.TestCase):
             'type': AssetstoreType.GRIDFS,
             'db': 'girder_test_user_quota_assetstore'
         }
-        resp = self.request(path='/assetstore', method='POST', user=self.admin,
-                            params=params)
+        resp = self.request(path='/assetstore', method='POST', user=self.admin, params=params)
         self.assertStatusOk(resp)
 
         # Create a broken assetstore. (Must bypass validation since it should
@@ -446,6 +434,6 @@ class QuotaTestCase(base.TestCase):
             (20000, '19.53 kB'),
             (200000, '195.3 kB'),
             (2000000, '1.907 MB'),
-            ]
-        for testItem in testList:
-            self.assertEqual(testItem[1], formatSize(testItem[0]))
+        ]
+        for case in testList:
+            self.assertEqual(case[1], formatSize(case[0]))

@@ -55,13 +55,11 @@ installReqs = [
 extrasReqs = {
     'authorized_upload': ['girder-authorized-upload'],
     'autojoin': ['girder-autojoin'],
-    'dicom_viewer': ['girder-dicom-viewer'],
     'download_statistics': ['girder-download-statistics'],
     'google_analytics': ['girder-google-analytics'],
     'gravatar': ['girder-gravatar'],
     'hashsum_download': ['girder-hashsum-download'],
     'homepage': ['girder-homepage'],
-    'item_licenses': ['girder-item-licenses'],
     'jobs': ['girder-jobs'],
     'ldap': ['girder-ldap'],
     'oauth': ['girder-oauth'],

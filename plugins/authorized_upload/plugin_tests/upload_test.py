@@ -83,8 +83,7 @@ class AuthorizedUploadTest(base.TestCase):
 
         # Make sure this token doesn't let us upload into a different folder
         params = {
-            'parentType': 'folder',
-            'parentId': self.publicFolder['_id'],
+            'folderId': self.publicFolder['_id'],
             'name': 'hello.txt',
             'size': 11,
             'mimeType': 'text/plain'
@@ -94,7 +93,7 @@ class AuthorizedUploadTest(base.TestCase):
         self.assertStatus(resp, 401)
 
         # Initialize upload into correct folder
-        params['parentId'] = self.privateFolder['_id']
+        params['folderId'] = self.privateFolder['_id']
         resp = self.request(path='/file', method='POST', params=params, token=tokenId)
         self.assertStatusOk(resp)
 

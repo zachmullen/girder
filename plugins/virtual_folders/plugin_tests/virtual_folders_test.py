@@ -4,8 +4,8 @@ import six
 from tests import base
 from girder.constants import AccessType, SortDir
 from girder.exceptions import ValidationException
+from girder.models.file import File
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.user import User
 
 
@@ -35,42 +35,43 @@ class VirtualFoldersTestCase(base.TestCase):
 
     def testVirtualQuery(self):
         for i in range(10):
-            item = Item().createItem(str(i), creator=self.admin, folder=(self.f1, self.f2)[i % 2])
-            Item().setMetadata(item, {
-                'someVal': i
-            })
+            file = File().createFile(
+                creator=self.admin, name=str(i), folder=(self.f1, self.f2)[i % 2], size=0,
+                assetstore=self.assetstore)
+            file['someVal'] = i
+            File().save(file)
 
-        self.virtual['virtualItemsQuery'] = json.dumps({
-            'meta.someVal': {
+        self.virtual['virtualFilesQuery'] = json.dumps({
+            'someVal': {
                 '$gt': 5
             }
         })
         self.virtual = Folder().save(self.virtual)
 
-        def listItems():
-            resp = self.request('/item', user=self.user, params={
+        def listFiles():
+            resp = self.request('/file', user=self.user, params={
                 'folderId': self.virtual['_id']
             })
             self.assertStatusOk(resp)
             return resp.json
 
-        self.assertEqual(listItems(), [])
+        self.assertEqual(listFiles(), [])
 
         # Grant permission on the first folder
         Folder().setUserAccess(self.f1, self.user, AccessType.READ, save=True)
-        self.assertEqual([i['name'] for i in listItems()], ['6', '8'])
+        self.assertEqual([i['name'] for i in listFiles()], ['6', '8'])
 
         # Grant permission on the second folder
         Folder().setUserAccess(self.f2, self.user, AccessType.READ, save=True)
-        self.assertEqual([i['name'] for i in listItems()], ['6', '7', '8', '9'])
+        self.assertEqual([i['name'] for i in listFiles()], ['6', '7', '8', '9'])
 
         # Add a custom sort
-        self.virtual['virtualItemsSort'] = json.dumps([('meta.someVal', SortDir.DESCENDING)])
+        self.virtual['virtualFilesSort'] = json.dumps([('someVal', SortDir.DESCENDING)])
         self.virtual = Folder().save(self.virtual)
-        self.assertEqual([i['name'] for i in listItems()], ['9', '8', '7', '6'])
+        self.assertEqual([i['name'] for i in listFiles()], ['9', '8', '7', '6'])
 
-        # Using childItems on a vfolder should not yield any results
-        self.assertEqual(list(Folder().childItems(self.virtual)), [])
+        # Using childFiles on a vfolder should not yield any results
+        self.assertEqual(list(Folder().childFiles(self.virtual)), [])
 
     def testVirtualFolderValidation(self):
         # Can't make folder virtual if it has children
@@ -82,48 +83,51 @@ class VirtualFoldersTestCase(base.TestCase):
             Folder().save(self.f1)
 
         Folder().remove(subfolder)
-        item = Item().createItem('i', creator=self.admin, folder=self.f1)
+        file = File().createFile(
+            name='i', creator=self.admin, folder=self.f1, size=0, assetstore=self.assetstore)
 
         with six.assertRaisesRegex(
-                self, ValidationException, 'Virtual folders may not contain child items.'):
+                self, ValidationException, 'Virtual folders may not contain child files.'):
             Folder().save(self.f1)
 
-        Item().remove(item)
+        File().remove(file)
         Folder().save(self.f1)
 
-        # Can't make subfolders or items under a virtual folder
+        # Can't make subfolders or files under a virtual folder
         with six.assertRaisesRegex(
-                self, ValidationException, 'You may not place items under a virtual folder.'):
-            Item().createItem('i', creator=self.admin, folder=self.f1)
+                self, ValidationException, 'You may not place files under a virtual folder.'):
+            File().createFile(
+                name='i', creator=self.admin, folder=self.f1, size=0, assetstore=self.assetstore)
 
         with six.assertRaisesRegex(
                 self, ValidationException, 'You may not place folders under a virtual folder.'):
             Folder().createFolder(self.f1, 'f', creator=self.admin)
 
-        # Can't move an item under a virtual folder
-        item = Item().createItem('i', creator=self.admin, folder=self.f2)
+        # Can't move a file under a virtual folder
+        file = File().createFile(
+            name='i', creator=self.admin, folder=self.f2, size=0, assetstore=self.assetstore)
         with six.assertRaisesRegex(
-                self, ValidationException, 'You may not place items under a virtual folder.'):
-            Item().move(item, self.f1)
+                self, ValidationException, 'You may not place files under a virtual folder.'):
+            File().move(file, self.f1)
 
         # Ensure JSON for query
-        self.f1['virtualItemsQuery'] = 'not JSON'
+        self.f1['virtualFilesQuery'] = 'not JSON'
         with six.assertRaisesRegex(
-                self, ValidationException, 'The virtual items query must be valid JSON.'):
+                self, ValidationException, 'The virtual files query must be valid JSON.'):
             Folder().save(self.f1)
 
-        del self.f1['virtualItemsQuery']
-        self.f1['virtualItemsSort'] = 'not JSON'
+        del self.f1['virtualFilesQuery']
+        self.f1['virtualFilesSort'] = 'not JSON'
         with six.assertRaisesRegex(
-                self, ValidationException, 'The virtual items sort must be valid JSON.'):
+                self, ValidationException, 'The virtual files sort must be valid JSON.'):
             Folder().save(self.f1)
 
     def testRestEndpoint(self):
         def updateFolder(user):
             return self.request('/folder/%s' % self.f1['_id'], method='PUT', params={
                 'isVirtual': True,
-                'virtualItemsQuery': json.dumps({'foo': 'bar'}),
-                'virtualItemsSort': json.dumps([('meta.someVal', SortDir.DESCENDING)])
+                'virtualFilesQuery': json.dumps({'foo': 'bar'}),
+                'virtualFilesSort': json.dumps([('meta.someVal', SortDir.DESCENDING)])
             }, user=user)
 
         Folder().setUserAccess(self.f1, self.user, level=AccessType.ADMIN, save=True)
@@ -133,8 +137,8 @@ class VirtualFoldersTestCase(base.TestCase):
         self.assertEqual(resp.json['message'], 'Must be admin to setup virtual folders.')
         f1 = Folder().load(self.f1['_id'], force=True)
         self.assertNotIn('isVirtual', f1)
-        self.assertNotIn('virtualItemsQuery', f1)
-        self.assertNotIn('virtualItemsSort', f1)
+        self.assertNotIn('virtualFilesQuery', f1)
+        self.assertNotIn('virtualFilesSort', f1)
 
         resp = updateFolder(self.admin)
         self.assertStatusOk(resp)

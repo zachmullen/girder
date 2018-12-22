@@ -17,7 +17,6 @@
 #  limitations under the License.
 ###############################################################################
 
-
 import os
 import json
 
@@ -25,7 +24,6 @@ from tests import base
 from girder.constants import ROOT_DIR
 from girder.models.collection import Collection
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.upload import Upload
 from girder.models.user import User
 
@@ -40,11 +38,9 @@ def tearDownModule():
 
 
 class DownloadStatisticsTestCase(base.TestCase):
-
     def setUp(self):
         base.TestCase.setUp(self)
 
-        # Create admin user
         admin = {'email': 'admin@email.com',
                  'login': 'adminLogin',
                  'firstName': 'adminFirst',
@@ -52,46 +48,29 @@ class DownloadStatisticsTestCase(base.TestCase):
                  'password': 'adminPassword',
                  'admin': True}
         self.admin = User().createUser(**admin)
-
-        self.filesDir = os.path.join(ROOT_DIR, 'plugins', 'download_statistics',
-                                     'plugin_tests', 'files')
+        self.filesDir = os.path.join(
+            ROOT_DIR, 'plugins', 'download_statistics', 'plugin_tests', 'files')
 
     def _downloadFolder(self, folderId):
-        # Download folder through REST api
-        path = '/folder/%s/download' % str(folderId)
-        resp = self.request(path, isJson=False)
+        resp = self.request('/folder/%s/download' % folderId, isJson=False)
         self.assertStatusOk(resp)
 
         # Iterate through generator to trigger download events
-        for data in resp.body:
-            data
-
-    def _downloadItem(self, itemId):
-        # Download item through REST api
-        path = '/item/%s/download' % str(itemId)
-        resp = self.request(path, isJson=False)
-        self.assertStatusOk(resp)
-
-        # Iterate through generator to trigger download events
-        for data in resp.body:
-            data
+        list(resp.body)
 
     def _downloadFile(self, fileId):
-        # Download file through REST api
-        path = '/file/%s/download' % str(fileId)
-        resp = self.request(path, isJson=False)
+        resp = self.request('/file/%s/download' % fileId, isJson=False)
         self.assertStatusOk(resp)
 
         # Iterate through generator to trigger download events
-        for data in resp.body:
-            data
+        list(resp.body)
 
     def _checkDownloadsCount(self, fileId, started, requested, completed):
         # Downloads file info and asserts download statistics are accurate
-        path = '/file/%s' % str(fileId)
-        resp = self.request(path, isJson=True)
+        resp = self.request('/file/%s' % fileId, isJson=True)
         self.assertStatusOk(resp)
         data = resp.json
+        print(data['downloadStatistics'])
 
         # The generator is never iterated as to not trigger additional events
         self.assertEqual(data['downloadStatistics']['started'], started)
@@ -101,63 +80,46 @@ class DownloadStatisticsTestCase(base.TestCase):
     def _downloadFileInTwoChunks(self, fileId):
         # Adds 1 to downloads started, 2 to requested, and 1 to completed
         # txt1.txt and txt2.txt each have a filesize of 5
-        path = '/file/%s/download' % str(fileId)
+        path = '/file/%s/download' % fileId
         params = {
             'offset': 0,
             'endByte': 3
         }
-        resp = self.request(path, method='GET', isJson=False, params=params)
-        # Iterate through generator to trigger download events
-        for data in resp.body:
-            data
+        list(self.request(path, method='GET', isJson=False, params=params).body)
 
         params['offset'] = 3
         params['endByte'] = 6
-        resp = self.request(path, method='GET', isJson=False, params=params)
-        # Iterate through generator to trigger download events
-        for data in resp.body:
-            data
+        list(self.request(path, method='GET', isJson=False, params=params).body)
 
     def _downloadPartialFile(self, fileId):
         # Adds 1 to downloads started and 4 to downloads requested
         # txt1.txt and txt2.txt each have a filesize of 5
-        path = '/file/%s/download' % str(fileId)
+        path = '/file/%s/download' % fileId
         for i in range(1, 5):
             params = {
                 'offset': i-1,
                 'endByte': i
             }
-            resp = self.request(path, method='GET', isJson=False, params=params)
-            # Iterate through generator to trigger download events
-            for data in resp.body:
-                data
+            list(self.request(path, method='GET', isJson=False, params=params).body)
 
     def testDownload(self):
         collection = Collection().createCollection('collection1', public=True)
         folder = Folder().createFolder(collection, 'folder1', parentType='collection', public=True)
-        item = Item().createItem('item1', self.admin, folder)
-
-        # Path to test files
         file1Path = os.path.join(self.filesDir, 'txt1.txt')
         file2Path = os.path.join(self.filesDir, 'txt2.txt')
 
-        # Upload files to item
         with open(file1Path, 'rb') as fp:
             file1 = Upload().uploadFromFile(
-                fp, os.path.getsize(file1Path), 'txt1.txt', parentType='item',
-                parent=item, user=self.admin)
+                fp, os.path.getsize(file1Path), 'txt1.txt', parent=folder, user=self.admin)
 
         with open(file2Path, 'rb') as fp:
             file2 = Upload().uploadFromFile(
                 fp, os.path.getsize(file2Path), 'txt2.txt', mimeType='image/jpeg',
-                parentType='item', parent=item, user=self.admin)
+                parent=folder, user=self.admin)
 
-        # Download item and its files several times and ensure downloads are recorded
-        # Each file is downloaded 10 times
-        for n in range(0, 5):
-            self._downloadItem(item['_id'])
-            self._downloadFile(file1['_id'])
-            self._downloadFile(file2['_id'])
+        # Download files individually 1 time
+        self._downloadFile(file1['_id'])
+        self._downloadFile(file2['_id'])
 
         # Download each file 1 time by downloading parent folder
         self._downloadFolder(folder['_id'])
@@ -173,24 +135,15 @@ class DownloadStatisticsTestCase(base.TestCase):
         # Download entire collection
         # Each file is downloaded 1 additional time
         path = '/collection/%s/download' % collection['_id']
-        resp = self.request(path, user=self.admin, isJson=False)
-
-        # Iterate through generator to trigger download events
-        for data in resp.body:
-            data
+        list(self.request(path, user=self.admin, isJson=False).body)
 
         # Download collection filtered by mime type
         # file2 is downloaded one additional time
         path = '/collection/%s/download' % collection['_id']
-        resp = self.request(path, user=self.admin, isJson=False, method='GET',
-                            params={
-                                'id': collection['_id'],
-                                'mimeFilter': json.dumps(['image/jpeg'])
-                            })
+        list(self.request(path, user=self.admin, isJson=False, method='GET', params={
+            'id': collection['_id'],
+            'mimeFilter': json.dumps(['image/jpeg'])
+        }).body)
 
-        # iterate through generator to trigger download events
-        for data in resp.body:
-            data
-
-        self._checkDownloadsCount(file1['_id'], 14, 18, 13)
-        self._checkDownloadsCount(file2['_id'], 15, 19, 14)
+        self._checkDownloadsCount(file1['_id'], 5, 9, 4)
+        self._checkDownloadsCount(file2['_id'], 6, 10, 5)

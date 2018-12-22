@@ -78,8 +78,7 @@ def createThumbnail(width, height, crop, fileId, attachToType, attachToId):
             return newFile
         else:
             file = newFile
-            streamFn = functools.partial(
-                fileModel.download, file, headers=False)
+            streamFn = functools.partial(fileModel.download, file, headers=False)
 
     if 'assetstoreId' not in file:
         # TODO we could thumbnail link files if we really wanted.

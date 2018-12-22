@@ -23,7 +23,7 @@ from bson.objectid import ObjectId
 from girder import events
 from girder.api import access
 from girder.api.rest import getCurrentToken, setCurrentUser
-from girder.models.item import Item
+from girder.models.file import File
 from girder.models.token import Token
 from girder.models.user import User
 from girder.plugin import GirderPlugin
@@ -45,11 +45,10 @@ def _authorizeInitUpload(event):
     token = getCurrentToken()
     params = event.info['params']
     tokenModel = Token()
-    parentType = params.get('parentType')
-    parentId = params.get('parentId', '')
-    requiredScopes = {TOKEN_SCOPE_AUTHORIZED_UPLOAD, 'authorized_upload_folder_%s' % parentId}
+    folderId = params.get('folderId', '')
+    requiredScopes = {TOKEN_SCOPE_AUTHORIZED_UPLOAD, 'authorized_upload_folder_%s' % folderId}
 
-    if parentType == 'folder' and tokenModel.hasScope(token=token, scope=requiredScopes):
+    if folderId and tokenModel.hasScope(token=token, scope=requiredScopes):
         user = User().load(token['userId'], force=True)
         setCurrentUser(user)
 
@@ -99,17 +98,17 @@ def _uploadComplete(event):
     token = getCurrentToken()
     if token and 'authorizedUploadId' in token:
         user = User().load(token['userId'], force=True)
-        item = Item().load(event.info['file']['itemId'], force=True)
+        file = event.info['file']
 
-        # Save the metadata on the item
-        item['description'] = token['authorizedUploadDescription']
-        item['authorizedUploadEmail'] = token['authorizedUploadEmail']
-        Item().save(item)
+        # Save the metadata on the file
+        file['description'] = token['authorizedUploadDescription']
+        file['authorizedUploadEmail'] = token['authorizedUploadEmail']
+        File().save(file)
 
         text = mail_utils.renderTemplate('authorized_upload.uploadFinished.mako', {
-            'itemId': item['_id'],
-            'itemName': item['name'],
-            'itemDescription': item.get('description', '')
+            'fileId': file['_id'],
+            'fileName': file['name'],
+            'fileDescription': file.get('description', '')
         })
         mail_utils.sendEmail(to=user['email'], subject='Authorized upload complete', text=text)
         Token().remove(token)

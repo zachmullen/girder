@@ -11,7 +11,7 @@ clients
                 DEFAULT_LOCALHOST_PORT
                 MAX_CHUNK_SIZE
                 addFolderUploadCallback
-                addItemUploadCallback
+                addFileUploadCallback
                 addMetadataToFolder
                 addMetadataToItem
                 authenticate
@@ -43,12 +43,9 @@ clients
                 listCollection
                 listFile
                 listFolder
-                listItem
                 listResource
                 listUser
                 loadLocalMetadata
-                loadOrCreateFolder
-                loadOrCreateItem
                 patch
                 post
                 put
@@ -64,7 +61,6 @@ clients
                 uploadFile
                 uploadFileContents
                 uploadFileToFolder
-                uploadFileToItem
                 uploadStreamToFolder
             HttpError
             IncompleteResponseError
@@ -1036,16 +1032,6 @@ plugins
                 load
             userCreated
             validateSettings
-    dicom_viewer
-        girder_dicom_viewer
-            DicomItem
-                makeDicomItem
-            DicomViewerPlugin
-                CLIENT_SOURCE_PATH
-                DISPLAY_NAME
-                load
-            dicomSubstringSearchHandler
-            event_helper
     download_statistics
         girder_download_statistics
             DownloadStatisticsPlugin
@@ -1107,26 +1093,6 @@ plugins
                 Homepage
                     getAssets
                     getSettings
-    item_licenses
-        girder_item_licenses
-            ItemLicensesPlugin
-                CLIENT_SOURCE_PATH
-                DISPLAY_NAME
-                load
-            constants
-                PluginSettings
-                    LICENSES
-                PluginSettingsDefaults
-                    defaults
-            postItemAfter
-            postItemCopyAfter
-            putItemAfter
-            rest
-                getLicenses
-            updateItemLicense
-            validateItem
-            validateLicenses
-            validateString
     jobs
         girder_jobs
             JobsPlugin

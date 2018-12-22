@@ -698,7 +698,7 @@ Girder's client build system.  The important keys in the object are as follows:
     through babel using ``babel-preset-env``; however, this is not done for
     dependencies resolved inside ``node_modules``.  This option makes it
     easy to include additional transpilation rules.  For an example of this in
-    use, see the built in ``dicom_viewer`` plugin.
+    use, see the built in ``jobs`` plugin.
 
 Core Girder code can be imported relative to the path **girder**, for example
 ``import View from 'girder/views/View';``. The entry point defined in your

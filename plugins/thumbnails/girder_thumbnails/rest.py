@@ -50,7 +50,7 @@ class Thumbnail(Resource):
         .param('attachToId', 'The lifecycle of this thumbnail is bound to the '
                'resource specified by this ID.')
         .param('attachToType', 'The type of resource to which this thumbnail is attached.',
-               enum=['folder', 'user', 'collection', 'item'])
+               enum=['folder', 'user', 'collection', 'file'])
         .errorResponse()
         .errorResponse(('Write access was denied on the attach destination.',
                         'Read access was denied on the file.'), 403)

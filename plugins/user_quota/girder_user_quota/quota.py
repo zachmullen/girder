@@ -29,7 +29,6 @@ from girder.exceptions import GirderException, ValidationException, RestExceptio
 from girder.models.assetstore import Assetstore
 from girder.models.collection import Collection
 from girder.models.file import File
-from girder.models.item import Item
 from girder.models.setting import Setting
 from girder.models.upload import Upload
 from girder.models.user import User
@@ -265,8 +264,7 @@ class QuotaPolicy(Resource):
         Get the base resource for something pertaining to quota policies.  If
         the base resource has no quota policy, return (None, None).
 
-        :param model: the initial model type.  Could be file, item, folder,
-                      user, or collection.
+        :param model: the initial model type.  Could be file, folder, user, or collection.
         :param resource: the initial resource document.
         :returns: A pair ('model', 'resource'), where 'model' is the base model
                  type, either 'user' or 'collection'., and 'resource' is the
@@ -277,10 +275,8 @@ class QuotaPolicy(Resource):
                 resource = ModelImporter.model(model).load(id=resource, force=True)
             except ImportError:
                 return None, None
-        if model == 'file':
-            model = 'item'
-            resource = Item().load(id=resource['itemId'], force=True)
-        if model in ('folder', 'item'):
+
+        if model in ('folder', 'file'):
             if ('baseParentType' not in resource or
                     'baseParentId' not in resource):
                 resource = ModelImporter.model(model).load(id=resource['_id'], force=True)

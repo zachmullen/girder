@@ -23,14 +23,13 @@ from girder.constants import AccessType
 from girder.models.collection import Collection
 from girder.models.file import File
 from girder.models.folder import Folder
-from girder.models.item import Item
 from girder.models.user import User
 from girder.plugin import getPlugin, GirderPlugin
 from girder.utility.model_importer import ModelImporter
 from . import rest, utils
 
 
-def removeThumbnails(event):
+def _removeThumbnails(event):
     """
     When a resource containing thumbnails is about to be deleted, we delete
     all of the thumbnails that are attached to it.
@@ -44,7 +43,7 @@ def removeThumbnails(event):
             fileModel.remove(file)
 
 
-def removeThumbnailLink(event):
+def _removeThumbnailLink(event):
     """
     When a thumbnail file is deleted, we remove the reference to it from the
     resource to which it is attached.
@@ -76,8 +75,6 @@ def _onUpload(event):
     At least one of ``width`` or ``height`` must be passed. The ``crop`` parameter is optional.
     """
     file = event.info['file']
-    if 'itemId' not in file:
-        return
 
     try:
         ref = json.loads(event.info.get('reference', ''))
@@ -95,10 +92,9 @@ def _onUpload(event):
     if not isinstance(width, int) or not isinstance(height, int):
         return
 
-    item = Item().load(file['itemId'], force=True)
     crop = bool(ref['thumbnail'].get('crop', True))
     utils.scheduleThumbnailJob(
-        file=file, attachToType='item', attachToId=item['_id'], user=event.info['currentUser'],
+        file=file, attachToType='file', attachToId=file['_id'], user=event.info['currentUser'],
         width=width, height=height, crop=crop)
 
 
@@ -109,12 +105,11 @@ class ThumbnailsPlugin(GirderPlugin):
     def load(self, info):
         getPlugin('jobs').load(info)
 
-        name = 'thumbnails'
         info['apiRoot'].thumbnail = rest.Thumbnail()
 
-        for model in (Item(), Collection(), Folder(), User()):
+        for model in (File(), Collection(), Folder(), User()):
             model.exposeFields(level=AccessType.READ, fields='_thumbnails')
-            events.bind('model.%s.remove' % model.name, name, removeThumbnails)
+            events.bind('model.%s.remove' % model.name, 'thumbnails.clean', _removeThumbnails)
 
-        events.bind('model.file.remove', name, removeThumbnailLink)
-        events.bind('data.process', name, _onUpload)
+        events.bind('model.file.remove', 'thumbnails.detach', _removeThumbnailLink)
+        events.bind('data.process', 'thumbnails.generate', _onUpload)
