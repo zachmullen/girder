@@ -70,9 +70,9 @@ def renderTemplate(name, params=None):
     return template.render(**params)
 
 
-def sendEmail(to=None, subject=None, text=None, toAdmins=False, bcc=None):
+def sendEmail(to=None, subject=None, text=None, toAdmins=False, bcc=None, sync=False):
     """
-    Send an email. This builds the appropriate email object and then triggers
+    Send an email. This builds the appropriate email object and then by default triggers
     an asynchronous event to send the email (handled in _sendmail).
 
     :param to: The recipient's email address, or a list of addresses.
@@ -87,6 +87,8 @@ def sendEmail(to=None, subject=None, text=None, toAdmins=False, bcc=None):
     :param bcc: Recipient email address(es) that should be specified using the
         Bcc header.
     :type bcc: str, list/tuple, or None
+    :param sync: Whether or not to send the email synchronously.
+    :type sync: bool
     """
     from girder.models.setting import Setting
     from girder.models.user import User
@@ -119,10 +121,13 @@ def sendEmail(to=None, subject=None, text=None, toAdmins=False, bcc=None):
 
     msg['From'] = Setting().get(SettingKey.EMAIL_FROM_ADDRESS, 'Girder <no-reply@girder.org>')
 
-    events.daemon.trigger('_sendmail', info={
-        'message': msg,
-        'recipients': list(set(to) | set(bcc))
-    })
+    if sync:
+        _sendmail(list(set(to) | set(bcc)), msg)
+    else:
+        events.daemon.trigger('_sendmail', info={
+            'message': msg,
+            'recipients': list(set(to) | set(bcc))
+        })
 
 
 def addTemplateDirectory(dir, prepend=False):
@@ -168,11 +173,8 @@ class _SMTPConnection(object):
         self.connection.quit()
 
 
-def _sendmail(event):
+def _sendmail(recipients, message):
     from girder.models.setting import Setting
-
-    msg = event.info['message']
-    recipients = event.info['recipients']
 
     setting = Setting()
     smtp = _SMTPConnection(
@@ -186,9 +188,9 @@ def _sendmail(event):
     logger.info('Sending email to %s through %s', ', '.join(recipients), smtp.host)
 
     with smtp:
-        smtp.send(msg['From'], recipients, msg.as_string())
+        smtp.send(message['From'], recipients, message.as_string())
 
 
 _templateDir = os.path.join(PACKAGE_DIR, 'mail_templates')
 _templateLookup = TemplateLookup(directories=[_templateDir], collection_size=50)
-events.bind('_sendmail', 'core.email', _sendmail)
+events.bind('_sendmail', 'core.email', lambda event: _sendmail(**event.info))
