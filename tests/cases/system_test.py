@@ -132,10 +132,6 @@ class SystemTestCase(base.TestCase):
         setting = Setting().get(SettingKey.BANNER_COLOR)
         self.assertEqual(setting, SettingDefault.defaults[SettingKey.BANNER_COLOR])
 
-        # We should be able to ask for a different default
-        setting = Setting().get(SettingKey.BANNER_COLOR, default=None)
-        self.assertEqual(setting, None)
-
         # We should also be able to put several setting using a JSON list
         resp = self.request(path='/system/setting', method='PUT', params={
             'list': json.dumps([
