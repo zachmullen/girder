@@ -57,6 +57,14 @@ Basic System Prerequisites
                 ``/usr/local/bin/python`` when invoking the server so that you use the version with the correct site
                 packages installed.
 
+   .. group-tab:: Windows
+
+      .. note:: Windows is not officially supported.
+
+      Install an appropriate version of `Python <https://www.python.org/downloads>`_.  It might be necessary to add Python and the Python\Scripts directory to the system path.
+
+      Some plugins will require additional packages to be installed.
+
 .. _virtualenv-install:
 
 Python Virtual Environment (optional)
@@ -142,6 +150,12 @@ MongoDB
 
         mongod -f /usr/local/etc/mongod.conf
 
+   .. group-tab:: Windows
+
+      .. note:: Windows is not officially supported.
+
+      Install `MongoDB <https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows>`_.
+
 .. _nodejs-install:
 
 Node.js
@@ -175,6 +189,12 @@ can also be used instead.
       .. code-block:: bash
 
          brew install node
+
+   .. group-tab:: Windows
+
+      .. note:: Windows is not officially supported.
+
+      Install an appropriate version of `NodeJS <https://nodejs.org/en/download>`_.  When building Girder, you may need to specify the npm path explicitly (.e.g, ``girder build --npm=<path to npm.com>``.
 
 Girder
 ------
