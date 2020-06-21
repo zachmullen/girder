@@ -43,20 +43,6 @@ Basic System Prerequisites
 
          sudo yum -y install openldap-devel cyrus-sasl-devel
 
-   .. group-tab:: macOS
-
-      Install `Homebrew <https://brew.sh/>`_.
-
-      To install all the prerequisites at once just use:
-
-      .. code-block:: bash
-
-         brew install python
-
-      .. note:: OS X ships with Python in ``/usr/bin``, so you might need to change your PATH or explicitly run
-                ``/usr/local/bin/python`` when invoking the server so that you use the version with the correct site
-                packages installed.
-
 .. _virtualenv-install:
 
 Python Virtual Environment (optional)
@@ -127,21 +113,6 @@ MongoDB
 
          sudo systemctl start mongod
 
-   .. group-tab:: macOS
-
-      To install, run the command:
-
-      .. code-block:: bash
-
-         brew install mongodb
-
-      MongoDB does not run automatically as a service on macOS, so you'll need to either configure it as a service
-      yourself, or just ensure it's running manually via the following command:
-
-      .. code-block:: bash
-
-        mongod -f /usr/local/etc/mongod.conf
-
 .. _nodejs-install:
 
 Node.js
@@ -168,13 +139,6 @@ can also be used instead.
          curl -fsL https://rpm.nodesource.com/setup_12.x | sudo bash -
          sudo yum -y install nodejs
 
-   .. group-tab:: macOS
-
-      To install, run the command:
-
-      .. code-block:: bash
-
-         brew install node
 
 Girder
 ------
