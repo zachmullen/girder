@@ -6,21 +6,21 @@ import { restRequest } from '@girder/core/rest';
 
 // TODO: this might need some fixing/testing, as it seems that
 // girder.corsAuth could be an override. See login doc below.
-var corsAuth = false;
+const corsAuth = false;
 
-var cookie = {
+const cookie = {
     findAll: function () {
-        var cookies = {};
+        const cookies = {};
         _(document.cookie.split(';'))
             .chain()
             .map(function (m) {
                 return m.replace(/^\s+/, '').replace(/\s+$/, '');
             })
             .each(function (c) {
-                var arr = c.split('='),
-                    key = arr[0],
-                    value = null,
-                    size = _.size(arr);
+                const arr = c.split('=');
+                const key = arr[0];
+                let value = null;
+                const size = _.size(arr);
                 if (size > 1) {
                     value = arr.slice(1).join('');
                 }
@@ -30,8 +30,8 @@ var cookie = {
     },
 
     find: function (name) {
-        var foundCookie = null,
-            list = this.findAll();
+        let foundCookie = null;
+        const list = this.findAll();
 
         _.each(list, function (value, key) {
             if (key === name) {
@@ -42,8 +42,8 @@ var cookie = {
     }
 };
 
-var currentUser = null;
-var currentToken = cookie.find('girderToken');
+let currentUser = null;
+let currentToken = cookie.find('girderToken');
 
 function getCurrentUser() {
     return currentUser;
@@ -81,7 +81,7 @@ function fetchCurrentUser() {
  * @param otpToken An optional one-time password to include with the login.
  */
 function login(username, password, cors = corsAuth, otpToken = null) {
-    var auth = 'Basic ' + window.btoa(username + ':' + password);
+    const auth = 'Basic ' + window.btoa(username + ':' + password);
 
     const headers = {
         Authorization: auth

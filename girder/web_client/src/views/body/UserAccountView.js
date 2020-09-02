@@ -20,13 +20,13 @@ import 'bootstrap/js/tab';
 /**
  * This is the view for the user account (profile) page.
  */
-var UserAccountView = View.extend({
+const UserAccountView = View.extend({
     events: {
         'submit #g-user-info-form': function (event) {
             event.preventDefault();
             this.$('#g-user-info-error-msg').empty();
 
-            var params = {
+            const params = {
                 email: this.$('#g-email').val(),
                 firstName: this.$('#g-firstName').val(),
                 lastName: this.$('#g-lastName').val()
@@ -39,7 +39,7 @@ var UserAccountView = View.extend({
             this.user.set(params);
 
             this.user.off('g:error').on('g:error', function (err) {
-                var msg = err.responseJSON.message;
+                const msg = err.responseJSON.message;
                 this.$('#g-' + err.responseJSON.field).trigger('focus');
                 this.$('#g-user-info-error-msg').text(msg);
             }, this).off('g:saved')
@@ -67,7 +67,7 @@ var UserAccountView = View.extend({
             }
 
             this.user.off('g:error').on('g:error', function (err) {
-                var msg = err.responseJSON.message;
+                const msg = err.responseJSON.message;
                 this.$('#g-password-change-error-msg').text(msg);
             }, this).off('g:passwordChanged')
                 .on('g:passwordChanged', function () {
@@ -137,7 +137,7 @@ var UserAccountView = View.extend({
         }));
 
         _.each($('.g-account-tabs>li>a'), function (el) {
-            var tabLink = $(el);
+            const tabLink = $(el);
             tabLink.tab().on('shown.bs.tab', (e) => {
                 this.tab = $(e.currentTarget).attr('name');
                 router.navigate('useraccount/' + this.model.id + '/' + this.tab);
@@ -164,7 +164,7 @@ var UserAccountView = View.extend({
      * Helper function for fetching the user by id, then render the view.
      */
     fetchAndInit: function (id, tab) {
-        var user = new UserModel();
+        const user = new UserModel();
         user.set({ _id: id }).on('g:fetched', function () {
             events.trigger('g:navigateTo', UserAccountView, {
                 user: user,
